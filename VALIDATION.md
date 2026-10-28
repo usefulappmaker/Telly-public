@@ -1,0 +1,11 @@
+# Validation scope
+
+This public preview matches development version 0.8.0 (35), with neutral public identifiers and no selected signing team. The private development builds were installed on a physical Apple TV. The public unsigned app has been built separately; app and Top Shelf structure, identifiers, versions and absence of signing/profile material are checked before packaging. Installation with another user's own team/profiles has not been repeated.
+
+Confirmed on physical Apple TV during development: ITV catch-up FHD, ITV live account pairing/playback, Channel 4 live/catch-up playback via the current SD route, Channel 5 account pairing and supported FHD playback, U account linking and FHD catch-up. Compatible BBC HD/UHD and native playback extras derive from Beeb and the tested Telly integration. Quality remains asset/provider-dependent.
+
+Logic tests cover ordering/grouping of 65 live channel mappings, safe provider launch links, latest-season/year selection, soap ordering including a 1,011-episode archive, chronological successor selection including double bills, fifteen-second deadline arithmetic, catalogue parsers, categories, search and local history. Countdown deadline tests do not prove tvOS remote focus or a provider's end-of-item behaviour. Recent native autoplay and navigation changes remain candidates for further physical testing.
+
+The release scan checks the prepared tree, not private workspace history. Source archives omit build output, signed installers, private logs and Git state. Broadcaster app binaries used during investigation are not included. Artwork/snapshot metadata comes from public catalogue services; no video files, personal account tokens or DRM content keys are bundled.
+
+Public-copy verification completed: Release device build succeeded; unsigned app/extension validation passed after stripping debug symbols from a disposable copy; source scanner and its three boundary tests passed. Offline suites for watch history/order/countdown, Featured parsing, unified categories, ITV catalogue, Channel 4 catalogue/playback metadata, Channel 5 catalogue/playback metadata, U catalogue and search all passed. Live channel mapping/launch-link checks passed against the prepared public source too. No full playback session or provider-account pairing was performed as part of release preparation.

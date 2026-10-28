@@ -1,0 +1,126 @@
+{
+  "filters": {
+    "contents": [
+      {
+        "channel": "C5",
+        "title": "Channel 5",
+        "live": true
+      },
+      {
+        "channel": "C7",
+        "title": "5USA",
+        "live": true
+      },
+      {
+        "channel": "C6",
+        "title": "5STAR",
+        "live": true
+      },
+      {
+        "channel": "C0",
+        "title": "5ACTION",
+        "live": true
+      },
+      {
+        "channel": "C8",
+        "title": "5Drama",
+        "live": true
+      },
+      {
+        "channel": "C5CH02",
+        "title": "Police Interceptors",
+        "live": true
+      },
+      {
+        "channel": "C5CH01",
+        "title": "5 Cops",
+        "live": true
+      },
+      {
+        "channel": "C5CH18",
+        "title": "5 Christmas In Summer",
+        "live": true
+      },
+      {
+        "channel": "C5CH16",
+        "title": "5 Movies",
+        "live": true
+      },
+      {
+        "channel": "C5CH05",
+        "title": "Bargain Loving Brits",
+        "live": true
+      },
+      {
+        "channel": "C5CH07",
+        "title": "A&E",
+        "live": true
+      },
+      {
+        "channel": "C5CH10",
+        "title": "5 Crime",
+        "live": true
+      },
+      {
+        "channel": "3P-HEARST-FAST-01",
+        "title": "Inside Crime",
+        "live": true
+      },
+      {
+        "channel": "3P-AMC-FAST-03",
+        "title": "True Crime UK",
+        "live": true
+      },
+      {
+        "channel": "3P-HEARST-FAST-02",
+        "title": "Mystery TV ",
+        "live": true
+      },
+      {
+        "channel": "C5CH04",
+        "title": "5 Medical",
+        "live": true
+      },
+      {
+        "channel": "C5CH03",
+        "title": "Trucking Hell",
+        "live": true
+      },
+      {
+        "channel": "C5CH06",
+        "title": "Yorkshire Vet",
+        "live": true
+      },
+      {
+        "channel": "C5CH09",
+        "title": "5 History",
+        "live": true
+      },
+      {
+        "channel": "3P-AMC-FAST-04",
+        "title": "Love After Lockup",
+        "live": true
+      },
+      {
+        "channel": "3P-AMC-FAST-01",
+        "title": "AMC Reality",
+        "live": true
+      },
+      {
+        "channel": "3P-AMC-FAST-02",
+        "title": "AMC Cupid",
+        "live": true
+      },
+      {
+        "channel": "C5CH14",
+        "title": "MTV Reality",
+        "live": true
+      },
+      {
+        "channel": "C5CH11",
+        "title": "Milkshake",
+        "live": true
+      }
+    ]
+  }
+}

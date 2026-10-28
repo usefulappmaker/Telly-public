@@ -1,0 +1,251 @@
+[
+  {
+    "showID": "9243330294527",
+    "show": {
+      "id": "9243330294527",
+      "won_id": "9243330294527",
+      "title": "0.0 Mhz",
+      "f_name": "0-0-mhz",
+      "genre": "Film",
+      "child_directed": false,
+      "primary_vod_genre": "AMC Shudder Selects",
+      "vod_subgenres": [
+        "Movies",
+        "AMC Shudder Selects"
+      ],
+      "chan": "V31",
+      "chan_name": "AMC Shudder Selects",
+      "m_desc": "A student becomes the the new host of an evil entity. (Subtitled in English)",
+      "img_upd": 1752570455,
+      "standalone": true,
+      "use_title_img": true
+    },
+    "seasons": {
+      "seasons": [
+        {
+          "seasonNumber": null,
+          "numberOfEpisodes": 1,
+          "seasonUseTitleImg": false
+        }
+      ]
+    },
+    "episodes": {
+      "size": 1,
+      "episodes": [
+        {
+          "id": "C5512240001",
+          "title": "0.0 Mhz",
+          "f_name": "0-0-mhz",
+          "sh_id": "9243330294527",
+          "sh_title": "0.0 Mhz",
+          "sh_f_name": "0-0-mhz",
+          "sea_num": null,
+          "sea_f_name": null,
+          "ep_num": 1,
+          "s_desc": "A student becomes the the new host of an evil entity. (Subtitled in English)",
+          "genre": "Film",
+          "child_directed": false,
+          "rat": "G+",
+          "adv": "Contains paranormal content and disturbing scenes",
+          "len": 5880000,
+          "vod_s": 1752832800,
+          "vod_e": 1869692400,
+          "vod_ad": false,
+          "vod_sub": false,
+          "chan": "V31",
+          "tags": null,
+          "img_upd": null,
+          "use_title_img": true,
+          "credits_duration_in_seconds": null
+        }
+      ]
+    }
+  },
+  {
+    "showID": "7593409895527",
+    "show": {
+      "id": "7593409895527",
+      "won_id": "7593409895527",
+      "title": "Abducted: Searching for Emma",
+      "f_name": "abducted-searching-for-emma",
+      "genre": "Film",
+      "child_directed": false,
+      "primary_vod_genre": "Movies",
+      "vod_subgenres": [
+        "TV Movies"
+      ],
+      "chan": "C5",
+      "chan_name": "5",
+      "m_desc": "A deranged criminal forces a young woman to drive him across the country.",
+      "img_upd": 1689089874,
+      "standalone": true,
+      "use_title_img": true
+    },
+    "seasons": {
+      "seasons": [
+        {
+          "seasonNumber": null,
+          "numberOfEpisodes": 1,
+          "seasonUseTitleImg": false
+        }
+      ]
+    },
+    "episodes": {
+      "size": 1,
+      "episodes": [
+        {
+          "id": "C5463980001",
+          "title": "Abducted: Searching for Emma",
+          "f_name": "abducted-searching-for-emma",
+          "sh_id": "7593409895527",
+          "sh_title": "Abducted: Searching for Emma",
+          "sh_f_name": "abducted-searching-for-emma",
+          "sea_num": null,
+          "sea_f_name": null,
+          "ep_num": 1,
+          "s_desc": "A deranged criminal forces a young woman to drive him across the country.",
+          "genre": "Film",
+          "child_directed": false,
+          "rat": "G",
+          "adv": "Contains mild scenes of violence ",
+          "len": 4740000,
+          "vod_s": 1791897607,
+          "vod_e": 1794493207,
+          "vod_ad": true,
+          "vod_sub": true,
+          "chan": "C5",
+          "tags": [
+            "PLC_My5RecentlyAddedCarousel",
+            "PLC_My5YouViewGEN1LastChanceRail"
+          ],
+          "img_upd": null,
+          "use_title_img": true,
+          "credits_duration_in_seconds": 36
+        }
+      ]
+    }
+  },
+  {
+    "showID": "8511547427527",
+    "show": {
+      "id": "8511547427527",
+      "won_id": "8511547427527",
+      "title": "A '70s Christmas: Those Were the Days",
+      "f_name": "a-70s-christmas-those-were-the-days",
+      "genre": "Documentary",
+      "child_directed": false,
+      "primary_vod_genre": "Entertainment",
+      "vod_subgenres": [
+        "Christmas"
+      ],
+      "chan": "C5",
+      "chan_name": "5",
+      "m_desc": "We take a trip down memory lane to rediscover what Christmas was like in the 1970s.",
+      "img_upd": 1767114967,
+      "standalone": true,
+      "use_title_img": true
+    },
+    "seasons": {
+      "seasons": [
+        {
+          "seasonNumber": null,
+          "numberOfEpisodes": 1,
+          "seasonUseTitleImg": false
+        }
+      ]
+    },
+    "episodes": {
+      "size": 1,
+      "episodes": [
+        {
+          "id": "C5491350001",
+          "title": "A '70s Christmas: Those Were the Days",
+          "f_name": "a-70s-christmas-those-were-the-days",
+          "sh_id": "8511547427527",
+          "sh_title": "A '70s Christmas: Those Were the Days",
+          "sh_f_name": "a-70s-christmas-those-were-the-days",
+          "sea_num": null,
+          "sea_f_name": null,
+          "ep_num": 1,
+          "s_desc": "We take a trip down memory lane to rediscover what Christmas was like in the 1970s.",
+          "genre": "Documentary",
+          "child_directed": false,
+          "rat": "G",
+          "adv": "Contains adult themes",
+          "len": 4080000,
+          "vod_s": 1734296400,
+          "vod_e": 1890248400,
+          "vod_ad": false,
+          "vod_sub": true,
+          "chan": "C5",
+          "tags": null,
+          "img_upd": null,
+          "use_title_img": true,
+          "credits_duration_in_seconds": null
+        }
+      ]
+    }
+  },
+  {
+    "showID": "4207427635527",
+    "show": {
+      "id": "4207427635527",
+      "won_id": "4207427635527",
+      "title": "100 Amazing Animal Rescues Caught on Camera",
+      "f_name": "100-amazing-animal-rescues-caught-on-camera",
+      "genre": "Entertainment",
+      "child_directed": false,
+      "primary_vod_genre": "Entertainment",
+      "vod_subgenres": [
+        "More Entertainment",
+        "Animals"
+      ],
+      "chan": "C6",
+      "chan_name": "5STAR",
+      "m_desc": "Clip show revealing animal rescues from around the world.",
+      "img_upd": 1604228025,
+      "standalone": true,
+      "use_title_img": true
+    },
+    "seasons": {
+      "seasons": [
+        {
+          "seasonNumber": null,
+          "numberOfEpisodes": 1,
+          "seasonUseTitleImg": false
+        }
+      ]
+    },
+    "episodes": {
+      "size": 1,
+      "episodes": [
+        {
+          "id": "C5301210001",
+          "title": "2019",
+          "f_name": "100-amazing-animal-rescues-caught-on-camera",
+          "sh_id": "4207427635527",
+          "sh_title": "100 Amazing Animal Rescues Caught on Camera",
+          "sh_f_name": "100-amazing-animal-rescues-caught-on-camera",
+          "sea_num": null,
+          "sea_f_name": null,
+          "ep_num": 1,
+          "s_desc": "Clip show revealing animal rescues from around the world.",
+          "genre": "Entertainment",
+          "child_directed": false,
+          "rat": "G",
+          "adv": "Contains distressing scenes",
+          "len": 5640000,
+          "vod_s": 1592420400,
+          "vod_e": 1907960700,
+          "vod_ad": false,
+          "vod_sub": false,
+          "chan": "C6",
+          "tags": null,
+          "img_upd": null,
+          "use_title_img": true,
+          "credits_duration_in_seconds": 21
+        }
+      ]
+    }
+  }
+]

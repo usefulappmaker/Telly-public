@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="36 70 530 182" width="530" height="182" role="img" aria-label="FTV logo"><title>FTV</title>
+  <g fill="#323c46">
+    <polygon points="100,78 222,78 177,212 55,212" />
+    <polygon points="268,78 390,78 345,212 223,212" />
+    <polygon points="436,78 558,78 513,212 391,212" />
+  </g>
+
+  
+  <g fill="#ffffff">
+    <g transform="translate(138.5 146) skewX(-18.5)">
+      <rect x="-24" y="-34" width="20" height="68" />
+      <rect x="-24" y="-34" width="50" height="18" />
+      <rect x="-24" y="-8" width="38" height="17" />
+    </g>
+    <g transform="translate(306.5 146) skewX(-18.5)">
+      <rect x="-29" y="-34" width="58" height="18" />
+      <rect x="-10" y="-34" width="20" height="68" />
+    </g>
+    <g transform="translate(474.5 146) skewX(-18.5)">
+      <polygon points="-31,-34 -9,-34 0,8 9,-34 31,-34 13,34 -13,34" />
+    </g>
+  </g>
+
+  
+  <polygon points="48.3,232 170.3,232 166.3,244 44.3,244" fill="#0b78c9" />
+  <polygon points="216.3,232 338.3,232 334.3,244 212.3,244" fill="#e2231a" />
+  <polygon points="384.3,232 506.3,232 502.3,244 380.3,244" fill="#1aa64a" />
+</svg>

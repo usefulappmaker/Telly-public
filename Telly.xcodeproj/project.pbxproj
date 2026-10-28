@@ -1,0 +1,477 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+F00000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedCatalogue.swift; sourceTree = "<group>"; };
+F00000000000000000000002 = {isa = PBXBuildFile; fileRef = F00000000000000000000001; };
+C50000000000000000000020 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueSearchModel.swift; sourceTree = "<group>"; };
+C50000000000000000000021 = {isa = PBXBuildFile; fileRef = C50000000000000000000020; };
+C50000000000000000000022 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammeArtworkLoader.swift; sourceTree = "<group>"; };
+C50000000000000000000023 = {isa = PBXBuildFile; fileRef = C50000000000000000000022; };
+C50000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Service.swift; sourceTree = "<group>"; };
+C50000000000000000000001 = {isa = PBXBuildFile; fileRef = C50000000000000000000000; };
+C50000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Account.swift; sourceTree = "<group>"; };
+C50000000000000000000003 = {isa = PBXBuildFile; fileRef = C50000000000000000000002; };
+C50000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Catalogue.swift; sourceTree = "<group>"; };
+C50000000000000000000005 = {isa = PBXBuildFile; fileRef = C50000000000000000000004; };
+C50000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Playback.swift; sourceTree = "<group>"; };
+C50000000000000000000007 = {isa = PBXBuildFile; fileRef = C50000000000000000000006; };
+C50000000000000000000008 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Views.swift; sourceTree = "<group>"; };
+C50000000000000000000009 = {isa = PBXBuildFile; fileRef = C50000000000000000000008; };
+C5000000000000000000000A = {isa = PBXFileReference; lastKnownFileType = text.json; path = Channel5Seed.json; sourceTree = "<group>"; };
+C5000000000000000000000B = {isa = PBXBuildFile; fileRef = C5000000000000000000000A; };
+C40000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Playback.swift; sourceTree = "<group>"; };
+C40000000000000000000001 = {isa = PBXBuildFile; fileRef = C40000000000000000000000; };
+C40000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Catalogue.swift; sourceTree = "<group>"; };
+C40000000000000000000003 = {isa = PBXBuildFile; fileRef = C40000000000000000000002; };
+C40000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Views.swift; sourceTree = "<group>"; };
+C40000000000000000000005 = {isa = PBXBuildFile; fileRef = C40000000000000000000004; };
+C40000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = text.json; path = Channel4Seed.json; sourceTree = "<group>"; };
+C40000000000000000000007 = {isa = PBXBuildFile; fileRef = C40000000000000000000006; };
+
+0000000000000000000001A1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackExtras.swift; sourceTree = "<group>"; };
+000000000000000000000205 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A1; };
+00000000000000000000019F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHistory.swift; sourceTree = "<group>"; };
+000000000000000000000203 = {isa = PBXBuildFile; fileRef = 00000000000000000000019F; };
+0000000000000000000001A0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinueWatching.swift; sourceTree = "<group>"; };
+000000000000000000000204 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A0; };
+00000000000000000000019E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPolicy.swift; sourceTree = "<group>"; };
+000000000000000000000202 = {isa = PBXBuildFile; fileRef = 00000000000000000000019E; };
+00000000000000000000019D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMP4Normalizer.swift; sourceTree = "<group>"; };
+000000000000000000000201 = {isa = PBXBuildFile; fileRef = 00000000000000000000019D; };
+00000000000000000000019C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDValidationView.swift; sourceTree = "<group>"; };
+000000000000000000000200 = {isa = PBXBuildFile; fileRef = 00000000000000000000019C; };
+00000000000000000000019B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDSetupView.swift; sourceTree = "<group>"; };
+0000000000000000000001FF = {isa = PBXBuildFile; fileRef = 00000000000000000000019B; };
+00000000000000000000019A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDPlaybackAccess.swift; sourceTree = "<group>"; };
+0000000000000000000001FE = {isa = PBXBuildFile; fileRef = 00000000000000000000019A; };
+000000000000000000000199 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDIdentity.swift; sourceTree = "<group>"; };
+0000000000000000000001FD = {isa = PBXBuildFile; fileRef = 000000000000000000000199; };
+000000000000000000000198 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalHLSServer.swift; sourceTree = "<group>"; };
+0000000000000000000001FC = {isa = PBXBuildFile; fileRef = 000000000000000000000198; };
+000000000000000000000197 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DASHManifest.swift; sourceTree = "<group>"; };
+0000000000000000000001FB = {isa = PBXBuildFile; fileRef = 000000000000000000000197; };
+000000000000000000000196 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDService.swift; sourceTree = "<group>"; };
+0000000000000000000001FA = {isa = PBXBuildFile; fileRef = 000000000000000000000196; };
+000000000000000000000195 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
+0000000000000000000001F9 = {isa = PBXBuildFile; fileRef = 000000000000000000000195; };
+000000000000000000000194 = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+0000000000000000000001F8 = {isa = PBXBuildFile; fileRef = 000000000000000000000194; };
+000000000000000000000193 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Discovery.swift; sourceTree = "<group>"; };
+0000000000000000000001F7 = {isa = PBXBuildFile; fileRef = 000000000000000000000193; };
+000000000000000000000192 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueViews.swift; sourceTree = "<group>"; };
+0000000000000000000001F6 = { isa = PBXBuildFile; fileRef = 000000000000000000000192; };
+000000000000000000000191 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueStore.swift; sourceTree = "<group>"; };
+0000000000000000000001F5 = { isa = PBXBuildFile; fileRef = 000000000000000000000191; };
+000000000000000000000190 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Catalogue.swift; sourceTree = "<group>"; };
+0000000000000000000001F4 = { isa = PBXBuildFile; fileRef = 000000000000000000000190; };
+
+0000000000000000000001A2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueIndex.swift; sourceTree = "<group>"; };
+000000000000000000000206 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A2; };
+0000000000000000000001A3 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueIndexStore.swift; sourceTree = "<group>"; };
+000000000000000000000207 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A3; };
+0000000000000000000001A4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueSearchViews.swift; sourceTree = "<group>"; };
+000000000000000000000208 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A4; };
+0000000000000000000001A5 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CatalogueSeed.plist; sourceTree = "<group>"; };
+000000000000000000000209 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A5; };
+0000000000000000000002F0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVPlaybackTest.swift; sourceTree = "<group>"; };
+0000000000000000000002F1 = {isa = PBXBuildFile; fileRef = 0000000000000000000002F0; };
+000000000000000000000300 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVCatalogue.swift; sourceTree = "<group>"; };
+000000000000000000000301 = {isa = PBXBuildFile; fileRef = 000000000000000000000300; };
+000000000000000000000302 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVCatalogueViews.swift; sourceTree = "<group>"; };
+000000000000000000000303 = {isa = PBXBuildFile; fileRef = 000000000000000000000302; };
+000000000000000000000304 = {isa = PBXFileReference; lastKnownFileType = text.json; path = ITVCatalogueSeed.json; sourceTree = "<group>"; };
+000000000000000000000305 = {isa = PBXBuildFile; fileRef = 000000000000000000000304; };
+000000000000000000000310 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVLive.swift; sourceTree = "<group>"; };
+000000000000000000000311 = {isa = PBXBuildFile; fileRef = 000000000000000000000310; };
+000000000000000000000312 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVAccount.swift; sourceTree = "<group>"; };
+000000000000000000000313 = {isa = PBXBuildFile; fileRef = 000000000000000000000312; };
+000000000000000000000314 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVAccountViews.swift; sourceTree = "<group>"; };
+000000000000000000000315 = {isa = PBXBuildFile; fileRef = 000000000000000000000314; };
+000000000000000000000316 = {isa = PBXFileReference; lastKnownFileType = text.json; path = ITVLiveSeed.json; sourceTree = "<group>"; };
+000000000000000000000317 = {isa = PBXBuildFile; fileRef = 000000000000000000000316; };
+000000000000000000000320 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TellyStyle.swift; sourceTree = "<group>"; };
+000000000000000000000321 = {isa = PBXBuildFile; fileRef = 000000000000000000000320; };
+000000000000000000000340 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSubtitles.swift; sourceTree = "<group>"; };
+000000000000000000000341 = {isa = PBXBuildFile; fileRef = 000000000000000000000340; };
+000000000000000000000342 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDASH.swift; sourceTree = "<group>"; };
+000000000000000000000343 = {isa = PBXBuildFile; fileRef = 000000000000000000000342; };
+000000000000000000000344 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinVineDirectSetup.swift; sourceTree = "<group>"; };
+000000000000000000000345 = {isa = PBXBuildFile; fileRef = 000000000000000000000344; };
+000000000000000000000346 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinVineUHDProbe.swift; sourceTree = "<group>"; };
+000000000000000000000347 = {isa = PBXBuildFile; fileRef = 000000000000000000000346; };
+000000000000000000000348 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeIdentityPackage.swift; sourceTree = "<group>"; };
+000000000000000000000349 = {isa = PBXBuildFile; fileRef = 000000000000000000000348; };
+00000000000000000000034A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCatalogueStore.swift; sourceTree = "<group>"; };
+00000000000000000000034B = {isa = PBXBuildFile; fileRef = 00000000000000000000034A; };
+000000000000000000000350 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedCategories.swift; sourceTree = "<group>"; };
+000000000000000000000351 = {isa = PBXBuildFile; fileRef = 000000000000000000000350; };
+000000000000000000000352 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedCategoryViews.swift; sourceTree = "<group>"; };
+000000000000000000000353 = {isa = PBXBuildFile; fileRef = 000000000000000000000352; };
+000000000000000000000354 = {isa = PBXFileReference; lastKnownFileType = text.json; path = BBCGenreSeed.json; sourceTree = "<group>"; };
+000000000000000000000355 = {isa = PBXBuildFile; fileRef = 000000000000000000000354; };
+/* Begin PBXBuildFile section */
+		0000000000000000000000C8 /* TellyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000003E8 /* TellyApp.swift */; };
+		0000000000000000000000C9 /* BBCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000003E9 /* BBCService.swift */; };
+		0000000000000000000000CA /* Playback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000003EA /* Playback.swift */; };
+/* End PBXBuildFile section */
+
+		F10000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/LiveChannels.swift; sourceTree = "<group>";};
+		F10000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentProvider.swift; sourceTree = "<group>";};
+		F10000000000000000000003 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>";};
+		F10000000000000000000004 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = TellyTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR;};
+		F10000000000000000000005 = {isa = PBXGroup; children = (F10000000000000000000002, F10000000000000000000003); path = TopShelf; sourceTree = "<group>";};
+		F10000000000000000000006 = {isa = PBXBuildFile; fileRef = F10000000000000000000001;};
+		F10000000000000000000007 = {isa = PBXBuildFile; fileRef = F10000000000000000000001;};
+		F10000000000000000000008 = {isa = PBXBuildFile; fileRef = F10000000000000000000002;};
+		F10000000000000000000009 = {isa = PBXBuildFile; fileRef = F10000000000000000000004; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, );};};
+		F1000000000000000000000A = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (F10000000000000000000007, F10000000000000000000008); runOnlyForDeploymentPostprocessing = 0;};
+		F1000000000000000000000B = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;};
+		F1000000000000000000000C = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;};
+		F1000000000000000000000D = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (F10000000000000000000009); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0;};
+		F1000000000000000000000E = {isa = PBXContainerItemProxy; containerPortal = 000000000000000000000001; proxyType = 1; remoteGlobalIDString = F10000000000000000000010; remoteInfo = TellyTopShelf;};
+		F1000000000000000000000F = {isa = PBXTargetDependency; target = F10000000000000000000010; targetProxy = F1000000000000000000000E;};
+		F10000000000000000000010 = {isa = PBXNativeTarget; name = TellyTopShelf; productName = TellyTopShelf; productReference = F10000000000000000000004; productType = "com.apple.product-type.app-extension"; buildConfigurationList = F10000000000000000000011; buildPhases = (F1000000000000000000000A, F1000000000000000000000B, F1000000000000000000000C); dependencies = (); buildRules = ();};
+		F10000000000000000000011 = {isa = XCConfigurationList; buildConfigurations = (F10000000000000000000012, F10000000000000000000013); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
+		F10000000000000000000012 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {
+                TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.0; CURRENT_PROJECT_VERSION = 35; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone";};};
+		F10000000000000000000013 = {isa = XCBuildConfiguration; name = Release; buildSettings = {
+                TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.0; CURRENT_PROJECT_VERSION = 35; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";};};
+
+
+/* Begin PBXFileReference section */
+A70000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UService.swift; sourceTree = "<group>"; };
+A70000000000000000000001 = {isa = PBXBuildFile; fileRef = A70000000000000000000000; };
+A70000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAccount.swift; sourceTree = "<group>"; };
+A70000000000000000000003 = {isa = PBXBuildFile; fileRef = A70000000000000000000002; };
+A70000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UPlayback.swift; sourceTree = "<group>"; };
+A70000000000000000000005 = {isa = PBXBuildFile; fileRef = A70000000000000000000004; };
+A70000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAccountViews.swift; sourceTree = "<group>"; };
+A70000000000000000000007 = {isa = PBXBuildFile; fileRef = A70000000000000000000006; };
+
+A60000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCatalogue.swift; sourceTree = "<group>"; };
+A60000000000000000000001 = {isa = PBXBuildFile; fileRef = A60000000000000000000000; };
+A60000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UViews.swift; sourceTree = "<group>"; };
+A60000000000000000000003 = {isa = PBXBuildFile; fileRef = A60000000000000000000002; };
+A60000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = text.json; path = USeed.json; sourceTree = "<group>"; };
+A60000000000000000000005 = {isa = PBXBuildFile; fileRef = A60000000000000000000004; };
+A60000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = text.json; path = UCategorySeed.json; sourceTree = "<group>"; };
+A60000000000000000000007 = {isa = PBXBuildFile; fileRef = A60000000000000000000006; };
+
+		000000000000000000000006 /* Telly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Telly.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0000000000000000000003E8 /* TellyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TellyApp.swift; sourceTree = "<group>"; };
+		0000000000000000000003E9 /* BBCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBCService.swift; sourceTree = "<group>"; };
+		0000000000000000000003EA /* Playback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playback.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		000000000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		000000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000003 /* Telly */,
+F10000000000000000000001, F10000000000000000000005,
+				000000000000000000000004 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		000000000000000000000003 /* Telly */ = {
+			isa = PBXGroup;
+			children = (
+000000000000000000000320,
+000000000000000000000310,
+000000000000000000000312,
+000000000000000000000314,
+000000000000000000000316,
+000000000000000000000304,
+000000000000000000000302,
+000000000000000000000300,
+0000000000000000000002F0,
+                0000000000000000000001A2,
+                0000000000000000000001A3,
+                0000000000000000000001A4,
+                0000000000000000000001A5,
+                000000000000000000000190,
+                000000000000000000000193,
+                000000000000000000000195,
+                000000000000000000000196,
+                00000000000000000000019F,
+                0000000000000000000001A1,
+0000000000000000000001A0,
+                00000000000000000000019E,
+                00000000000000000000019D,
+                00000000000000000000019C,
+                00000000000000000000019B,
+                00000000000000000000019A,
+                000000000000000000000199,
+                000000000000000000000198,
+                000000000000000000000197,
+                000000000000000000000194,
+                000000000000000000000191,
+                000000000000000000000192,
+				0000000000000000000003E8 /* TellyApp.swift */,
+000000000000000000000354,
+000000000000000000000350,
+A60000000000000000000000,A60000000000000000000002,A60000000000000000000004,A60000000000000000000006,A70000000000000000000000,A70000000000000000000002,A70000000000000000000004,A70000000000000000000006,C40000000000000000000000,C50000000000000000000020, F00000000000000000000001,C50000000000000000000022,C50000000000000000000000,C50000000000000000000002,C50000000000000000000004,C50000000000000000000006,C50000000000000000000008,C5000000000000000000000A,C40000000000000000000002,C40000000000000000000004,C40000000000000000000006,000000000000000000000352,
+00000000000000000000034A,
+000000000000000000000340,
+000000000000000000000342,
+000000000000000000000344,
+000000000000000000000346,
+000000000000000000000348,
+				0000000000000000000003E9 /* BBCService.swift */,
+				0000000000000000000003EA /* Playback.swift */,
+			);
+			path = Telly;
+			sourceTree = "<group>";
+		};
+		000000000000000000000004 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000006 /* Telly.app */,
+F10000000000000000000004,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		000000000000000000000005 /* Telly */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00000000000000000000000B /* Build configuration list for PBXNativeTarget "Telly" */;
+			buildPhases = (
+				000000000000000000000007 /* Sources */,
+				000000000000000000000008 /* Frameworks */,
+				000000000000000000000009 /* Resources */,
+F1000000000000000000000D,
+			);
+			buildRules = (
+			);
+			dependencies = (
+F1000000000000000000000F,
+			);
+			name = Telly;
+			productName = Telly;
+			productReference = 000000000000000000000006 /* Telly.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		000000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 00000000000000000000000A /* Build configuration list for PBXProject "Telly" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 000000000000000000000002;
+			productRefGroup = 000000000000000000000004 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				000000000000000000000005 /* Telly */,
+F10000000000000000000010,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		000000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+000000000000000000000317,
+A60000000000000000000005,A60000000000000000000007,C40000000000000000000007,C5000000000000000000000B,000000000000000000000355,
+000000000000000000000305,
+                000000000000000000000209,
+                0000000000000000000001F8,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		000000000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+000000000000000000000321,
+000000000000000000000311,
+000000000000000000000313,
+000000000000000000000315,
+000000000000000000000303,
+000000000000000000000301,
+0000000000000000000002F1,
+                0000000000000000000001F4,
+                0000000000000000000001F7,
+                0000000000000000000001F9,
+                0000000000000000000001FA,
+                000000000000000000000203,
+                000000000000000000000206,
+                000000000000000000000207,
+                000000000000000000000208,
+                000000000000000000000205,
+000000000000000000000204,
+                000000000000000000000202,
+                000000000000000000000201,
+                000000000000000000000200,
+                0000000000000000000001FF,
+                0000000000000000000001FE,
+                0000000000000000000001FD,
+                0000000000000000000001FC,
+                0000000000000000000001FB,
+                0000000000000000000001F5,
+                0000000000000000000001F6,
+				0000000000000000000000C8 /* TellyApp.swift in Sources */,
+000000000000000000000351,
+A60000000000000000000001,A60000000000000000000003,A70000000000000000000001,A70000000000000000000003,A70000000000000000000005,A70000000000000000000007,C40000000000000000000001,C50000000000000000000021, F00000000000000000000002,C50000000000000000000023,C50000000000000000000001,C50000000000000000000003,C50000000000000000000005,C50000000000000000000007,C50000000000000000000009,C40000000000000000000003,C40000000000000000000005,000000000000000000000353,
+F10000000000000000000006,
+00000000000000000000034B,
+000000000000000000000341,
+000000000000000000000343,
+000000000000000000000345,
+000000000000000000000347,
+000000000000000000000349,
+				0000000000000000000000C9 /* BBCService.swift in Sources */,
+				0000000000000000000000CA /* Playback.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		000000000000000000000065 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				SDKROOT = appletvos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+                SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		000000000000000000000066 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				SDKROOT = appletvos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+		00000000000000000000006F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+                CODE_SIGN_ENTITLEMENTS = Telly/Telly.entitlements;
+				CURRENT_PROJECT_VERSION = 35;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+                INFOPLIST_FILE = Telly/Info.plist;
+                ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_KEY_CFBundleDisplayName = "Telly";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.Telly;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+                SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		000000000000000000000070 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+                CODE_SIGN_ENTITLEMENTS = Telly/Telly.entitlements;
+				CURRENT_PROJECT_VERSION = 35;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+                INFOPLIST_FILE = Telly/Info.plist;
+                ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_KEY_CFBundleDisplayName = "Telly";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.Telly;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00000000000000000000000A /* Build configuration list for PBXProject "Telly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000065 /* Debug */,
+				000000000000000000000066 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00000000000000000000000B /* Build configuration list for PBXNativeTarget "Telly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00000000000000000000006F /* Debug */,
+				000000000000000000000070 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 000000000000000000000001 /* Project object */;
+}

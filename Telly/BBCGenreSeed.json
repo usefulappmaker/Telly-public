@@ -1,0 +1,74 @@
+[
+  {
+    "id": "drama-and-soaps",
+    "title": "Drama & Soaps"
+  },
+  {
+    "id": "films",
+    "title": "Films"
+  },
+  {
+    "id": "comedy",
+    "title": "Comedy"
+  },
+  {
+    "id": "documentaries",
+    "title": "Documentaries"
+  },
+  {
+    "id": "sport",
+    "title": "Sport"
+  },
+  {
+    "id": "news",
+    "title": "News"
+  },
+  {
+    "id": "entertainment",
+    "title": "Entertainment"
+  },
+  {
+    "id": "music",
+    "title": "Music"
+  },
+  {
+    "id": "food",
+    "title": "Food"
+  },
+  {
+    "id": "lifestyle",
+    "title": "Lifestyle"
+  },
+  {
+    "id": "history",
+    "title": "History"
+  },
+  {
+    "id": "science-and-nature",
+    "title": "Science & Nature"
+  },
+  {
+    "id": "arts",
+    "title": "Arts"
+  },
+  {
+    "id": "archive",
+    "title": "From the Archive"
+  },
+  {
+    "id": "audio-described",
+    "title": "Audio Described"
+  },
+  {
+    "id": "signed",
+    "title": "Signed"
+  },
+  {
+    "id": "cbeebies",
+    "title": "CBeebies"
+  },
+  {
+    "id": "cbbc",
+    "title": "CBBC"
+  }
+]

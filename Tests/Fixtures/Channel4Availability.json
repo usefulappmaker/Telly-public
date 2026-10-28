@@ -1,0 +1,136 @@
+{
+  "bakeoff": {
+    "brand": {
+      "websafeTitle": "the-great-british-bake-off",
+      "title": "The Great British Bake Off",
+      "episodes": [
+        {
+          "dateLabel": "Watch new episode from Tue 27 Oct",
+          "episodeNumber": 6,
+          "seriesNumber": 17,
+          "fullTitle": "Series 17 Episode 6",
+          "showPlayLabel": null,
+          "programmeId": "79486-006",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "nextOn": true
+        },
+        {
+          "dateLabel": "First shown: Tue 22 Sep 2026",
+          "episodeNumber": 1,
+          "seriesNumber": 17,
+          "fullTitle": "Series 17 Episode 1",
+          "showPlayLabel": true,
+          "programmeId": "79486-001",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "hrefLink": "/programmes/the-great-british-bake-off/on-demand/79486-001",
+          "assetId": "14426518"
+        },
+        {
+          "dateLabel": "First shown: Tue 29 Sep 2026",
+          "episodeNumber": 2,
+          "seriesNumber": 17,
+          "fullTitle": "Series 17 Episode 2",
+          "showPlayLabel": true,
+          "programmeId": "79486-002",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "hrefLink": "/programmes/the-great-british-bake-off/on-demand/79486-002",
+          "assetId": "14459645"
+        }
+      ]
+    }
+  },
+  "gogglebox": {
+    "brand": {
+      "websafeTitle": "gogglebox",
+      "title": "Gogglebox",
+      "episodes": [
+        {
+          "dateLabel": "Watch new episode from Fri 30 Oct",
+          "episodeNumber": 9,
+          "seriesNumber": 28,
+          "fullTitle": "Series 28 Episode 9",
+          "showPlayLabel": null,
+          "programmeId": "78331-009",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "nextOn": true
+        },
+        {
+          "dateLabel": "First shown: Fri 23 Oct 2026",
+          "episodeNumber": 8,
+          "seriesNumber": 28,
+          "fullTitle": "Series 28 Episode 8",
+          "showPlayLabel": true,
+          "programmeId": "78331-008",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "hrefLink": "/programmes/gogglebox/on-demand/78331-008",
+          "assetId": "7019932"
+        },
+        {
+          "dateLabel": "First shown: Fri 16 Oct 2026",
+          "episodeNumber": 7,
+          "seriesNumber": 28,
+          "fullTitle": "Series 28 Episode 7",
+          "showPlayLabel": true,
+          "programmeId": "78331-007",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "hrefLink": "/programmes/gogglebox/on-demand/78331-007",
+          "assetId": "14569658"
+        }
+      ]
+    }
+  },
+  "frasier": {
+    "brand": {
+      "websafeTitle": "frasier",
+      "title": "Frasier",
+      "episodes": [
+        {
+          "dateLabel": "First shown: Wed 20 Apr 1994",
+          "episodeNumber": 1,
+          "seriesNumber": 1,
+          "fullTitle": "Series 1 Episode 1",
+          "showPlayLabel": true,
+          "programmeId": "18926-001",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "hrefLink": "/programmes/frasier/on-demand/18926-001",
+          "assetId": "5683560"
+        },
+        {
+          "dateLabel": "First shown: Wed 27 Apr 1994",
+          "episodeNumber": 2,
+          "seriesNumber": 1,
+          "fullTitle": "Series 1 Episode 2",
+          "showPlayLabel": true,
+          "programmeId": "18926-002",
+          "upgradeToPlay": {
+            "active": false,
+            "label": null
+          },
+          "hrefLink": "/programmes/frasier/on-demand/18926-002",
+          "assetId": "5683564"
+        }
+      ]
+    }
+  }
+}
