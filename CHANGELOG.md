@@ -1,3 +1,20 @@
+# Telly 0.8.1 — Playback hotfix
+
+Changes since 0.8.0:
+
+- **Fixed Channel 5 playback:** updated playback requests to address the HTTP 403 errors affecting live TV and catch-up.
+- **Clearer Channel 5 errors:** request-signature failures no longer incorrectly suggest an account or location problem.
+- **Channel 4 catch-up HD support:** updated playback requests to obtain HD-capable streams where available. Resolution varies by programme.
+- **Updated regression tests** for Channel 5 playback requests and error handling.
+
+Some Channel 5 catch-up programmes remain SD. The experimental iOS route is not included.
+
+Downloads include matching source, an unsigned Apple TV IPA with Top Shelf, and SHA-256 checksums. To update an existing installation, retain its bundle identifier and sign with the same Apple account/team.
+
+Build and automated checks passed; wider Apple TV testing is still needed.
+
+---
+
 # Changelog
 
 ## 0.8.0 public preview — build 35

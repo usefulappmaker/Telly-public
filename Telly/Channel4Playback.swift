@@ -13,6 +13,9 @@ private final class Channel4RedirectPolicy: NSObject, URLSessionTaskDelegate {
 /// Independent session: never imports Safari cookies or persists playback URLs.
 final class Channel4HTTP: @unchecked Sendable {
     static let shared = Channel4HTTP()
+    // Channel 4's web playback discovery advertises HD FairPlay variants for
+    // this browser identity; its default CFNetwork response can be SD-only.
+    static let catchUpUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36"
     private let session: URLSession
     private let redirects = Channel4RedirectPolicy()
     init() {
@@ -25,11 +28,12 @@ final class Channel4HTTP: @unchecked Sendable {
         guard url.scheme == "https", url.user == nil, url.password == nil, url.port == nil, let host = url.host else { return false }
         return host == "www.channel4.com" || host == "all4nav.channel4.com" || host == "subs.channel4.com" || host == "static.channel4.com" || host == "keys.c4.aws.redbeemedia.com" || host == "ak-jos-c4assets-com.akamaized.net" || host == "c4assets.com" || host.hasSuffix(".c4assets.com") || host.hasSuffix(".yospace.com")
     }
-    func data(_ url: URL, body: Data? = nil, limit: Int = 8_000_000, unavailableMessage: String? = nil) async throws -> Data {
+    func data(_ url: URL, body: Data? = nil, limit: Int = 8_000_000, unavailableMessage: String? = nil, catchUp: Bool = false) async throws -> Data {
         guard Self.allowed(url) else { throw BBCError.message("Unexpected Channel 4 service address.") }
         var request = URLRequest(url: url)
         request.setValue("https://www.channel4.com", forHTTPHeaderField: "Origin")
         request.setValue("https://www.channel4.com/", forHTTPHeaderField: "Referer")
+        if catchUp { request.setValue(Self.catchUpUserAgent, forHTTPHeaderField: "User-Agent") }
         if let body { request.httpMethod = "POST"; request.httpBody = body; request.setValue("application/json", forHTTPHeaderField: "Content-Type") }
         do {
             let (data, response) = try await session.data(for: request)
@@ -77,7 +81,7 @@ actor Channel4PlaybackAPI {
     func source(id: String, live: Bool) async throws -> PlaybackSource {
         guard id.range(of: live ? #"^(C4|E4|M4|F4|4S)$"# : #"^[0-9]+-[0-9]+$"#, options: .regularExpression) != nil else { throw BBCError.message("Invalid Channel 4 programme.") }
         let path = live ? "/simulcast/channels/\(id)" : "/vod/stream/\(id)"
-        let data = try await Channel4HTTP.shared.data(URL(string: "https://www.channel4.com" + path)!, unavailableMessage: live ? "This Channel 4 live channel is currently unavailable." : "This episode is not currently available on Channel 4. It may not have aired yet or may have expired. Reopen the programme to refresh its available episodes.")
+        let data = try await Channel4HTTP.shared.data(URL(string: "https://www.channel4.com" + path)!, unavailableMessage: live ? "This Channel 4 live channel is currently unavailable." : "This episode is not currently available on Channel 4. It may not have aired yet or may have expired. Reopen the programme to refresh its available episodes.", catchUp: !live)
         guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw BBCError.message("Channel 4 returned no playback details.") }
         if live, let slot = root["slotInfo"] as? [String: Any], slot["simulcastRights"] as? Bool == false { throw BBCError.message("This programme is unavailable on Channel 4's live stream.") }
         let video = live ? root["channelInfo"] as? [String: Any] ?? [:] : root
@@ -142,7 +146,7 @@ final class Channel4FairPlaySession: NSObject, AVContentKeySessionDelegate, @unc
                 }
                 try Task.checkCancellation()
                 let body = try JSONSerialization.data(withJSONObject: ["video": ["url": config.manifest.absoluteString, "type": config.live ? "simulcast" : "ondemand"], "acSerial": 1, "spc": spc.base64EncodedString()])
-                let response = try await Channel4HTTP.shared.data(config.licence, body: body, limit: 1_000_000)
+                let response = try await Channel4HTTP.shared.data(config.licence, body: body, limit: 1_000_000, catchUp: !config.live)
                 guard let root = try JSONSerialization.jsonObject(with: response) as? [String: Any], let value = root["ckc"] as? String, let ckc = Data(base64Encoded: value), !ckc.isEmpty else { throw BBCError.message("Channel 4 did not supply a FairPlay licence. Please retry.") }
                 try Task.checkCancellation()
                 request.processContentKeyResponse(AVContentKeyResponse(fairPlayStreamingKeyResponseData: ckc))

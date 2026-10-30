@@ -2,6 +2,13 @@ import Foundation
 @main struct Channel5Tests {
     static func require(_ condition: @autoclosure ()->Bool,_ message: String) { precondition(condition(),message) }
     static func main() async throws {
+        for body in [#"{"code":"4003"}"#, #"{"code":4003}"#] {
+            let error = Channel5Wire.rejection(Data(body.utf8))
+            require(error.localizedDescription.contains("signature"), "Signature errors identify request compatibility")
+            if case .signInRequired = error { preconditionFailure("Signature errors must preserve sign-in") }
+        }
+        let unknown = Channel5Wire.rejection(Data(#"{"code":"unknown","message":"private detail"}"#.utf8)).localizedDescription
+        require(unknown.contains("HTTP 403") && !unknown.contains("private detail"), "Unknown service errors do not echo response payloads")
         let shows=try Channel5CatalogueAPI.shows(Data(contentsOf:URL(fileURLWithPath:"Telly/Channel5Seed.json")))
         require(shows.count>1000,"Bundled catalogue contains available provider programmes")
         require(Set(shows.map(\.id)).count==shows.count && shows.allSatisfy { $0.provider == .channel5 },"Stable provider identities are unique")

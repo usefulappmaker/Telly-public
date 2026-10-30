@@ -221,7 +221,8 @@ import AVKit
                         }
                     }
                     channel4FairPlay = fps
-                    let asset = AVURLAsset(url: playbackURL); fps.attach(to: asset)
+                    let options: [String: Any] = config.live ? [:] : [AVURLAssetHTTPUserAgentKey: Channel4HTTP.catchUpUserAgent]
+                    let asset = AVURLAsset(url: playbackURL, options: options); fps.attach(to: asset)
                     item = AVPlayerItem(asset: asset)
                 } else if let certificate = source.fairPlayCertificate {
                     let client = ITVProbeHTTP(); itvHTTP = client
@@ -318,7 +319,7 @@ import AVKit
     private func nativeSubtitleURL(for source: PlaybackSource) async -> URL {
         if provider == .channel4, let subtitles = source.channel4Subtitles {
             do {
-                let raw = try await Channel4HTTP.shared.data(source.url)
+                let raw = try await Channel4HTTP.shared.data(source.url, catchUp: source.channel4FairPlay?.live == false)
                 let text = String(decoding: raw, as: UTF8.self)
                 if text.contains("TYPE=SUBTITLES") { return source.url }
                 let master = try Channel4Subtitles.master(text, base:source.url, subtitles:subtitles)

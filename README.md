@@ -8,7 +8,7 @@ Telly is an independent, open-source **tvOS 17+** app for discovering and watchi
 
 ![Telly feature banner](docs/assets/telly-feature-banner.png)
 
-**Public preview: 0.8.0, build 35.** Download the [source ZIP](https://github.com/usefulappmaker/Telly-public/releases/download/v0.8.0/Telly-0.8.0-public-source.zip) or [prebuilt unsigned IPA](https://github.com/usefulappmaker/Telly-public/releases/download/v0.8.0/Telly-0.8.0-public-unsigned.ipa) from [GitHub Releases](https://github.com/usefulappmaker/Telly-public/releases/tag/v0.8.0). Both require your own Apple signing and provisioning. There is no App Store or TestFlight release.
+**Public preview: 0.8.1, build 40.** Download the [source ZIP](https://github.com/usefulappmaker/Telly-public/releases/download/v0.8.1/Telly-0.8.1-public-source.zip) or [prebuilt unsigned IPA](https://github.com/usefulappmaker/Telly-public/releases/download/v0.8.1/Telly-0.8.1-public-unsigned.ipa) from [GitHub Releases](https://github.com/usefulappmaker/Telly-public/releases/tag/v0.8.1). Both require your own Apple signing and provisioning. There is no App Store or TestFlight release.
 
 [Install with Xcode](INSTALL.md) · [Sign the unsigned IPA](INSTALL-IPA.md) · [Feature and quality notes](docs/FEATURES.md) · [Release notes](CHANGELOG.md)
 
@@ -48,7 +48,7 @@ BBC and ITV standard network category/View all pages offer **Date | A-Z**, with 
 |---|---|---|---|
 | BBC | Yes | Yes | HD; compatible catch-up and event streams can reach 4K HLG HDR with optional UHD setup and suitable hardware/content. |
 | ITV | Yes | Standard and themed channels | FHD confirmed on physical Apple TV; the supplied stream and programme still determine quality. |
-| Channel 4 | Yes | Yes | Working delivery route currently returns SD. HD/FHD is not claimed. |
+| Channel 4 | Yes | Yes | Catch-up requests HD-capable FairPlay streams where available; resolution varies by programme. Live quality remains provider-dependent. |
 | Channel 5 | Yes | Standard and themed channels | FHD confirmed for supported streams. Some programmes remain SD. |
 | U | Yes | N/A | FHD catch-up confirmed on  Apple TV. |
 
@@ -66,7 +66,7 @@ Ordinary supported playback runs on Apple TV without a separate computer/server 
 
 Open **Telly.xcodeproj**, choose your own signing team for **Telly** and **TellyTopShelf**, and set **TELLY_APP_BUNDLE_IDENTIFIER** to a unique identifier. The public default is `com.example.Telly`; no developer team is selected. Pair your Apple TV with Xcode, select the Telly scheme and run. See [INSTALL.md](INSTALL.md) for details.
 
-For the prebuilt **Telly-0.8.0-public-unsigned.ipa**, sign both the app and embedded Top Shelf extension using your own tvOS provisioning before installation. See [INSTALL-IPA.md](INSTALL-IPA.md). Do not try to install an unsigned IPA directly.
+For the prebuilt **Telly-0.8.1-public-unsigned.ipa**, sign both the app and embedded Top Shelf extension using your own tvOS provisioning before installation. See [INSTALL-IPA.md](INSTALL-IPA.md). Do not try to install an unsigned IPA directly.
 
 ## Development and attribution
 

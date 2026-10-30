@@ -95,18 +95,26 @@ enum Channel5Wire {
         return id
     }
     static func licenceAllowed(_ url: URL) -> Bool { Channel5HTTP.allowed(url) && url.host == "cassie.channel5.com" && url.path.hasPrefix("/api/v2/licences/fairplay/") }
+    static func rejection(_ data: Data) -> Channel5Error {
+        let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        let code = (root?["code"] as? String) ?? (root?["code"] as? NSNumber)?.stringValue
+        if code == "4003" {
+            return .message("Channel 5 rejected Telly's playback request signature (HTTP 403, code 4003). This is a playback compatibility problem; signing in again may not help.")
+        }
+        return .message("Channel 5 declined the playback request (HTTP 403). The service did not provide a recognised reason; this does not confirm an account or location problem.")
+    }
     static func metadata(id: String, live: Bool, session: String?) async throws -> [String: Any] {
         let response = try await Channel5HTTP.shared.send(signedURL(id: id, live: live), bearer: session)
         if response.status == 401 { throw Channel5Error.signInRequired }
-        if response.status == 403 { throw Channel5Error.message("Channel 5 declined this session. Check your account and UK regional access.") }
+        if response.status == 403 { throw rejection(response.data) }
         if response.status == 404 { throw Channel5Error.message("This Channel 5 programme is no longer available.") }
         guard response.status == 200 else { throw Channel5Error.message("Channel 5 playback request failed (HTTP \(response.status)). Please retry.") }
         return try decode(response.data)
     }
 }
 
-// Public web-client service metadata constants (player 4.8.0-19); not DRM content keys.
+// Public web-client service metadata constants (verified against the official web player on 2026-10-30); not DRM content keys.
 private enum Channel5PublicMetadata {
-    static let hmac = Data(base64Encoded: "piEhXFOKU+f98IQlCyHnmA==")!
-    static let aes = Data(base64Encoded: "hypN8q5/1OuQgroOcv+cqQ==")!
+    static let hmac = Data(base64Encoded: "rmNFBH+LvPAj/WObtcG7ng==")!
+    static let aes = Data(base64Encoded: "AO5lXuH+GxGkC1M+QtB5hQ==")!
 }
