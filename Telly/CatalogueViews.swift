@@ -428,7 +428,7 @@ private struct ProgrammeDetailsView: View {
                 HStack {
                     Text(current.title).font(.largeTitle).bold(); Spacer()
                     ProgrammeBookmarkButton(show: current, library: library)
-                }
+                }.focusSection()
                 if current.premium == true { Text(current.provider == .channel4 ? "Channel 4+ · subscription playback is not available in this build" : "ITV Premium · account playback is not supported in this build").font(.callout).foregroundStyle(.secondary) }
                 Text(current.summary).font(.title3).foregroundStyle(.secondary)
                 if let error = state.error { Text(error).foregroundStyle(.orange); Button("Retry") { state.retry += 1 } }
@@ -440,7 +440,7 @@ private struct ProgrammeDetailsView: View {
                                     .tint((state.seriesID.isEmpty ? EpisodeSequence.latestSeries(orderedSeries)?.id : state.seriesID) == series.id ? Color(white: 0.75) : .gray)
                             }
                         }.padding(.vertical, 30).padding(.horizontal, 24)
-                    }.scrollClipDisabled().padding(.horizontal, -24)
+                    }.scrollClipDisabled().padding(.horizontal, -24).focusSection()
                 }
                 if selectedEpisodes.count > 30 {
                     HStack(spacing: 24) {
