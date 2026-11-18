@@ -13,24 +13,39 @@ struct HomeView: View {
     @State private var navigationRevision = 0
     @FocusState private var focusedTab: TellyTab?
     @Environment(\.scenePhase) private var phase
+    @ObservedObject private var profiles = ProfileStore.shared
+    @State private var showProfilePicker = ProfileStore.shared.pickerRequired
+    /// Kids profiles see Home, Live and Saved only.
+    private var visibleTabs: [TellyTab] { TellyTab.allCases.filter { !profiles.kidsMode || [.home, .live, .saved].contains($0) } }
+    /// Current person, after the tabs (only with 2+ profiles); opens the Who's watching picker.
+    @ViewBuilder private var profileTab: some View {
+        if profiles.profiles.count > 1 {
+            Button { profiles.pickerRequired = false; showProfilePicker = true } label: {
+                HStack(spacing: 8) { Image(systemName: "person.crop.circle.fill"); Text(profiles.currentProfile.name) }
+            }.buttonStyle(ProfilePillStyle()).accessibilityLabel("Profile \(profiles.currentProfile.name). Select to switch profile.")
+        }
+    }
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 30) {
                 HStack(spacing:14) {
-                    ForEach(TellyTab.allCases,id:\.self) { value in
+                    ForEach(visibleTabs,id:\.self) { value in
                         TellyTabButton(tab:value,selection:$tab,focus:$focusedTab) {
                             // Re-selecting a root tab also discards nested view-based destinations.
                             if value == tab && (value == .home || value == .browse) { navigationRevision &+= 1 }
                             tab = value
                         }
                     }
+                    profileTab
                 }
                 Spacer(minLength: 0)
                 TellyHeaderLogo(loading: catalogue.loading || catalogue.resumingEpisode || !catalogue.programmeLoadingIDs.isEmpty)
             }.padding(.horizontal, 64).padding(.vertical, 18)
             NavigationStack {
                 switch tab {
-                case .home: DiscoveryHome(catalogue: catalogue, library: library)
+                case .home:
+                    if profiles.kidsMode { KidsHomeView(catalogue: catalogue, library: library) }
+                    else { DiscoveryHome(catalogue: catalogue, library: library) }
                 case .browse: BrowseView(catalogue: catalogue, library: library, index: index)
                 case .search: CatalogueSearchView(index: index, catalogue: catalogue, library: library)
                 case .live: LiveView(launch: liveLaunch)
@@ -39,6 +54,13 @@ struct HomeView: View {
                 }
             }.id("\(tab.rawValue)-\(navigationRevision)")
         }.environmentObject(history).tint(Color(white: 0.75)).progressViewStyle(FTVProgressViewStyle()).defaultFocus($focusedTab, .home)
+        .onChange(of: profiles.current) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
+        .onChange(of: profiles.kidsMode) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
+        .fullScreenCover(isPresented: $showProfilePicker) {
+            WhoIsWatchingView(required: profiles.pickerRequired, dismiss: { showProfilePicker = false }) { id in
+                profiles.select(id); profiles.pickerRequired = false; showProfilePicker = false
+            }
+        }
         .onOpenURL { url in
             guard let id = LiveChannelLink.channelID(from: url) else { return }
             NotificationCenter.default.post(name: .tellyLaunchLive, object: nil)
@@ -563,6 +585,7 @@ struct LiveView: View {
     private func channels(in section: LiveChannelSection) -> [LiveChannel] {
         LiveChannelOrder.sorted(state.channels.filter {
             (providerFilter == nil || $0.provider == providerFilter) && LiveChannelOrder.section($0.id) == section
+                && (!ProfileStore.shared.kidsMode || ["cbbc", "cbeebies"].contains($0.id))
         },id: { $0.id },title: { $0.title })
     }
     var body: some View {
@@ -612,6 +635,7 @@ struct LiveView: View {
             }
         }.task(id: launch?.id) {
             guard let launch else { return }
+            if ProfileStore.shared.kidsMode && !["cbbc", "cbeebies"].contains(launch.channelID) { return }
             do {
                 try await Task.sleep(nanoseconds: 400_000_000)
                 var channel = state.channels.first { $0.id == launch.channelID }
@@ -651,10 +675,83 @@ struct SettingsView: View {
     @AppStorage("bbcOneRegion") private var bbcOne = "bbc_one_london"
     @AppStorage("bbcTwoRegion") private var bbcTwo = "bbc_two_england"
     @ObservedObject var catalogue: CatalogueStore
+    @ObservedObject private var profileStore = ProfileStore.shared
+    @AppStorage(TellySyncSettings.urlKey) private var syncURL = ""
+    @AppStorage(TellySyncSettings.secretKey) private var syncSecret = ""
+    @State private var syncStatus = ""
+    @State private var editingProfile: String?        // nil = add a new profile
+    @State private var showProfileEditor = false
+    @State private var settingPIN = false
+    private var startupChoices: [String] { ["last"] + profileStore.profiles.map(\.id) + ["ask"] }
+    private func startupLabel(_ value: String) -> String {
+        value == "last" ? "Last used" : value == "ask" ? "Ask" : profileStore.name(value)
+    }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 30) {
                 Text("Settings").font(.largeTitle).bold()
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Profiles").font(.system(size: 32, weight: .bold))
+                    Text("Each person has their own Continue Watching and Saved list.").font(.system(size: 22)).foregroundStyle(.secondary)
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 28) {
+                            ForEach(profileStore.profiles) { profile in
+                                Button { editingProfile = profile.id; showProfileEditor = true } label: {
+                                    ProfileAvatar(name: profile.name, current: profile.id == profileStore.current, size: 130)
+                                }.buttonStyle(ProgrammeCardStyle())
+                            }
+                            Button { editingProfile = nil; showProfileEditor = true } label: {
+                                VStack(spacing: 12) {
+                                    Image(systemName: "plus").font(.system(size: 50, weight: .semibold))
+                                        .frame(width: 130, height: 130).background(Circle().fill(.white.opacity(0.12)))
+                                    Text("Add").font(.system(size: 24, weight: .semibold))
+                                }.padding(16)
+                            }.buttonStyle(ProgrammeCardStyle())
+                        }.padding(.vertical, 16).padding(.horizontal, 8)
+                    }.scrollClipDisabled()
+                    Text("Select a profile to rename it, switch to it, make it a kids profile or remove it.").font(.system(size: 22)).foregroundStyle(.secondary)
+                    HStack(spacing: 24) {
+                        Button(profileStore.kidsPIN.isEmpty ? "Set kids PIN" : "Change kids PIN") { settingPIN = true }
+                        if !profileStore.kidsPIN.isEmpty { Button("Remove kids PIN") { profileStore.kidsPIN = "" } }
+                        Text(profileStore.kidsPIN.isEmpty ? "No PIN: anyone can switch away from a kids profile."
+                                                          : "The PIN is needed to leave a kids profile. With household sync it applies on every Apple TV.")
+                            .font(.system(size: 22)).foregroundStyle(.secondary)
+                    }
+                    Text("On launch").font(.system(size: 24, weight: .semibold)).foregroundStyle(.secondary).padding(.top, 8)
+                    ScrollView(.horizontal) {
+                        TellySegments(title: "Profile on launch", options: startupChoices.map(startupLabel), selection: Binding(
+                            get: { startupLabel(profileStore.startup) },
+                            set: { label in if let value = startupChoices.first(where: { startupLabel($0) == label }) { profileStore.startup = value } }))
+                            .frame(width: CGFloat(startupChoices.count) * 220)
+                            .padding(.vertical, 12).padding(.horizontal, 4)
+                    }.scrollClipDisabled()
+                }.padding(32).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 24))
+                    .focusSection()   // Down from the menu bar lands in this section even though its first control is at the far left
+                    .fullScreenCover(isPresented: $settingPIN) {
+                        PINPadView(title: "Choose a 4-digit kids PIN", validate: nil) { pin in
+                            if let pin { profileStore.kidsPIN = pin }
+                            settingPIN = false
+                        }
+                    }
+                    .fullScreenCover(isPresented: $showProfileEditor) {
+                        ProfileEditView(profileID: editingProfile) { showProfileEditor = false }
+                    }
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Household sync").font(.system(size: 32, weight: .bold))
+                    Text("Optional. Shares profiles, Continue Watching and Saved between your Apple TVs through a sync server you run, for example the Home Assistant AppDaemon app. Leave the URL empty to keep everything on this Apple TV.")
+                        .font(.system(size: 22)).foregroundStyle(.secondary)
+                    TextField("Server URL, e.g. http://homeassistant.local:5050/api/appdaemon/telly_history", text: $syncURL).frame(width: 1200)
+                    SecureField("Key", text: $syncSecret).frame(width: 1200)
+                    HStack(spacing: 24) {
+                        Button("Test connection") { Task { syncStatus = await TellySyncClient.test() } }
+                        Text(syncStatus).font(.system(size: 22)).foregroundStyle(.secondary)
+                    }
+                }.padding(32).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 24))
+                    .focusSection()
+                    .onChange(of: syncURL) { _, _ in profileStore.scheduleSync(); NotificationCenter.default.post(name: ProfileStore.changed, object: nil) }
+                    .onChange(of: syncSecret) { _, _ in profileStore.scheduleSync(); NotificationCenter.default.post(name: ProfileStore.changed, object: nil) }
                 Text("Playback automatically selects the best available quality, including 4K HDR when available. Live channel quality adapts to the stream each broadcaster supplies.").foregroundStyle(.secondary)
                 Text("Programme listings load only when you select a category or letter. Series and episodes load when you open a programme. Saved programmes include all their series.")
                 if let warning = catalogue.storageWarning { Text(warning).foregroundStyle(.orange) }
