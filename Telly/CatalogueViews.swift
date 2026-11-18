@@ -576,11 +576,14 @@ struct LiveView: View {
     @ObservedObject private var account = ITVAccountModel.shared
     @ObservedObject private var channel5Account = Channel5AccountModel.shared
     @State private var providerFilter: ContentProvider?
-    private func play(_ channel: LiveChannel) {
+    @AppStorage("offerLiveFromStart") private var offerFromStart = false
+    @State private var askFromStart: LiveChannel?
+    private func play(_ channel: LiveChannel, fromStart: Bool? = nil) {
         state.selected = channel
         if channel.provider == .channel5 && !channel5Account.signedIn { state.channel5Pairing = true }
         else if channel.provider == .itv && !account.signedIn { state.pairing = true }
-        else { playback.startLive(channel) { state.playing = true } }
+        else if fromStart == nil, offerFromStart, let start = channel.current?.start, Date().timeIntervalSince(start) > 60 { askFromStart = channel }
+        else { playback.startLive(channel, fromStart: fromStart ?? false) { state.playing = true } }
     }
     private func channels(in section: LiveChannelSection) -> [LiveChannel] {
         LiveChannelOrder.sorted(state.channels.filter {
@@ -589,6 +592,17 @@ struct LiveView: View {
         },id: { $0.id },title: { $0.title })
     }
     var body: some View {
+        liveBody
+        .confirmationDialog(askFromStart.map { $0.current?.title ?? $0.title } ?? "",
+                            isPresented: Binding(get: { askFromStart != nil }, set: { if !$0 { askFromStart = nil } }), titleVisibility: .visible) {
+            if let channel = askFromStart {
+                Button("Watch from the start" + (channel.current?.start.map { " (" + $0.formatted(date: .omitted, time: .shortened) + ")" } ?? "")) { play(channel, fromStart: true) }
+                Button("Watch live") { play(channel, fromStart: false) }
+                Button("Cancel", role: .cancel) {}
+            }
+        }
+    }
+    private var liveBody: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 30) {
                 NetworkFilter(selection: $providerFilter)
@@ -674,6 +688,7 @@ struct LiveView: View {
 struct SettingsView: View {
     @AppStorage("bbcOneRegion") private var bbcOne = "bbc_one_london"
     @AppStorage("bbcTwoRegion") private var bbcTwo = "bbc_two_england"
+    @AppStorage("offerLiveFromStart") private var offerLiveFromStart = false
     @ObservedObject var catalogue: CatalogueStore
     @ObservedObject private var profileStore = ProfileStore.shared
     @AppStorage(TellySyncSettings.urlKey) private var syncURL = ""
@@ -755,6 +770,9 @@ struct SettingsView: View {
                 Text("Playback automatically selects the best available quality, including 4K HDR when available. Live channel quality adapts to the stream each broadcaster supplies.").foregroundStyle(.secondary)
                 Text("Programme listings load only when you select a category or letter. Series and episodes load when you open a programme. Saved programmes include all their series.")
                 if let warning = catalogue.storageWarning { Text(warning).foregroundStyle(.orange) }
+                Toggle("Offer watch from start for live TV", isOn: $offerLiveFromStart)
+                Text("When on, opening a channel part-way through a programme asks whether to watch from the start or live. You can also jump back with Watch from start in the player. How far back you can go depends on the broadcaster.")
+                    .font(.system(size: 22)).foregroundStyle(.secondary)
                 NavigationLink {
                     RegionSelectionView(title: "BBC One region", choices: RegionalChannels.bbcOne, selection: $bbcOne)
                 } label: { RegionSettingLabel(title: "BBC One region", value: RegionalChannels.bbcOne.first { $0.id == bbcOne }?.title ?? "London") }

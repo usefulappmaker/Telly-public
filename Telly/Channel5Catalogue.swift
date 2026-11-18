@@ -125,7 +125,8 @@ struct Channel5CatalogueAPI {
                         if let index = ordered.lastIndex(where: { ($0["tran_s"] as? Double ?? .infinity) <= now }), index+1 < ordered.count,
                            let title = ordered[index]["title"] as? String, let end = ordered[index+1]["tran_s"] as? Double, end > now {
                             let art = shows.first { $0.title.localizedCaseInsensitiveCompare(title) == .orderedSame }?.image
-                            channel.current = LiveProgramme(title:title,subtitle:"",image:art,end:Date(timeIntervalSince1970:end))
+                            channel.current = LiveProgramme(title:title,subtitle:"",image:art,end:Date(timeIntervalSince1970:end),
+                                                            start:(ordered[index]["tran_s"] as? Double).map { Date(timeIntervalSince1970: $0) })
                         }
                     }
                     return (i,channel)

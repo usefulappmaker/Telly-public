@@ -31,6 +31,8 @@ import AVKit
     @Published var displayTitle = ""
     @Published var displaySubtitle = ""
     @Published private(set) var isLive = false
+    /// Start of the programme on air when a live channel was opened (for Watch from start).
+    @Published private(set) var liveProgrammeStart: Date?
     @Published private(set) var infoProgramme: Programme?
     @Published private(set) var infoArtwork: Data?
     @Published var activeSkip: SkipMarker?
@@ -84,14 +86,52 @@ import AVKit
             return try await BBCService().source(for: programme, require1080: require1080)
         }
     }
-    func startLive(_ selected: LiveChannel, ready: @escaping () -> Void) {
+    func startLive(_ selected: LiveChannel, fromStart: Bool = false, ready: @escaping () -> Void) {
         let channel = selected.provider == .bbc ? RegionalChannels.resolve(selected) : selected
+        let programmeStart = selected.current?.start ?? channel.current?.start
+        let wantsStart = fromStart
         let details = Programme(id: channel.id, title: channel.title, summary: channel.current?.subtitle ?? "", image: channel.current?.image ?? channel.logo, version: "", guidance: nil)
-        begin(programme: details, title: channel.current?.title ?? channel.title, subtitle: channel.title, minimumHeight: 0, isLive: true, provider: channel.provider, ready: ready) {
+        begin(programme: details, title: channel.current?.title ?? channel.title, subtitle: channel.title, minimumHeight: 0, isLive: true, provider: channel.provider, ready: { [weak self] in
+            ready()
+            if wantsStart { Task { @MainActor [weak self] in await self?.watchFromStartWhenReady() } }
+        }) {
             if channel.provider == .channel5 { return try await Channel5PlaybackAPI.shared.source(id: String(channel.id.dropFirst(3)), live: true) }
             if channel.provider == .channel4 { return try await Channel4PlaybackAPI.shared.source(id: String(channel.id.dropFirst(3)), live: true) }
             if channel.provider == .itv { return try await ITVLiveAPI().playbackSource(for: channel) }
             return try await DiscoveryAPI().liveSource(channel)
+        }
+        liveProgrammeStart = programmeStart
+    }
+    /// Live: jump back to the start of the programme on air (or as far back as the stream allows).
+    func watchFromStart() {
+        guard isLive, let item = player.currentItem else { return }
+        guard let start = liveProgrammeStart else { seekToEarliest(); return }
+        if item.currentDate() != nil {   // the stream carries clock times: seek straight to the start time
+            item.seek(to: start) { [weak self] done in
+                if !done { Task { @MainActor [weak self] in self?.seekBack(to: start) } }
+            }
+        } else { seekBack(to: start) }
+    }
+    /// Without clock times: the live edge is "now" minus the stream's delay, so step back by the programme's age.
+    private func seekBack(to start: Date) {
+        guard let range = player.currentItem?.seekableTimeRanges.last?.timeRangeValue else { return }
+        let back = max(0, Date().timeIntervalSince(start) - 20)
+        player.seek(to: CMTime(seconds: max(range.start.seconds + 2, CMTimeRangeGetEnd(range).seconds - back), preferredTimescale: 600))
+    }
+    /// Live: back to the live edge.
+    func goLive() {
+        guard isLive, let range = player.currentItem?.seekableTimeRanges.last?.timeRangeValue else { return }
+        player.seek(to: CMTimeRangeGetEnd(range))
+    }
+    private func seekToEarliest() {
+        guard let range = player.currentItem?.seekableTimeRanges.first?.timeRangeValue else { return }
+        player.seek(to: range.start + CMTime(seconds: 2, preferredTimescale: 600))
+    }
+    private func watchFromStartWhenReady() async {
+        for _ in 0..<150 {
+            if player.currentItem?.status == .readyToPlay { watchFromStart(); return }
+            if player.currentItem?.status == .failed { return }
+            try? await Task.sleep(nanoseconds: 100_000_000)
         }
     }
     /// Resolve first: an off-air event must not destroy the working channel.
@@ -486,6 +526,8 @@ struct NativePlayer: UIViewControllerRepresentable {
         if controller.speeds.map(\.rate) != rates { controller.speeds = rates.map { AVPlaybackSpeed(rate: $0, localizedName: "\($0)×") } }
         container.configureMenus(isLive:model.isLive && model.provider == .bbc)
         container.chooseAdditional = { [weak model] stream in model?.switchAdditionalStream(stream) }
+        container.fromStart = { [weak model] in model?.watchFromStart() }
+        container.backToLive = { [weak model] in model?.goLive() }
         container.redAction.attributes = model.switchingAdditionalStream ? [.disabled] : []
         container.reportAdditionalError(model.additionalStreamError, id:model.additionalStreamErrorID)
         container.infoController.configure(model: model)
@@ -531,10 +573,23 @@ final class PlayerContainerViewController: UIViewController, UIGestureRecognizer
     var controlsVisible = false
     private(set) var infoVisible = false
     var chooseAdditional: ((AdditionalLiveStream) -> Void)?
+    var fromStart: (() -> Void)?
+    var backToLive: (() -> Void)?
+    lazy var fromStartAction = UIAction(title: "Watch from start", image: UIImage(systemName: "arrow.counterclockwise.circle")) { [weak self] _ in self?.fromStart?() }
+    lazy var liveAction = UIAction(title: "Live", image: Self.textIcon("LIVE")) { [weak self] _ in self?.backToLive?() }
     private var liveMenus = false
     private var lastAdditionalError: UUID?
     lazy var redAction = UIAction(title:"Additional streams", image:Self.redIcon()) { [weak self] _ in self?.showAdditionalStreams() }
     lazy var infoAction = UIAction(title: "Info", image: UIImage(systemName: "info.circle")) { [weak self] _ in self?.showInfo() }
+    static func textIcon(_ label: String) -> UIImage {
+        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 18, weight: .semibold), .foregroundColor: UIColor.white]
+        let text = label as NSString
+        let measured = text.size(withAttributes: attributes)
+        let size = CGSize(width: max(40, measured.width + 8), height: 34)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            text.draw(at: CGPoint(x: (size.width - measured.width) / 2, y: (size.height - measured.height) / 2), withAttributes: attributes)
+        }.withRenderingMode(.alwaysTemplate)
+    }
     static func redIcon() -> UIImage {
         let size = CGSize(width:40,height:34)
         return UIGraphicsImageRenderer(size:size).image { _ in
@@ -547,7 +602,7 @@ final class PlayerContainerViewController: UIViewController, UIGestureRecognizer
     func configureMenus(isLive: Bool) {
         guard liveMenus != isLive || playerController.transportBarCustomMenuItems.isEmpty else { return }
         liveMenus = isLive
-        playerController.transportBarCustomMenuItems = isLive ? [redAction,infoAction] : [infoAction]
+        playerController.transportBarCustomMenuItems = isLive ? [fromStartAction, liveAction, redAction, infoAction] : [infoAction]
     }
     private func showAdditionalStreams() {
         guard liveMenus, presentedViewController == nil, !infoVisible else { return }
