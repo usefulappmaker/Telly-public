@@ -230,6 +230,12 @@ import AVKit
                 let playbackURL = await nativeSubtitleURL(for: source)
                 try Task.checkCancellation()
                 guard id == generation else { return }
+                #if targetEnvironment(simulator)
+                // FairPlay (U, Channel 4, Channel 5) doesn't exist in the Apple TV simulator; creating a session aborts the app.
+                if source.uFairPlay != nil || source.channel4FairPlay != nil || source.channel5FairPlay != nil {
+                    throw BBCError.message("This programme is protected with FairPlay, which the Apple TV simulator doesn't support. It plays on a real Apple TV.")
+                }
+                #endif
                 let item: AVPlayerItem
                 if let config = source.uFairPlay, let certificate = source.fairPlayCertificate {
                     let fps = UFairPlaySession(config:config,certificate:certificate) { [weak self] message,failed in
