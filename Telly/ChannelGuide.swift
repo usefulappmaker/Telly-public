@@ -74,12 +74,16 @@ enum ChannelGuide {
     static func load(_ channels: [LiveChannel], from origin: Date? = nil, until: Date? = nil, perPage: Int = 50, maxPages: Int = 12,
                      channel4: @escaping (URL) async throws -> Data = { try await Channel4HTTP.shared.data($0) },
                      freeview: @escaping (URL) async throws -> Data = { try await URLSession.shared.data(from: $0).0 },
+                     itv: @escaping (URL) async throws -> Data = { try await ITVLiveAPI().fetch($0) },
+                     channel5: @escaping (URL) async throws -> Data = { try await Channel5HTTP.shared.data($0) },
                      fetch: @escaping (URL) async throws -> Data = { try await BBCService().fetch($0) }) async -> [GuideChannel] {
         let start = origin ?? Date(), end = until ?? start.addingTimeInterval(86400)
         async let bbc = loadBBC(channels.filter { $0.provider == .bbc }, from: origin, until: until, perPage: perPage, maxPages: maxPages, fetch: fetch)
         async let c4 = loadChannel4(channels.filter { $0.provider == .channel4 }, from: start, until: end, fetch: channel4)
         async let fv = loadFreeview(channels.filter { freeviewNames[$0.id] != nil }, from: start, until: end, fetch: freeview)
+        async let nowNext = loadNowNext(channels.filter { [.itv, .channel5].contains($0.provider) && freeviewNames[$0.id] == nil }, itv: itv, channel5: channel5)
         var rows = [String: [GuideEntry]]()
+        for (id, entries) in await nowNext { rows[id] = entries }
         for row in await bbc { rows[row.id] = row.entries }
         for (id, entries) in await c4 { rows[id] = entries }
         for (id, entries) in await fv { rows[id] = entries }
@@ -196,6 +200,60 @@ enum ChannelGuide {
             return all
         }
         return merge(batches, keeping: wanted)
+    }
+
+    // MARK: Streaming-only channels: ITV's now/next feed, and Channel 5's now-next feed (several hours ahead).
+    static func itvNowNextEntries(_ data: Data) -> [String: [GuideEntry]] {
+        guard let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+              let channels = root["channels"] as? [[String: Any]] else { return [:] }
+        let fractional = ISO8601DateFormatter(); fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let plain = ISO8601DateFormatter()
+        func date(_ raw: Any?) -> Date? { (raw as? String).flatMap { plain.date(from: $0) ?? fractional.date(from: $0) } }
+        var result = [String: [GuideEntry]]()
+        for channel in channels {
+            guard let id = channel["id"] as? String, ITVLiveAPI.validID(id), let slots = channel["slots"] as? [String: Any] else { continue }
+            let key = "itv:" + id.lowercased()
+            result[key] = ["now", "next"].compactMap { slots[$0] as? [String: Any] }.compactMap { slot -> GuideEntry? in
+                guard let start = date(slot["start"]), let end = date(slot["end"]), end > start,
+                      let title = (slot["displayTitle"] ?? slot["brandTitle"] ?? slot["title"]) as? String, !title.isEmpty else { return nil }
+                return GuideEntry(id: "itvnn:\(key):\(Int(start.timeIntervalSince1970))", start: start, end: end, title: title,
+                                  subtitle: slot["detailedDisplayTitle"] as? String ?? "", synopsis: "", episodeID: nil, onDemand: false, isRepeat: false)
+            }
+        }
+        return result
+    }
+    /// Channel 5's now-next feed lists start times only: each programme ends when the next begins.
+    static func channel5NowNextEntries(_ data: Data, channel key: String) -> [GuideEntry] {
+        guard let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+              let schedule = root["schedule"] as? [[String: Any]] else { return [] }
+        let ordered = schedule.compactMap { slot -> (Double, String)? in
+            guard let start = slot["tran_s"] as? Double, let title = slot["title"] as? String, !title.isEmpty else { return nil }
+            return (start, title)
+        }.sorted { $0.0 < $1.0 }
+        return zip(ordered, ordered.dropFirst()).compactMap { this, next in
+            guard next.0 > this.0 else { return nil }
+            return GuideEntry(id: "c5nn:\(key):\(Int(this.0))", start: Date(timeIntervalSince1970: this.0), end: Date(timeIntervalSince1970: next.0),
+                              title: this.1, subtitle: "", synopsis: "", episodeID: nil, onDemand: false, isRepeat: false)
+        }
+    }
+    static func loadNowNext(_ channels: [LiveChannel], itv: @escaping (URL) async throws -> Data,
+                            channel5: @escaping (URL) async throws -> Data) async -> [String: [GuideEntry]] {
+        guard !channels.isEmpty else { return [:] }
+        let wanted = Set(channels.map(\.id))
+        return await withTaskGroup(of: [String: [GuideEntry]].self) { group in
+            if channels.contains(where: { $0.provider == .itv }) {
+                group.addTask { (try? await itv(ITVLiveAPI.feedURL)).map(itvNowNextEntries) ?? [:] }
+            }
+            for channel in channels where channel.provider == .channel5 {
+                let code = String(channel.id.dropFirst(3))
+                guard code.range(of: "^[A-Za-z0-9-]+$", options: .regularExpression) != nil,
+                      let url = URL(string: "https://feeds-api.channel5.com/feed/now-next/\(code).json") else { continue }
+                group.addTask { (try? await channel5(url)).map { [channel.id: channel5NowNextEntries($0, channel: channel.id)] } ?? [:] }
+            }
+            var result = [String: [GuideEntry]]()
+            for await batch in group { for (id, entries) in batch where wanted.contains(id) { result[id] = entries } }
+            return result
+        }
     }
 
     /// UK calendar days (yyyy-MM-dd) covering a stretch of time, for guides that list by day.

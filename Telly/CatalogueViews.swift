@@ -606,10 +606,27 @@ struct LiveView: View {
     }
     /// Channels with a published schedule (BBC, ITV, Channel 4, Channel 5 and the regional extras), in Live page
     /// order; BBC One/Two follow the chosen region so the listings match what plays.
+    /// Every live channel grouped by broadcaster (the network buttons then filter the guide), each in its own channel
+    /// order; BBC One/Two follow the chosen region so the listings match what plays.
     private var guideChannels: [LiveChannel] {
-        [LiveChannelSection.main, .additional].flatMap { channels(in: $0) }
-            .map { $0.provider == .bbc ? RegionalChannels.resolve($0) : $0 }
+        let all = LiveChannelSection.allCases.flatMap { section in
+            LiveChannelOrder.sorted(state.channels.filter {
+                LiveChannelOrder.section($0.id) == section && (!ProfileStore.shared.kidsMode || ["cbbc", "cbeebies"].contains($0.id))
+            }, id: { $0.id }, title: { $0.title })
+        }.map { $0.provider == .bbc ? RegionalChannels.resolve($0) : $0 }
+        func rank(_ channel: LiveChannel) -> Int {
+            let id = channel.id.hasPrefix("bbc_one_") ? "bbc_one" : channel.id.hasPrefix("bbc_two_") ? "bbc_two" : channel.id
+            return Self.guideOrder.firstIndex(of: id) ?? Self.guideOrder.count
+        }
+        let networks: [ContentProvider] = [.bbc, .itv, .channel4, .channel5]
+        return networks.flatMap { network in
+            all.enumerated().filter { $0.element.provider == network }
+                .sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }.map(\.element)
+        } + all.filter { !networks.contains($0.provider) }
     }
+    private static let guideOrder = ["bbc_one", "bbc_two", "bbc_three", "bbc_four", "cbbc", "cbeebies", "bbc_news24", "bbc_parliament",
+        "bbc_scotland", "bbc_alba", "s4cpbs", "itv:itv", "itv:itv2", "itv:itv3", "itv:itv4", "itv:itvbe",
+        "c4:C4", "c4:E4", "c4:M4", "c4:F4", "c4:4S", "c5:C5", "c5:C7", "c5:C6", "c5:C0", "c5:C8"]
     private var liveBody: some View {
         Group {
             if liveMode == "Guide" {
@@ -620,7 +637,7 @@ struct LiveView: View {
                         NetworkFilter(selection: $providerFilter)
                     }
                     if let error = playback.error { Text(error).foregroundStyle(.orange) }
-                    ChannelGuideView(channels: guideChannels,
+                    ChannelGuideView(channels: guideChannels, filter: providerFilter,
                                      additionalStreams: ProfileStore.shared.kidsMode || (providerFilter ?? .bbc) != .bbc ? [] : AdditionalLiveStream.all,
                                      playLive: { play($0) },
                                      playStream: { stream in playback.startAdditional(stream) { state.playing = true } },
@@ -844,7 +861,7 @@ private struct RegionSelectionView: View {
         VStack(alignment: .leading, spacing: 24) {
             Text(title).font(.largeTitle).bold()
             ScrollView {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 36), GridItem(.flexible())], spacing: 22) {
                     ForEach(choices) { choice in
                         Button {
                             selection = choice.id
@@ -853,11 +870,12 @@ private struct RegionSelectionView: View {
                             HStack {
                                 Text(choice.title); Spacer()
                                 Image(systemName: selection == choice.id ? "checkmark.circle.fill" : "circle").opacity(selection == choice.id ? 1 : 0.3)
+                                    .symbolRenderingMode(.palette).foregroundStyle(selection == choice.id ? Color.pink : Color.secondary)
                             }.frame(maxWidth: .infinity).padding(.horizontal, 16).padding(.vertical, 14)
                         }.buttonStyle(OutlinedActionButtonStyle())
                     }
-                }.padding(12)
-            }
+                }.padding(.horizontal, 36).padding(.vertical, 20)
+            }.scrollClipDisabled()
         }.padding(60)
         .onExitCommand { dismiss() }
     }

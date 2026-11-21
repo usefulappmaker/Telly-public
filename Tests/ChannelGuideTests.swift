@@ -155,10 +155,25 @@ import Foundation
                      LiveChannel(id: "itv:itv", title: "ITV1"), LiveChannel(id: "c5:C5CH01", title: "A FAST channel")]
         let loaded = await ChannelGuide.load(mixed, from: at("2026-10-19T10:00:00Z"), until: at("2026-10-19T20:00:00Z"), perPage: 100,
                                              channel4: { url in c4Asked.append(url.lastPathComponent); return c4 },
-                                             freeview: { _ in fvAsked += 1; return fv }) { _ in bbcAsked += 1; return schedule }
+                                             freeview: { _ in fvAsked += 1; return fv },
+                                             itv: { _ in Data() },
+                                             channel5: { url in
+                                                 url.lastPathComponent == "C5CH01.json" ? Data(#"{"schedule":[{"title":"A","tran_s":1792400400},{"title":"B","tran_s":1792404000},{"title":"C","tran_s":1792407600}]}"#.utf8) : Data()
+                                             }) { _ in bbcAsked += 1; return schedule }
         check(loaded.map(\.id) == mixed.map(\.id), "Rows keep the channel order")
-        check(loaded[0].entries.count == 2 && loaded[1].entries.count == 2 && loaded[2].entries.count == 2 && loaded[3].entries.isEmpty,
-              "BBC, Channel 4 and Freeview rows fill in; a channel without a schedule source stays empty")
+        check(loaded[0].entries.count == 2 && loaded[1].entries.count == 2 && loaded[2].entries.count == 2,
+              "BBC, Channel 4 and Freeview rows fill in")
+        check(loaded[3].entries.map(\.title) == ["A", "B"] && loaded[3].entries[0].end == loaded[3].entries[1].start,
+              "A streaming-only Channel 5 channel gets its now-next feed; each programme ends when the next begins")
+
+        // ITV's now/next feed covers its streaming-only channels.
+        let itvFeed = Data(#"""
+        {"channels":[{"id":"FAST1","name":"ITV Xmas Movies","slots":{"now":{"displayTitle":"Film A","start":"2026-10-19T16:42:00Z","end":"2026-10-19T18:10:17Z"},
+                                                                     "next":{"displayTitle":"Film B","start":"2026-10-19T18:10:17Z","end":"2026-10-19T19:41:34Z"}}},
+                     {"id":"BAD!","slots":{"now":{"displayTitle":"X","start":"2026-10-19T16:00:00Z","end":"2026-10-19T17:00:00Z"}}}]}
+        """#.utf8)
+        let itvRows = ChannelGuide.itvNowNextEntries(itvFeed)
+        check(Set(itvRows.keys) == ["itv:fast1"] && itvRows["itv:fast1"]?.map(\.title) == ["Film A", "Film B"], "ITV now and next fill a streaming-only ITV channel")
         check(c4Asked == ["2026-10-19"] && fvAsked == 1 && bbcAsked >= 1, "Each guide is fetched once per day it covers")
         print("PASS: guide window, schedule parsing, on-demand flags, timeline segments, remote navigation, paged loading, Channel 4 and Freeview guides and independent channel loading")
     }

@@ -12,6 +12,8 @@ struct GuideSelection: Identifiable {
 /// another programme's start. Every cell keeps its true width; the panel above names the focused one.
 struct ChannelGuideView: View {
     let channels: [LiveChannel]
+    /// Show one broadcaster's rows; the schedules for every channel stay loaded, so switching is instant.
+    var filter: ContentProvider? = nil
     /// Event streams without a published schedule (Red Button), listed under the channels.
     var additionalStreams: [AdditionalLiveStream] = []
     let playLive: (LiveChannel) -> Void
@@ -42,6 +44,8 @@ struct ChannelGuideView: View {
     private let hoursBack = 5 * 24
     private let hoursAhead = 24
     private static let streamPrefix = "stream/"
+    /// A channel without listings for the time on screen: one tile that plays it live.
+    private static let holdPrefix = "hold/"
     /// The focused row's channel name catches Left at the window's edge, so focus pages the guide
     /// instead of escaping to the controls above.
     private static let edgePrefix = "edge/"
@@ -54,9 +58,18 @@ struct ChannelGuideView: View {
         return min(max(windowStart ?? ChannelGuide.origin(for: now), earliest(now)), lastStart)
     }
     private func cellID(_ channel: LiveChannel, _ entry: GuideEntry) -> String { channel.id + "/" + entry.id }
+    /// The rows on screen, in the order given, with the loaded schedules (an empty row until they arrive).
+    private var rows: [GuideChannel] {
+        let loaded = Dictionary(guide.map { ($0.id, $0.entries) }, uniquingKeysWith: { first, _ in first })
+        return channels.filter { filter == nil || $0.provider == filter }.map { GuideChannel(channel: $0, entries: loaded[$0.id] ?? []) }
+    }
+    private var focusedHold: LiveChannel? {
+        guard let cell = focusedCell, cell.hasPrefix(Self.holdPrefix) else { return nil }
+        return channels.first { Self.holdPrefix + $0.id == cell }
+    }
     private func locate(_ cell: String?) -> (row: GuideChannel, entry: GuideEntry)? {
         guard let cell else { return nil }
-        for row in guide { for entry in row.entries where cellID(row.channel, entry) == cell { return (row, entry) } }
+        for row in rows { for entry in row.entries where cellID(row.channel, entry) == cell { return (row, entry) } }
         return nil
     }
     private var focused: GuideSelection? { locate(focusedCell).map { GuideSelection(entry: $0.entry, channel: $0.row.channel) } }
@@ -65,12 +78,15 @@ struct ChannelGuideView: View {
         return additionalStreams.first { Self.streamPrefix + $0.id == cell }
     }
     private func rowID(_ cell: String?) -> String? {
-        cell.flatMap { $0.hasPrefix(Self.streamPrefix) ? $0 : $0.hasPrefix(Self.edgePrefix) ? String($0.dropFirst(Self.edgePrefix.count)) : locate($0)?.row.id }
+        cell.flatMap { $0.hasPrefix(Self.streamPrefix) ? $0
+            : $0.hasPrefix(Self.edgePrefix) ? String($0.dropFirst(Self.edgePrefix.count))
+            : $0.hasPrefix(Self.holdPrefix) ? String($0.dropFirst(Self.holdPrefix.count))
+            : locate($0)?.row.id }
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             if !loaded { ProgressView("Getting schedules…") }
-            else if guide.allSatisfy({ $0.entries.isEmpty }) && additionalStreams.isEmpty { Text("No schedules are available at the moment.").foregroundStyle(.secondary) }
+            else if rows.isEmpty && additionalStreams.isEmpty { Text("No schedules are available at the moment.").foregroundStyle(.secondary) }
             else {
                 // Half-minute ticks keep the "now" line and the on-air highlight current.
                 TimelineView(.periodic(from: .now, by: 30)) { context in
@@ -114,7 +130,8 @@ struct ChannelGuideView: View {
             guard let cell else { return }
             if cell.hasPrefix(Self.edgePrefix) {
                 // Left from the first programme on screen: page back, or return to where focus was.
-                guard let old, let (row, entry) = locate(old), !move(row, entry, forward: false) else { return }
+                guard let old else { return }
+                if let (row, entry) = locate(old), move(row, entry, forward: false) { return }
                 focusedCell = old
                 return
             }
@@ -139,8 +156,8 @@ struct ChannelGuideView: View {
         .task(id: loaded) {
             guard loaded, let raw = ProcessInfo.processInfo.environment["BEEB_GUIDE_FOCUS"] else { return }
             let parts = raw.split(separator: ",").compactMap { Int($0) }
-            guard parts.count == 2, guide.indices.contains(parts[0]) else { return }
-            let row = guide[parts[0]]
+            guard parts.count == 2, rows.indices.contains(parts[0]) else { return }
+            let row = rows[parts[0]]
             let visible = row.entries.filter { !$0.isPast(at: Date()) }
             guard visible.indices.contains(parts[1]) else { return }
             try? await Task.sleep(nanoseconds: 800_000_000)
@@ -169,6 +186,16 @@ struct ChannelGuideView: View {
                     else if focused.entry.isPast(at: now) { Text("Shown earlier · not available").font(.system(size: 25, weight: .semibold)).foregroundStyle(.secondary) }
                 }
                 Text(focused.entry.synopsis).font(.system(size: 25)).foregroundStyle(.secondary).lineLimit(2)
+            } else if let channel = focusedHold {
+                Text(channel.current?.title ?? channel.title).font(.system(size: 34, weight: .bold)).lineLimit(1)
+                HStack(spacing: 18) {
+                    if let current = channel.current, let start = current.start {
+                        Text("\(ChannelGuide.clock(start)) – \(ChannelGuide.clock(current.end))").font(.system(size: 25, weight: .medium).monospaced())
+                    }
+                    Text(channel.title).font(.system(size: 25)).foregroundStyle(.secondary)
+                    if channel.current != nil { Text("On now").font(.system(size: 25, weight: .semibold)).foregroundStyle(.pink) }
+                }
+                Text("This channel doesn't publish a schedule for this time. Select to watch it live.").font(.system(size: 25)).foregroundStyle(.secondary).lineLimit(2)
             } else if let stream = focusedStream {
                 Text(stream.title).font(.system(size: 34, weight: .bold)).lineLimit(1)
                 Text(Self.streamDescription(stream)).font(.system(size: 25)).foregroundStyle(.secondary).lineLimit(2)
@@ -239,7 +266,7 @@ struct ChannelGuideView: View {
             HStack(alignment: .top, spacing: gap) {
                 VStack(alignment: .leading, spacing: gap) {
                     Color.clear.frame(width: channelWidth, height: rulerHeight)
-                    ForEach(guide) { row in
+                    ForEach(rows) { row in
                         channelName(row.channel.title).overlay {
                             Button {} label: { Color.clear }
                                 .buttonStyle(GuideEdgeStyle())
@@ -257,12 +284,16 @@ struct ChannelGuideView: View {
                                 .offset(x: x(mark))
                         }
                     }.frame(width: width, height: rulerHeight, alignment: .topLeading).clipped()
-                    ForEach(guide) { row in
+                    ForEach(rows) { row in
                         // Away from the focused row only the programme at the focus time takes focus,
                         // so Up and Down land in the same column.
                         let landing = currentRow == row.id || !neighbours.contains(row.id) ? nil : ChannelGuide.landing(in: row.entries, at: aim, from: start, to: end)
+                        let segments = ChannelGuide.segments(row.entries, from: start, to: end)
+                        if !segments.contains(where: { $0.entry != nil }) {
+                            holdingCell(row.channel, width: width, reachable: currentRow == row.id || neighbours.contains(row.id))
+                        } else {
                         HStack(spacing: 0) {
-                            ForEach(ChannelGuide.segments(row.entries, from: start, to: end)) { segment in
+                            ForEach(segments) { segment in
                                 let cellWidth = CGFloat(segment.minutes) * pointsPerMinute
                                 if let entry = segment.entry {
                                     cell(entry, on: row.channel, width: cellWidth, continues: entry.start < start, now: now,
@@ -272,6 +303,7 @@ struct ChannelGuideView: View {
                                 else { Color.clear.frame(width: cellWidth, height: rowHeight) }
                             }
                         }.frame(width: width, height: rowHeight, alignment: .leading)
+                        }
                     }
                     ForEach(additionalStreams) { stream in
                         let id = Self.streamPrefix + stream.id
@@ -298,13 +330,15 @@ struct ChannelGuideView: View {
     private func landings(now: Date) -> [(row: String, cell: String)] {
         let start = start(now), end = start.addingTimeInterval(span)
         let aim = min(max(focusTime ?? now, start), end.addingTimeInterval(-60))
-        return guide.compactMap { row in
-            ChannelGuide.landing(in: row.entries, at: aim, from: start, to: end).map { (row.id, cellID(row.channel, $0)) }
+        return rows.compactMap { row in
+            if let entry = ChannelGuide.landing(in: row.entries, at: aim, from: start, to: end) { return (row.id, cellID(row.channel, entry)) }
+            // Nothing scheduled on screen: the row's holding tile.
+            return ChannelGuide.segments(row.entries, from: start, to: end).contains { $0.entry != nil } ? nil : (row.id, Self.holdPrefix + row.id)
         } + additionalStreams.map { (Self.streamPrefix + $0.id, Self.streamPrefix + $0.id) }
     }
     /// After a move between rows (or down from the day row), the cell that should have taken focus.
     private func expectedLanding(from old: String?, to cell: String) -> String? {
-        let order = guide.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
+        let order = self.rows.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
         guard let new = rowID(cell), !cell.hasPrefix(Self.edgePrefix), let to = order.firstIndex(of: new) else { return nil }
         let rows = landings(now: Date())
         if old == nil {   // entering from the day row: the first row with something to land on
@@ -328,7 +362,7 @@ struct ChannelGuideView: View {
                 return
             }
             // Rows above or below the current one, nearest first.
-            let order = guide.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
+            let order = self.rows.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
             guard let current = rowID(cell), let position = order.firstIndex(of: current) else { return }
             let targets = down ? Array(order[(position + 1)...]) : Array(order[..<position].reversed())
             if let next = targets.lazy.compactMap({ id in rows.first { $0.row == id } }).first { focusedCell = next.cell }
@@ -392,12 +426,26 @@ struct ChannelGuideView: View {
     /// Away from the focused row, only the nearest rows above and below (or the first row, from the day row) take
     /// focus, each at the focus time, so Up and Down move exactly one row and the focus engine can't skip one.
     private func neighbourRows(of current: String?) -> Set<String> {
-        let order = guide.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
+        let order = self.rows.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
         let landable = Set(landings(now: Date()).map(\.row))
         guard let current, let index = order.firstIndex(of: current) else { return Set(order.first { landable.contains($0) }.map { [$0] } ?? []) }
         let above = order[..<index].reversed().first { landable.contains($0) }
         let below = order[(index + 1)...].first { landable.contains($0) }
         return Set([above, below].compactMap { $0 })
+    }
+    private func holdingCell(_ channel: LiveChannel, width: CGFloat, reachable: Bool) -> some View {
+        Button { playLive(channel) } label: {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(channel.current?.title ?? channel.title).font(.system(size: 24, weight: .semibold)).lineLimit(1)
+                Text(channel.current == nil ? "No listings for this time" : "On now · no further listings").font(.system(size: 19)).opacity(0.7).lineLimit(1)
+                Text("Select to watch live").font(.system(size: 18, weight: .medium)).opacity(0.75).lineLimit(1)
+            }.padding(.horizontal, 14).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        }
+        .buttonStyle(GuideCellStyle(onAir: false, onDemand: false))
+        .focused($focusedCell, equals: Self.holdPrefix + channel.id)
+        .disabled(!reachable)
+        .frame(width: max(6, width - 6), height: rowHeight).padding(.trailing, 6)
+        .accessibilityLabel("\(channel.title), live, no listings")
     }
     private func streamCell(_ stream: AdditionalLiveStream, width: CGFloat, reachable: Bool) -> some View {
         Button { playStream(stream) } label: {

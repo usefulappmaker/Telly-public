@@ -125,6 +125,7 @@ struct OutlinedActionButtonStyle: ButtonStyle {
         OutlinedActionSurface(content: configuration.label, pressed: configuration.isPressed, square: square)
     }
 }
+// focused = solid white + dark text + lift (an outline alone was hard to see moving down a list); unfocused = faint fill.
 private struct OutlinedActionSurface<Content: View>: View {
     let content: Content
     let pressed: Bool
@@ -132,10 +133,12 @@ private struct OutlinedActionSurface<Content: View>: View {
     @Environment(\.isFocused) private var focused
     @Environment(\.isEnabled) private var enabled
     var body: some View {
-        content.font(.system(size: 34, weight: .medium)).foregroundStyle(.white)
+        content.font(.system(size: 34, weight: .medium)).foregroundStyle(focused ? Color.black : Color.white)
             .padding(.horizontal, square ? 0 : 32).frame(width: square ? 84 : nil, height: 84)
-            .overlay { RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(.white.opacity(enabled ? 1 : 0.4), lineWidth: focused ? 3 : 1.5) }
-            .opacity(enabled ? (pressed ? 0.7 : 1) : 0.5)
+            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(focused ? Color.white : Color.white.opacity(0.1)))
+            .scaleEffect(pressed ? 0.97 : focused ? 1.06 : 1)
+            .shadow(color: .black.opacity(focused ? 0.45 : 0), radius: 16, y: 8)
+            .opacity(enabled ? 1 : 0.4)
             .animation(.easeOut(duration: 0.15), value: focused)
             .focusEffectDisabled()
     }
