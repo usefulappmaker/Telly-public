@@ -37,7 +37,7 @@ struct HomeView: View {
                         }
                     }
                     profileTab
-                }
+                }.focusSection()
                 Spacer(minLength: 0)
                 TellyHeaderLogo(loading: catalogue.loading || catalogue.resumingEpisode || !catalogue.programmeLoadingIDs.isEmpty)
             }.padding(.horizontal, 64).padding(.vertical, 18)
@@ -431,6 +431,7 @@ struct CatalogueShowView: View {
 }
 private struct ProgrammeDetailsView: View {
     let show: CatalogueShow
+    @EnvironmentObject private var history: WatchHistory
     @ObservedObject var catalogue: CatalogueStore
     @ObservedObject var library: Library
     var preferUHDSeries = false
@@ -473,7 +474,7 @@ private struct ProgrammeDetailsView: View {
                 }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 330), spacing: 30)], spacing: 30) {
                     ForEach(visibleEpisodes) { episode in
-                        Button { state.selection = episode.programme } label: { ProgrammeCard(programme: episode.programme) }.buttonStyle(ProgrammeCardStyle()).focused($focusedEpisode, equals: episode.id)
+                        Button { state.selection = episode.programme } label: { ProgrammeCard(programme: episode.programme, progress: history.progress(for: episode.id)) }.buttonStyle(ProgrammeCardStyle()).focused($focusedEpisode, equals: episode.id)
                             .accessibilityIdentifier("episode-" + episode.id)
                     }
                 }
@@ -576,6 +577,7 @@ struct LiveView: View {
     @ObservedObject private var account = ITVAccountModel.shared
     @ObservedObject private var channel5Account = Channel5AccountModel.shared
     @State private var providerFilter: ContentProvider?
+    @ObservedObject private var favourites = FavouriteChannels.shared
     @AppStorage("liveMode") private var liveMode = "Channels"
     @EnvironmentObject private var history: WatchHistory
     @AppStorage("offerLiveFromStart") private var offerFromStart = false
@@ -619,10 +621,13 @@ struct LiveView: View {
             return Self.guideOrder.firstIndex(of: id) ?? Self.guideOrder.count
         }
         let networks: [ContentProvider] = [.bbc, .itv, .channel4, .channel5]
-        return networks.flatMap { network in
+        let favourite = favourites.ordered(all.filter { favourites.contains($0.id) }) { $0.id }
+        let rest = networks.flatMap { network in
             all.enumerated().filter { $0.element.provider == network }
                 .sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }.map(\.element)
         } + all.filter { !networks.contains($0.provider) }
+        // Favourites first, in the profile's order.
+        return favourite + rest.filter { !favourites.contains($0.id) }
     }
     private static let guideOrder = ["bbc_one", "bbc_two", "bbc_three", "bbc_four", "cbbc", "cbeebies", "bbc_news24", "bbc_parliament",
         "bbc_scotland", "bbc_alba", "s4cpbs", "itv:itv", "itv:itv2", "itv:itv3", "itv:itv4", "itv:itvbe",
@@ -700,6 +705,27 @@ struct LiveView: View {
         .modifier(LoadingBackAction(active: playback.loading) { playback.stop() })
         .onDisappear { if !state.playing { playback.stop() } }
     }
+    /// A live channel; long-press to add it to or remove it from Favourites.
+    private func channelCard(_ channel: LiveChannel) -> some View {
+        Button { play(channel) } label: {
+            VStack(alignment: .leading, spacing: 12) {
+                LiveChannelArtwork(channel: channel)
+                    .overlay(alignment: .topTrailing) {
+                        if favourites.contains(channel.id) {
+                            Image(systemName: "star.fill").font(.system(size: 22)).foregroundStyle(.yellow).padding(10)
+                                .accessibilityLabel("Favourite")
+                        }
+                    }
+                Text(channel.current?.title ?? channel.title).font(.headline).lineLimit(2)
+                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
+                HStack { Text(channel.title).font(.callout).foregroundStyle(.secondary); Spacer(); ProviderBadge(provider: channel.provider, subdued: true) }
+            }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
+        }.buttonStyle(ProgrammeCardStyle()).disabled(playback.loading)
+        .contextMenu {
+            Button(favourites.contains(channel.id) ? "Remove from Favourites" : "Add to Favourites",
+                   systemImage: favourites.contains(channel.id) ? "star.slash" : "star") { favourites.toggle(channel.id) }
+        }
+    }
     private var channelsGrid: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 30) {
@@ -713,6 +739,13 @@ struct LiveView: View {
                 if let error = state.channel5Error { Text(error).foregroundStyle(.orange) }
                 if state.bbcError != nil || state.itvError != nil || state.channel4Error != nil || state.channel5Error != nil { Button("Retry channels") { state.retry += 1 } }
                 if let error = playback.error { Text(error).foregroundStyle(.orange) }
+                let favouriteRow = favourites.ordered(LiveChannelSection.allCases.flatMap { channels(in: $0) }.filter { favourites.contains($0.id) }) { $0.id }
+                if !favouriteRow.isEmpty {
+                    Text("Favourites").font(.title2).bold()
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 370))], spacing: 30) {
+                        ForEach(favouriteRow) { channel in channelCard(channel) }
+                    }
+                }
                 ForEach(LiveChannelSection.allCases,id:\.self) { section in
                     let channels = channels(in:section)
                     if !channels.isEmpty {
@@ -723,16 +756,7 @@ struct LiveView: View {
                             Text(section.title).font(.title2).bold().padding(.top,20)
                         }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 370))], spacing: 30) {
-                    ForEach(channels) { channel in
-                        Button { play(channel) } label: {
-                            VStack(alignment: .leading, spacing: 12) {
-                                LiveChannelArtwork(channel: channel)
-                                Text(channel.current?.title ?? channel.title).font(.headline).lineLimit(2)
-                                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
-                                HStack { Text(channel.title).font(.callout).foregroundStyle(.secondary); Spacer(); ProviderBadge(provider: channel.provider, subdued: true) }
-                            }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                        }.buttonStyle(ProgrammeCardStyle()).disabled(playback.loading)
-                    }
+                    ForEach(channels) { channel in channelCard(channel) }
                 }
                     }
                 }
@@ -741,6 +765,7 @@ struct LiveView: View {
     }
 }
 struct SettingsView: View {
+    @ObservedObject private var favourites = FavouriteChannels.shared
     @AppStorage("bbcOneRegion") private var bbcOne = "bbc_one_london"
     @AppStorage("bbcTwoRegion") private var bbcTwo = "bbc_two_england"
     @AppStorage("offerLiveFromStart") private var offerLiveFromStart = false
@@ -829,6 +854,11 @@ struct SettingsView: View {
                 Text("When on, opening a channel part-way through a programme asks whether to watch from the start or live. You can also jump back with Watch from start in the player. How far back you can go depends on the broadcaster.")
                     .font(.system(size: 22)).foregroundStyle(.secondary)
                 NavigationLink {
+                    FavouriteChannelsView(channels: FavouriteChannelsView.knownChannels)
+                } label: {
+                    RegionSettingLabel(title: "Favourite channels", value: favourites.ids.isEmpty ? "None" : "\(favourites.ids.count) chosen")
+                }
+                NavigationLink {
                     RegionSelectionView(title: "BBC One region", choices: RegionalChannels.bbcOne, selection: $bbcOne)
                 } label: { RegionSettingLabel(title: "BBC One region", value: RegionalChannels.bbcOne.first { $0.id == bbcOne }?.title ?? "London") }
                 NavigationLink {
@@ -894,5 +924,67 @@ private struct HomeProgrammeCard: View {
                 .overlay(alignment: .bottomTrailing) { ProviderBadge(provider: show.provider, subdued: true).padding(14) }
                 .accessibilityLabel(show.title)
         } else { ShowCard(show: show) }
+    }
+}
+
+/// Settings › Favourite channels: pick favourites, then order them. Favourites lead the Live page, the guide
+/// and the Top Shelf. Select a favourite to pick it up, move it with Up and Down, and select again to drop it.
+struct FavouriteChannelsView: View {
+    let channels: [LiveShelfChannel]
+    /// The main channels of every broadcaster (streaming-only channels can be added from the Live page).
+    static var knownChannels: [LiveShelfChannel] {
+        LiveShelfChannel.defaults
+            + (ITVLiveAPI.seed().filter { !$0.id.hasPrefix("itv:fast") } + Channel4CatalogueAPI.liveSeed + Channel5CatalogueAPI.liveSeed)
+                .map { LiveShelfChannel(id: $0.id, title: $0.title) }
+    }
+    @ObservedObject private var favourites = FavouriteChannels.shared
+    @State private var moving: String?
+    @FocusState private var focused: String?
+    private func title(_ id: String) -> String { channels.first { FavouriteChannels.canonical($0.id) == id }?.title ?? id }
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                Text("Favourite channels").font(.largeTitle).bold()
+                Text("Favourites come first on the Live page, in the guide and on the Top Shelf. Each profile has its own, and they sync with household sync. You can also long-press a channel on the Live page.")
+                    .font(.system(size: 24)).foregroundStyle(.secondary)
+                if !favourites.ids.isEmpty {
+                    Text(moving == nil ? "Your order: select a channel to move it" : "Moving: use Up and Down, then select to drop")
+                        .font(.system(size: 30, weight: .semibold)).padding(.top, 10)
+                    ForEach(Array(favourites.ids.enumerated()), id: \.element) { index, id in
+                        HStack(spacing: 18) {
+                            Button {
+                                moving = moving == id ? nil : id
+                            } label: {
+                                HStack(spacing: 18) {
+                                    Text("\(index + 1)").monospacedDigit().foregroundStyle(.secondary).frame(width: 44, alignment: .trailing)
+                                    Text(title(id)); Spacer()
+                                    Image(systemName: moving == id ? "arrow.up.arrow.down.circle.fill" : "line.3.horizontal")
+                                }.frame(maxWidth: .infinity)
+                            }.buttonStyle(OutlinedActionButtonStyle()).focused($focused, equals: id)
+                                .disabled(moving != nil && moving != id)
+                                .accessibilityHint(moving == id ? "Use Up and Down to move, then select" : "Select to move")
+                            Button { favourites.remove(id) } label: { Image(systemName: "star.slash") }
+                                .buttonStyle(OutlinedActionButtonStyle(square: true)).disabled(moving != nil)
+                                .accessibilityLabel("Remove \(title(id)) from favourites")
+                        }
+                    }
+                    .onMoveCommand { direction in
+                        guard let id = moving, direction == .up || direction == .down else { return }
+                        favourites.move(id, by: direction == .up ? -1 : 1)
+                        focused = id
+                    }
+                }
+                Text("All channels").font(.system(size: 30, weight: .semibold)).padding(.top, 10)
+                ForEach(channels, id: \.id) { channel in
+                    let on = favourites.contains(channel.id)
+                    Button { favourites.toggle(channel.id) } label: {
+                        HStack { Text(channel.title); Spacer(); Image(systemName: on ? "star.fill" : "star").foregroundStyle(on ? Color.yellow : Color.secondary) }
+                            .frame(maxWidth: .infinity)
+                    }.buttonStyle(OutlinedActionButtonStyle()).disabled(moving != nil)
+                        .accessibilityValue(on ? "Favourite" : "")
+                }
+            }.padding(.horizontal, 36).padding(.vertical, 20)
+        }.scrollClipDisabled().padding(60)
+        .onExitCommand(perform: moving == nil ? nil : { moving = nil })
     }
 }

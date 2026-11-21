@@ -27,9 +27,31 @@ import SwiftUI
 }
 struct ProgrammeCard: View {
     let programme: Programme
+    /// Watched episodes get a WATCHED mark and dimmed artwork; part-watched ones a progress line.
+    var progress: EpisodeProgress? = nil
+    @Environment(\.isFocused) private var focused
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ProgrammeThumbnail(url: programme.image, uhd: programme.uhdListed == true, hdr: programme.hdrListed == true, provider: programme.provider)
+                .opacity(progress?.completed == true && !focused ? 0.55 : 1)
+                .overlay(alignment: .topLeading) {
+                    if progress?.completed == true {
+                        Label("WATCHED", systemImage: "checkmark").font(.system(size: 17, weight: .bold)).labelStyle(.titleAndIcon)
+                            .padding(.horizontal, 10).padding(.vertical, 5).foregroundStyle(.white)
+                            .background(Color(red: 0.12, green: 0.55, blue: 0.27), in: Capsule()).padding(10)
+                    }
+                }
+                .overlay(alignment: .bottom) {
+                    if let progress, !progress.completed, progress.fraction > 0.02 {
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                Rectangle().fill(.white.opacity(0.3))
+                                Rectangle().fill(Color.pink).frame(width: geometry.size.width * progress.fraction)
+                            }
+                        }.frame(height: 6).clipShape(Capsule()).padding(.horizontal, 10).padding(.bottom, 10)
+                    }
+                }
+                .accessibilityValue(progress?.completed == true ? "Watched" : progress.map { $0.fraction > 0.02 ? "\(Int($0.fraction * 100))% watched" : "" } ?? "")
             Text(programme.episodeSubtitle ?? programme.title).font(.headline).lineLimit(2)
                 .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
             HStack { Spacer(); ProviderBadge(provider: programme.provider, subdued: true) }.frame(minHeight: 40)
@@ -78,6 +100,10 @@ struct DetailView: View {
                     .disabled(playback.loading || programme.premium == true).buttonStyle(OutlinedActionButtonStyle(square: true))
                 if !playback.loading, history.resumePosition(for: programme.id) > 0 {
                     Button("Start over") { playback.start(programme, history: history, show: show, restart: true) { state.playing = true } }
+                }
+                if !playback.loading {
+                    let watched = history.progress(for: programme.id)?.completed == true
+                    Button(watched ? "Mark unwatched" : "Mark watched") { history.setWatched(programme.id, !watched) }
                 }
                 if playback.loading { Button("Cancel") { playback.stop() } }
                 if let show {
