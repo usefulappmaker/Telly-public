@@ -576,6 +576,8 @@ struct LiveView: View {
     @ObservedObject private var account = ITVAccountModel.shared
     @ObservedObject private var channel5Account = Channel5AccountModel.shared
     @State private var providerFilter: ContentProvider?
+    @AppStorage("liveMode") private var liveMode = "Channels"
+    @EnvironmentObject private var history: WatchHistory
     @AppStorage("offerLiveFromStart") private var offerFromStart = false
     @State private var askFromStart: LiveChannel?
     private func play(_ channel: LiveChannel, fromStart: Bool? = nil) {
@@ -602,41 +604,38 @@ struct LiveView: View {
             }
         }
     }
+    /// Channels with a published schedule (BBC, ITV, Channel 4, Channel 5 and the regional extras), in Live page
+    /// order; BBC One/Two follow the chosen region so the listings match what plays.
+    private var guideChannels: [LiveChannel] {
+        [LiveChannelSection.main, .additional].flatMap { channels(in: $0) }
+            .map { $0.provider == .bbc ? RegionalChannels.resolve($0) : $0 }
+    }
     private var liveBody: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 30) {
-                NetworkFilter(selection: $providerFilter)
-                if let error = state.bbcError { Text(error).foregroundStyle(.orange) }
-                if let error = state.itvError { Text(error).foregroundStyle(.orange) }
-                if let error = state.channel4Error { Text(error).foregroundStyle(.orange) }
-                if let error = state.channel5Error { Text(error).foregroundStyle(.orange) }
-                if state.bbcError != nil || state.itvError != nil || state.channel4Error != nil || state.channel5Error != nil { Button("Retry channels") { state.retry += 1 } }
-                if let error = playback.error { Text(error).foregroundStyle(.orange) }
-                ForEach(LiveChannelSection.allCases,id:\.self) { section in
-                    let channels = channels(in:section)
-                    if !channels.isEmpty {
-                        if section == .itvThemed || section == .channel5Themed {
-                            ProviderBadge(provider:section == .itvThemed ? .itv : .channel5,categoryHeading:true)
-                                .accessibilityLabel(section.title).padding(.top,20)
-                        } else if section == .additional {
-                            Text(section.title).font(.title2).bold().padding(.top,20)
-                        }
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 370))], spacing: 30) {
-                    ForEach(channels) { channel in
-                        Button { play(channel) } label: {
-                            VStack(alignment: .leading, spacing: 12) {
-                                LiveChannelArtwork(channel: channel)
-                                Text(channel.current?.title ?? channel.title).font(.headline).lineLimit(2)
-                                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
-                                HStack { Text(channel.title).font(.callout).foregroundStyle(.secondary); Spacer(); ProviderBadge(provider: channel.provider, subdued: true) }
-                            }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                        }.buttonStyle(ProgrammeCardStyle()).disabled(playback.loading)
+        Group {
+            if liveMode == "Guide" {
+                // The guide scrolls itself, keeping its programme panel in view.
+                VStack(alignment: .leading, spacing: 24) {
+                    HStack(spacing: 30) {
+                        TellySegments(title: "Live view", options: ["Channels", "Guide"], selection: $liveMode).frame(width: 460)
+                        NetworkFilter(selection: $providerFilter)
                     }
-                }
-                    }
-                }
-            }.padding(60)
-        }.task(id: "\(state.retry)-\(phase)-\(state.playing)-\(state.pairing)-\(state.channel5Pairing)") {
+                    if let error = playback.error { Text(error).foregroundStyle(.orange) }
+                    ChannelGuideView(channels: guideChannels,
+                                     additionalStreams: ProfileStore.shared.kidsMode || (providerFilter ?? .bbc) != .bbc ? [] : AdditionalLiveStream.all,
+                                     playLive: { play($0) },
+                                     playStream: { stream in playback.startAdditional(stream) { state.playing = true } },
+                                     playEpisode: { programme in
+                                         if ProfileStore.shared.kidsMode && !(programme.guidance ?? "").isEmpty {
+                                             state.bbcError = "This programme isn't available on a kids profile."; return
+                                         }
+                                         playback.start(programme, history: history) { state.playing = true }
+                                     })
+                }.padding(.horizontal, 60).padding(.top, 24)
+            } else {
+                channelsGrid
+            }
+        }
+        .task(id: "\(state.retry)-\(phase)-\(state.playing)-\(state.pairing)-\(state.channel5Pairing)") {
             guard phase == .active, !state.playing, !state.pairing, !state.channel5Pairing else { return }
             await account.reload(); await channel5Account.reload()
             while !Task.isCancelled {
@@ -683,6 +682,45 @@ struct LiveView: View {
         .fullScreenCover(isPresented: $state.playing, onDismiss: { playback.stop() }) { PlaybackScreen(model: playback) }
         .modifier(LoadingBackAction(active: playback.loading) { playback.stop() })
         .onDisappear { if !state.playing { playback.stop() } }
+    }
+    private var channelsGrid: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 30) {
+                HStack(spacing: 30) {
+                    TellySegments(title: "Live view", options: ["Channels", "Guide"], selection: $liveMode).frame(width: 460)
+                    NetworkFilter(selection: $providerFilter)
+                }
+                if let error = state.bbcError { Text(error).foregroundStyle(.orange) }
+                if let error = state.itvError { Text(error).foregroundStyle(.orange) }
+                if let error = state.channel4Error { Text(error).foregroundStyle(.orange) }
+                if let error = state.channel5Error { Text(error).foregroundStyle(.orange) }
+                if state.bbcError != nil || state.itvError != nil || state.channel4Error != nil || state.channel5Error != nil { Button("Retry channels") { state.retry += 1 } }
+                if let error = playback.error { Text(error).foregroundStyle(.orange) }
+                ForEach(LiveChannelSection.allCases,id:\.self) { section in
+                    let channels = channels(in:section)
+                    if !channels.isEmpty {
+                        if section == .itvThemed || section == .channel5Themed {
+                            ProviderBadge(provider:section == .itvThemed ? .itv : .channel5,categoryHeading:true)
+                                .accessibilityLabel(section.title).padding(.top,20)
+                        } else if section == .additional {
+                            Text(section.title).font(.title2).bold().padding(.top,20)
+                        }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 370))], spacing: 30) {
+                    ForEach(channels) { channel in
+                        Button { play(channel) } label: {
+                            VStack(alignment: .leading, spacing: 12) {
+                                LiveChannelArtwork(channel: channel)
+                                Text(channel.current?.title ?? channel.title).font(.headline).lineLimit(2)
+                                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
+                                HStack { Text(channel.title).font(.callout).foregroundStyle(.secondary); Spacer(); ProviderBadge(provider: channel.provider, subdued: true) }
+                            }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
+                        }.buttonStyle(ProgrammeCardStyle()).disabled(playback.loading)
+                    }
+                }
+                    }
+                }
+            }.padding(60)
+        }
     }
 }
 struct SettingsView: View {

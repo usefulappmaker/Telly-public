@@ -37,9 +37,13 @@ C40000000000000000000007 = {isa = PBXBuildFile; fileRef = C400000000000000000000
 00000000000000000000019F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHistory.swift; sourceTree = "<group>"; };
 0000000000000000000F0001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profiles.swift; sourceTree = "<group>"; };
 0000000000000000000F0003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesUI.swift; sourceTree = "<group>"; };
+0000000000000000000F0005 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuide.swift; sourceTree = "<group>"; };
+0000000000000000000F0007 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuideView.swift; sourceTree = "<group>"; };
 000000000000000000000203 = {isa = PBXBuildFile; fileRef = 00000000000000000000019F; };
 0000000000000000000F0002 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0001; };
 0000000000000000000F0004 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0003; };
+0000000000000000000F0006 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0005; };
+0000000000000000000F0008 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0007; };
 0000000000000000000001A0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinueWatching.swift; sourceTree = "<group>"; };
 000000000000000000000204 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A0; };
 00000000000000000000019E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPolicy.swift; sourceTree = "<group>"; };
@@ -214,6 +218,8 @@ F10000000000000000000001, F10000000000000000000005,
                 00000000000000000000019F,
                 0000000000000000000F0001,
                 0000000000000000000F0003,
+                0000000000000000000F0005,
+                0000000000000000000F0007,
                 0000000000000000000001A1,
 0000000000000000000001A0,
                 00000000000000000000019E,
@@ -335,6 +341,8 @@ A60000000000000000000005,A60000000000000000000007,C40000000000000000000007,C5000
                 000000000000000000000203,
                 0000000000000000000F0002,
                 0000000000000000000F0004,
+                0000000000000000000F0006,
+                0000000000000000000F0008,
                 000000000000000000000206,
                 000000000000000000000207,
                 000000000000000000000208,

@@ -134,6 +134,24 @@ import AVKit
             try? await Task.sleep(nanoseconds: 100_000_000)
         }
     }
+    /// Red Button from the channel guide: open the event stream directly. Off air, the Live page shows the error.
+    func startAdditional(_ stream: AdditionalLiveStream, ready: @escaping () -> Void) {
+        guard AdditionalLiveStream.all.contains(where: { $0.id == stream.id }) else { return }
+        begin(title: stream.title, subtitle: stream.title, minimumHeight: 0, isLive: true, ready: ready) { [weak self] in
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["TELLY_LIVE_ROUTE_VALIDATE"] == "1", let raw = ProcessInfo.processInfo.environment["TELLY_PLAYER_URL"], let url = URL(string: raw) { return PlaybackSource(url: url, requested1080: false) }
+            #endif
+            guard stream.id == "uk_bbc_stream_041" else { return try await DiscoveryAPI().liveSource(LiveChannel(id: stream.id, title: stream.title)) }
+            let uhd = LiveUHDPlaybackAccess()
+            do {
+                let source = try await uhd.source()
+                try Task.checkCancellation()
+                self?.liveUHD = uhd
+                return source
+            } catch { uhd.stop(); throw error }
+        }
+        liveProgrammeStart = nil
+    }
     /// Resolve first: an off-air event must not destroy the working channel.
     func switchAdditionalStream(_ stream: AdditionalLiveStream) {
         guard isLive, provider == .bbc, AdditionalLiveStream.all.contains(where: { $0.id == stream.id }) else { return }
@@ -704,6 +722,12 @@ final class PlayerContainerViewController: UIViewController, UIGestureRecognizer
         infoVisible ? [infoController] : [playerController]
     }
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive press: UIPress) -> Bool {
+        if gestureRecognizer !== backGesture, press.type == .select {
+            // Note the press without claiming it: a recognised tap cancels the press for AVKit,
+            // so the transport bar's own buttons (Watch from start, Live, RED, Info) never fired.
+            nonBackInteraction()
+            return false
+        }
         if gestureRecognizer === backGesture, presentedViewController != nil {
             backExitArmed = true
             return false // Native Back dismisses the stream menu/error first.
