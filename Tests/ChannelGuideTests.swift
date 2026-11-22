@@ -175,6 +175,45 @@ import Foundation
         let itvRows = ChannelGuide.itvNowNextEntries(itvFeed)
         check(Set(itvRows.keys) == ["itv:fast1"] && itvRows["itv:fast1"]?.map(\.title) == ["Film A", "Film B"], "ITV now and next fill a streaming-only ITV channel")
         check(c4Asked == ["2026-10-19"] && fvAsked == 1 && bbcAsked >= 1, "Each guide is fetched once per day it covers")
-        print("PASS: guide window, schedule parsing, on-demand flags, timeline segments, remote navigation, paged loading, Channel 4 and Freeview guides and independent channel loading")
+
+        // ITV's earlier programmes are marked for ITVX catch-up lookup; Channel 5's are not (its catalogue isn't wired up).
+        check(fvRows["itv:itv"]?.allSatisfy { $0.catchUp == .itv } == true, "ITV Freeview entries are flagged for ITVX catch-up")
+        check(fvRows["c5:C7"]?.allSatisfy { $0.catchUp == nil } == true, "Channel 5 Freeview entries are not flagged for catch-up")
+        let pastITV = GuideEntry(id: "fv:itv:1", start: at("2026-10-18T19:00:00Z"), end: at("2026-10-18T20:00:00Z"), title: "Deal or No Deal",
+                                 subtitle: "Series 3: 15. Jade", synopsis: "", episodeID: nil, onDemand: false, isRepeat: false, catchUp: .itv)
+        check(ChannelGuide.playable(pastITV, at: at("2026-10-19T12:00:00Z")), "A past ITV programme stays selectable for an ITVX lookup")
+
+        // Reading a Freeview subtitle apart into series, episode number and name.
+        check(ITVGuideMatch.parse("Series 3: 15. Jade") == .init(series: 3, number: 15, name: "Jade"), "Series, episode and name are read")
+        check(ITVGuideMatch.parse("New: 7. The Reveal") == .init(series: nil, number: 7, name: "The Reveal"), "An episode number without a series is read")
+        check(ITVGuideMatch.parse("A Place in the Sun") == .init(series: nil, number: nil, name: "A Place in the Sun"), "A bare subtitle is taken as the name")
+        check(ITVGuideMatch.seriesNumber("Series 12") == 12 && ITVGuideMatch.seriesNumber("Specials") == nil, "A series label's number is read")
+
+        // Picking the show and the episode from ITVX results.
+        func ep(_ series: Int?, _ number: Int?, _ name: String, _ bcast: String?) -> CatalogueEpisode {
+            var p = Programme(id: "itv:p\(number ?? 0)", title: "Deal or No Deal", summary: "", image: nil, version: "", guidance: nil)
+            p.episodeSubtitle = number.map { "Episode \($0) · \(name)" } ?? name
+            return CatalogueEpisode(programme: p, subtitle: p.episodeSubtitle ?? name, duration: "", sliceID: "s",
+                                    seriesTitle: series.map { "Series \($0)" } ?? "Episodes", parentPosition: number, broadcastDate: bcast)
+        }
+        func show(_ title: String, _ episodes: [CatalogueEpisode] = []) -> CatalogueShow {
+            CatalogueShow(id: "itv:" + title, title: title, summary: "", image: nil, letter: "d", channel: "ITV", categories: [],
+                          expectedEpisodes: episodes.count, singleEpisode: false, episodes: episodes)
+        }
+        let shows = [show("Deal or No Deal Banker's Best Battles"), show("Deal or No Deal"), show("Deal or No Deal: Celebrity Special")]
+        check(ITVGuideMatch.bestShow(shows, title: "Deal or No Deal")?.title == "Deal or No Deal", "An exact title wins over longer near-matches")
+        check(ITVGuideMatch.bestShow([show("The Chase Celebrity")], title: "The Chase") == nil, "No confident show match returns nothing")
+        let episodes = [ep(3, 15, "Jade", "2026-10-18T19:00:00Z"), ep(3, 16, "Priya", "2026-10-19T19:00:00Z"), ep(2, 15, "Old", "2025-01-01T19:00:00Z")]
+        check(ITVGuideMatch.match(episodes, to: pastITV, now: at("2026-10-20T00:00:00Z"))?.programme.id == "itv:p15", "Series and episode number pick the right episode")
+        let byDate = GuideEntry(id: "x", start: at("2026-10-19T19:00:00Z"), end: at("2026-10-19T20:00:00Z"), title: "Deal or No Deal",
+                                subtitle: "", synopsis: "", episodeID: nil, onDemand: false, isRepeat: false, catchUp: .itv)
+        check(ITVGuideMatch.match(episodes, to: byDate, now: at("2026-10-20T00:00:00Z"))?.programme.id == "itv:p16", "With no episode number, the broadcast date matches")
+        let film = show("A Film", [ep(nil, nil, "A Film", nil)])
+        check(ITVGuideMatch.match(film.episodes, to: byDate, now: at("2026-10-20T00:00:00Z"))?.programme.id == "itv:p0", "A single-episode show is taken by title alone")
+        check(ITVGuideMatch.match(episodes, to: GuideEntry(id: "n", start: at("2020-01-01T00:00:00Z"), end: at("2020-01-01T01:00:00Z"), title: "News",
+                                  subtitle: "Series 9: 99. Nope", synopsis: "", episodeID: nil, onDemand: false, isRepeat: false, catchUp: .itv),
+                                  now: at("2026-10-20T00:00:00Z")) == nil, "A programme with no matching episode is left unmatched")
+
+        print("PASS: guide window, schedule parsing, on-demand flags, timeline segments, remote navigation, paged loading, Channel 4 and Freeview guides, ITVX catch-up matching and independent channel loading")
     }
 }

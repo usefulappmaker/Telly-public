@@ -183,6 +183,7 @@ struct ChannelGuideView: View {
                     Text(focused.channel.title).font(.system(size: 25)).foregroundStyle(.secondary)
                     if focused.entry.isOnAir(at: now) { Text("On now").font(.system(size: 25, weight: .semibold)).foregroundStyle(.pink) }
                     else if focused.entry.onDemand { Text(focused.entry.isPast(at: now) ? "Shown earlier · available on demand" : "Available on demand").font(.system(size: 25, weight: .semibold)).foregroundStyle(.teal) }
+                    else if focused.entry.isPast(at: now), focused.entry.catchUp != nil { Text("Shown earlier · look up on ITVX").font(.system(size: 25, weight: .semibold)).foregroundStyle(.teal) }
                     else if focused.entry.isPast(at: now) { Text("Shown earlier · not available").font(.system(size: 25, weight: .semibold)).foregroundStyle(.secondary) }
                 }
                 Text(focused.entry.synopsis).font(.system(size: 25)).foregroundStyle(.secondary).lineLimit(2)
@@ -465,8 +466,10 @@ struct ChannelGuideView: View {
     private func activate(_ entry: GuideEntry, on channel: LiveChannel) {
         let now = Date()
         if entry.isOnAir(at: now) { playLive(channel); return }
-        // Finished and on demand already (BBC, Channel 4): play the episode straight away; the details card is the fallback.
-        guard entry.isPast(at: now), entry.onDemand, entry.episodeID != nil else { selection = GuideSelection(entry: entry, channel: channel); return }
+        // Finished and playable on demand — confirmed (BBC, Channel 4) or looked up (ITV on ITVX): try the episode
+        // straight away; the details card is the fallback if it can't be found.
+        let resolvable = entry.onDemand && entry.episodeID != nil || entry.catchUp != nil
+        guard entry.isPast(at: now), resolvable else { selection = GuideSelection(entry: entry, channel: channel); return }
         opening?.cancel()
         opening = Task { @MainActor in
             do {
@@ -585,9 +588,12 @@ private struct GuideEntryDetail: View {
             if !selection.entry.synopsis.isEmpty { Text(selection.entry.synopsis).font(.title3) }
             if let error { Text(error).foregroundStyle(.orange).font(.callout) }
             HStack(spacing: 24) {
-                // Earlier programmes, repeats and box-set episodes are on iPlayer already.
-                if selection.entry.onDemand, let id = selection.entry.episodeID {
-                    Button(opening ? "Finding episode…" : past ? "Watch on demand" : "Watch now on demand") { watch(id) }.disabled(opening)
+                // Earlier programmes, repeats and box-set episodes are on iPlayer/Channel 4 already; ITV's are looked
+                // up on ITVX when asked for.
+                if selection.entry.onDemand, selection.entry.episodeID != nil {
+                    Button(opening ? "Finding episode…" : past ? "Watch on demand" : "Watch now on demand") { watch() }.disabled(opening)
+                } else if past, selection.entry.catchUp != nil {
+                    Button(opening ? "Finding on ITVX…" : "Find on ITVX") { watch() }.disabled(opening)
                 }
                 if !past { Button("Watch \(selection.channel.title) live") { close { playLive(selection.channel) } }.disabled(opening) }
                 Button("Close") { dismiss() }
@@ -603,7 +609,7 @@ private struct GuideEntryDetail: View {
             action()
         }
     }
-    private func watch(_ id: String) {
+    private func watch() {
         opening = true; error = nil
         Task { @MainActor in
             do {
@@ -614,14 +620,18 @@ private struct GuideEntryDetail: View {
     }
 }
 
-/// The on-demand episode behind a guide entry: Channel 4 plays straight from its programme ID; BBC looks the pid up.
+/// The on-demand episode behind a guide entry: Channel 4 plays straight from its programme ID; BBC looks the pid up;
+/// ITV, which the schedule doesn't flag, is searched for on ITVX by title, series/episode and broadcast date.
 func guideOnDemandProgramme(_ entry: GuideEntry, on channel: LiveChannel) async throws -> Programme {
-    guard let id = entry.episodeID else { throw BBCError.message("This programme isn't available on demand.") }
-    if id.hasPrefix("c4:") {
-        var programme = Programme(id: id, title: entry.title, summary: entry.synopsis, image: nil, version: "", guidance: nil)
-        programme.showTitle = entry.title
-        programme.episodeSubtitle = entry.subtitle.isEmpty ? channel.title : entry.subtitle
-        return programme
+    if entry.onDemand, let id = entry.episodeID {
+        if id.hasPrefix("c4:") {
+            var programme = Programme(id: id, title: entry.title, summary: entry.synopsis, image: nil, version: "", guidance: nil)
+            programme.showTitle = entry.title
+            programme.episodeSubtitle = entry.subtitle.isEmpty ? channel.title : entry.subtitle
+            return programme
+        }
+        return try await BBCService().programme(id)
     }
-    return try await BBCService().programme(id)
+    if entry.catchUp == .itv { return try await ITVGuideMatch.resolve(entry) }
+    throw BBCError.message("This programme isn't available on demand.")
 }

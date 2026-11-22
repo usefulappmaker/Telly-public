@@ -13,6 +13,10 @@ struct GuideEntry: Identifiable, Hashable {
     /// The broadcaster already lists this episode as available on demand (episodeID: a BBC pid, or "c4:<programme id>").
     let onDemand: Bool
     let isRepeat: Bool
+    /// A past programme the broadcaster doesn't flag as on demand, but whose catalogue we can search to try to find it
+    /// (ITV: the Freeview schedule says nothing about catch-up, so an earlier ITV programme is looked up on ITVX when
+    /// the user selects it). nil when there is nothing to look up.
+    var catchUp: ContentProvider? = nil
     func isOnAir(at date: Date) -> Bool { start <= date && date < end }
     func isPast(at date: Date) -> Bool { end <= date }
 }
@@ -156,7 +160,9 @@ enum ChannelGuide {
                       let title = event["main_title"] as? String, !title.isEmpty else { return nil }
                 let key = event["uuid"] as? String ?? event["program_id"] as? String ?? "\(start.timeIntervalSince1970)"
                 return GuideEntry(id: "fv:\(id):\(key)", start: start, end: start.addingTimeInterval(length), title: title,
-                                  subtitle: event["secondary_title"] as? String ?? "", synopsis: "", episodeID: nil, onDemand: false, isRepeat: false)
+                                  subtitle: event["secondary_title"] as? String ?? "", synopsis: "", episodeID: nil, onDemand: false, isRepeat: false,
+                                  // ITV's earlier programmes can be looked up on ITVX; Channel 5's catalogue isn't wired up yet.
+                                  catchUp: id.hasPrefix("itv:") ? .itv : nil)
             }
         }
         return result
@@ -309,7 +315,7 @@ enum ChannelGuide {
     /// Remote navigation shows a fixed stretch of time that pages at its edges. Up and Down keep a
     /// focus time, so moving between channels stays in the same column instead of jumping to
     /// whichever programme the focus engine reaches first.
-    static func playable(_ entry: GuideEntry, at now: Date) -> Bool { !entry.isPast(at: now) || entry.onDemand }
+    static func playable(_ entry: GuideEntry, at now: Date) -> Bool { !entry.isPast(at: now) || entry.onDemand || entry.catchUp != nil }
     static func halfHour(_ date: Date, roundingUp: Bool = false) -> Date {
         Date(timeIntervalSinceReferenceDate: (date.timeIntervalSinceReferenceDate / 1800).rounded(roundingUp ? .up : .down) * 1800)
     }
@@ -362,5 +368,93 @@ enum ChannelGuide {
             cursor = to
         }
         return result
+    }
+}
+
+/// Finding an earlier ITV programme on ITVX from its Freeview guide slot. The Freeview schedule gives a title, a start
+/// time and often a "Series 3: 15. Episode name" subtitle; ITVX is searched for the show and its episodes are matched
+/// by original broadcast date, series-and-episode number, or episode name. Matching is best-effort: live, news and
+/// sport usually have no ITVX episode and come back unmatched, which the guide reports instead of promising playback.
+enum ITVGuideMatch {
+    /// What the Freeview subtitle tells us about the episode.
+    struct Slot: Equatable { var series: Int?; var number: Int?; var name: String? }
+
+    static func normalise(_ text: String) -> String {
+        text.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "en_GB"))
+            .components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }.joined(separator: " ")
+    }
+    /// "Series 3: 15. Jade" -> (3, 15, "Jade"); "15. Jade" -> (nil, 15, "Jade"); "New: Jade" / "Jade" -> (nil, nil, "Jade").
+    static func parse(_ subtitle: String) -> Slot {
+        var slot = Slot()
+        var rest = subtitle.trimmingCharacters(in: .whitespaces)
+        // Drop a leading tag Freeview sometimes prepends, e.g. "New:" or "Live:".
+        if let m = rest.range(of: #"(?i)^(new|live|brand new)\s*[:.]\s*"#, options: .regularExpression) { rest = String(rest[m.upperBound...]) }
+        if let m = rest.range(of: #"(?i)^series\s+(\d+)\s*[:.]?\s*"#, options: .regularExpression) {
+            slot.series = Int(rest[m].components(separatedBy: CharacterSet.decimalDigits.inverted).first { !$0.isEmpty } ?? "")
+            rest = String(rest[m.upperBound...])
+        }
+        if let m = rest.range(of: #"^(\d+)\s*[.:]\s*"#, options: .regularExpression) {
+            slot.number = Int(rest[m].components(separatedBy: CharacterSet.decimalDigits.inverted).first { !$0.isEmpty } ?? "")
+            rest = String(rest[m.upperBound...])
+        }
+        let name = rest.trimmingCharacters(in: .whitespaces)
+        slot.name = name.isEmpty ? nil : name
+        return slot
+    }
+    static func seriesNumber(_ label: String) -> Int? {
+        guard let m = label.range(of: #"(?i)series\s+(\d+)"#, options: .regularExpression) else { return nil }
+        return Int(label[m].components(separatedBy: CharacterSet.decimalDigits.inverted).first { !$0.isEmpty } ?? "")
+    }
+    /// The name inside an episode subtitle ("Episode 15 · Jade" -> "Jade", "Jade" -> "Jade").
+    static func episodeName(_ subtitle: String) -> String {
+        subtitle.components(separatedBy: " · ").last.map { $0.range(of: #"(?i)^episode\s+\d+$"#, options: .regularExpression) == nil ? $0 : "" } ?? subtitle
+    }
+    /// The show whose title matches the slot's exactly (ignoring case and punctuation). A near-but-different title like
+    /// "The Chase Celebrity" for "The Chase" is left unmatched rather than risk playing the wrong programme.
+    static func bestShow(_ shows: [CatalogueShow], title: String) -> CatalogueShow? {
+        let wanted = normalise(title)
+        guard !wanted.isEmpty else { return nil }
+        return shows.first { normalise($0.title) == wanted }
+    }
+    /// The episode in a show that a Freeview slot refers to, or nil when nothing matches confidently. A film or
+    /// one-episode show is taken by title alone; otherwise an episode must match on date, series+number, or name.
+    static func match(_ episodes: [CatalogueEpisode], to entry: GuideEntry, now: Date) -> CatalogueEpisode? {
+        guard !episodes.isEmpty else { return nil }
+        if episodes.count == 1 { return episodes[0] }
+        let slot = parse(entry.subtitle)
+        let iso = ISO8601DateFormatter()
+        func score(_ ep: CatalogueEpisode) -> Int {
+            var score = 0
+            if let raw = ep.broadcastDate, let date = iso.date(from: raw) {
+                let gap = abs(date.timeIntervalSince(entry.start))
+                if gap <= 36 * 3600 { score += 4 } else if gap <= 7 * 86400 { score += 1 }
+            }
+            if let n = slot.number, ep.parentPosition == n {
+                if let s = slot.series, let es = seriesNumber(ep.seriesTitle) { score += es == s ? 5 : -3 } else { score += 2 }
+            }
+            if let name = slot.name {
+                let episodeName = normalise(episodeName(ep.subtitle))
+                if !episodeName.isEmpty, episodeName == normalise(name) { score += 4 }
+            }
+            return score
+        }
+        let ranked = episodes.map { ($0, score($0)) }.filter { $0.1 >= 4 }
+        return ranked.max { a, b in
+            if a.1 != b.1 { return a.1 < b.1 }   // higher score wins
+            let da = a.0.broadcastDate.flatMap(iso.date(from:)) ?? .distantPast
+            let db = b.0.broadcastDate.flatMap(iso.date(from:)) ?? .distantPast
+            return da < db                        // then the most recent broadcast
+        }?.0
+    }
+
+    /// Search ITVX and resolve the episode behind a past ITV guide slot, ready to play. Throws a clear message when
+    /// the programme can't be found rather than leaving the user waiting.
+    static func resolve(_ entry: GuideEntry, api: ITVCatalogueAPI = ITVCatalogueAPI(), now: Date = Date()) async throws -> Programme {
+        let unavailable = BBCError.message("This programme isn't available to watch on demand on ITVX.")
+        let shows = (try? await api.search(entry.title)) ?? []
+        guard let show = bestShow(shows, title: entry.title) else { throw unavailable }
+        let detailed = (try? await api.details(show)) ?? show
+        guard let episode = match(detailed.episodes, to: entry, now: now) else { throw unavailable }
+        return episode.programme
     }
 }
