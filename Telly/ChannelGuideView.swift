@@ -401,16 +401,18 @@ struct ChannelGuideView: View {
         let onAir = entry.isOnAir(at: now)
         let expanded = focusedCell == cellID(channel, entry) && width - 6 < Self.expandedWidth
         let available = ChannelGuide.playable(entry, at: now)
-        return Button { activate(entry, on: channel) } label: { GuideCellLabel(entry: entry, onAir: onAir, roomy: width >= 120, continues: continues) }
+        // Tinted like on-demand when it can be played back: confirmed catch-up, or an earlier ITV programme to look up.
+        let onDemand = !onAir && (entry.onDemand || (entry.catchUp != nil && entry.isPast(at: now)))
+        return Button { activate(entry, on: channel) } label: { GuideCellLabel(entry: entry, onAir: onAir, onDemand: onDemand, roomy: width >= 120, continues: continues) }
             // No longer watchable: greyed out, but it still takes focus so Up and Down keep their column.
-            .buttonStyle(GuideCellStyle(onAir: onAir, onDemand: entry.onDemand, unavailable: !available))
+            .buttonStyle(GuideCellStyle(onAir: onAir, onDemand: onDemand, unavailable: !available))
             .focused($focusedCell, equals: cellID(channel, entry))
             .disabled(!reachable)   // the style ignores this: only the remote's path changes
             .frame(width: max(6, width - 6), height: rowHeight)
             // Drawn over the neighbours without changing the cell's frame, so the remote's path stays the same.
             .overlay(alignment: growsLeft ? .trailing : .leading) {
                 if expanded {
-                    GuideCellLabel(entry: entry, onAir: onAir, roomy: true, continues: continues)
+                    GuideCellLabel(entry: entry, onAir: onAir, onDemand: onDemand, roomy: true, continues: continues)
                         .foregroundStyle(.black)
                         .frame(width: Self.expandedWidth, height: rowHeight)
                         .background(available ? Color.white : Color(white: 0.6), in: RoundedRectangle(cornerRadius: 12))
@@ -485,6 +487,8 @@ struct ChannelGuideView: View {
 private struct GuideCellLabel: View {
     let entry: GuideEntry
     let onAir: Bool
+    /// Playable on demand (confirmed catch-up, or an earlier ITV programme to look up): shows the play badge.
+    var onDemand = false
     /// Cells for very short programmes are too narrow for text; the panel above describes them.
     let roomy: Bool
     /// The programme began before the time on screen.
@@ -499,7 +503,7 @@ private struct GuideCellLabel: View {
                 if !entry.subtitle.isEmpty { Text(entry.subtitle).font(.system(size: 19)).opacity(0.7).lineLimit(1) }
                 HStack(spacing: 8) {
                     Text(onAir ? "On now" : ChannelGuide.clock(entry.start)).font(.system(size: 18, weight: .medium).monospaced())
-                    if entry.onDemand && !onAir { Image(systemName: "play.circle.fill").font(.system(size: 17)).accessibilityLabel("Available on demand") }
+                    if onDemand { Image(systemName: "play.circle.fill").font(.system(size: 17)).accessibilityLabel("Available on demand") }
                 }.opacity(0.75).lineLimit(1)
             }
         }.padding(.horizontal, roomy ? 14 : 0).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
