@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Telly Live</string>
+	<key>TellyAppGroup</key>
+	<string>group.$(TELLY_APP_BUNDLE_IDENTIFIER)</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>

@@ -35,7 +35,17 @@ C40000000000000000000007 = {isa = PBXBuildFile; fileRef = C400000000000000000000
 0000000000000000000001A1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackExtras.swift; sourceTree = "<group>"; };
 000000000000000000000205 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A1; };
 00000000000000000000019F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHistory.swift; sourceTree = "<group>"; };
+0000000000000000000F0001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profiles.swift; sourceTree = "<group>"; };
+0000000000000000000F0003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesUI.swift; sourceTree = "<group>"; };
+0000000000000000000F0009 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteChannels.swift; sourceTree = "<group>"; };
+0000000000000000000F0005 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuide.swift; sourceTree = "<group>"; };
+0000000000000000000F0007 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuideView.swift; sourceTree = "<group>"; };
 000000000000000000000203 = {isa = PBXBuildFile; fileRef = 00000000000000000000019F; };
+0000000000000000000F0002 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0001; };
+0000000000000000000F0004 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0003; };
+0000000000000000000F0010 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0009; };
+0000000000000000000F0006 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0005; };
+0000000000000000000F0008 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0007; };
 0000000000000000000001A0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinueWatching.swift; sourceTree = "<group>"; };
 000000000000000000000204 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A0; };
 00000000000000000000019E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPolicy.swift; sourceTree = "<group>"; };
@@ -137,9 +147,9 @@ C40000000000000000000007 = {isa = PBXBuildFile; fileRef = C400000000000000000000
 		F10000000000000000000010 = {isa = PBXNativeTarget; name = TellyTopShelf; productName = TellyTopShelf; productReference = F10000000000000000000004; productType = "com.apple.product-type.app-extension"; buildConfigurationList = F10000000000000000000011; buildPhases = (F1000000000000000000000A, F1000000000000000000000B, F1000000000000000000000C); dependencies = (); buildRules = ();};
 		F10000000000000000000011 = {isa = XCConfigurationList; buildConfigurations = (F10000000000000000000012, F10000000000000000000013); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
 		F10000000000000000000012 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {
-                APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.1; CURRENT_PROJECT_VERSION = 40; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone";};};
+                APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.1; CURRENT_PROJECT_VERSION = 40; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone";};};
 		F10000000000000000000013 = {isa = XCBuildConfiguration; name = Release; buildSettings = {
-                APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.1; CURRENT_PROJECT_VERSION = 40; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";};};
+                APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.1; CURRENT_PROJECT_VERSION = 40; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";};};
 
 
 /* Begin PBXFileReference section */
@@ -208,6 +218,11 @@ F10000000000000000000001, F10000000000000000000005,
                 000000000000000000000195,
                 000000000000000000000196,
                 00000000000000000000019F,
+                0000000000000000000F0001,
+                0000000000000000000F0003,
+                0000000000000000000F0009,
+                0000000000000000000F0005,
+                0000000000000000000F0007,
                 0000000000000000000001A1,
 0000000000000000000001A0,
                 00000000000000000000019E,
@@ -327,6 +342,11 @@ A60000000000000000000005,A60000000000000000000007,C40000000000000000000007,C5000
                 0000000000000000000001F9,
                 0000000000000000000001FA,
                 000000000000000000000203,
+                0000000000000000000F0002,
+                0000000000000000000F0004,
+                0000000000000000000F0010,
+                0000000000000000000F0006,
+                0000000000000000000F0008,
                 000000000000000000000206,
                 000000000000000000000207,
                 000000000000000000000208,
