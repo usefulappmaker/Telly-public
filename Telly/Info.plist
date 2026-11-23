@@ -20,5 +20,7 @@
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Play locally adapted BBC video and subtitle streams on this Apple TV.</string>
+	<key>UIUserInterfaceStyle</key>
+	<string>Dark</string>
 </dict>
 </plist>
