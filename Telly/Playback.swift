@@ -791,6 +791,10 @@ final class PlayerContainerViewController: UIViewController, UIGestureRecognizer
         badge.alpha = controlsVisible ? 1 : 0; badge.setControlsVisible(controlsVisible)
         setNeedsFocusUpdate(); updateFocusIfNeeded()
     }
+    override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+        super.didUpdateFocus(in: context, with: coordinator)
+        if channelsVisible { resetChannelTimeout() }
+    }
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
         channelsVisible ? (channelController.map { [$0] } ?? [playerController]) : (infoVisible ? [infoController] : [playerController])
     }
@@ -844,7 +848,7 @@ final class PlayerContainerViewController: UIViewController, UIGestureRecognizer
             guard let self else { return }
             self.hideChannels()
             self.channelSelection(channel)
-        }, dismiss: { [weak self] in self?.dismissChannelsIfVisible() }))
+        }, dismiss: { [weak self] in self?.dismissChannelsIfVisible() }, interaction: { [weak self] in self?.resetChannelTimeout() }))
         host.view.backgroundColor = .clear
         addChild(host); view.addSubview(host.view); host.didMove(toParent: self)
         host.view.translatesAutoresizingMaskIntoConstraints = false
@@ -1108,6 +1112,7 @@ private struct LivePlayerChannels: View {
     let currentID: String?
     let select: (LiveChannel) -> Void
     let dismiss: () -> Void
+    let interaction: () -> Void
     @FocusState private var focusedChannel: String?
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -1117,7 +1122,7 @@ private struct LivePlayerChannels: View {
                     ForEach(channels) { channel in
                         Button { select(channel) } label: {
                             VStack(alignment: .leading, spacing: 8) {
-                                LiveChannelArtwork(channel: channel)
+                                LiveChannelPreview(channel: channel, active: true)
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(channel.current?.title ?? channel.title).font(.headline).lineLimit(1)
                                     Text(channel.title).font(.callout).foregroundStyle(.secondary).lineLimit(1)
@@ -1137,6 +1142,7 @@ private struct LivePlayerChannels: View {
         }.padding(.horizontal, 70).padding(.top, 24)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background { glassBackground }
+            .onChange(of: focusedChannel) { _, _ in interaction() }
             .onExitCommand(perform: dismiss)
     }
     @ViewBuilder private var glassBackground: some View {
