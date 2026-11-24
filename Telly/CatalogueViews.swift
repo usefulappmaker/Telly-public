@@ -701,7 +701,9 @@ struct LiveView: View {
         }.sheet(isPresented: $state.channel5Pairing, onDismiss: {
             if channel5Account.signedIn, let channel = state.selected, channel.provider == .channel5 { playback.startLive(channel) { state.playing = true } }
         }) { Channel5AccountView() }
-        .fullScreenCover(isPresented: $state.playing, onDismiss: { playback.stop() }) { PlaybackScreen(model: playback) }
+        .fullScreenCover(isPresented: $state.playing, onDismiss: { playback.stop() }) {
+            PlaybackScreen(model: playback, liveChannels: favourites.ids.isEmpty ? guideChannels : favourites.ordered(guideChannels.filter { favourites.contains($0.id) }) { $0.id }, switchChannel: { play($0, fromStart: false) })
+        }
         .modifier(LoadingBackAction(active: playback.loading) { playback.stop() })
         .onDisappear { if !state.playing { playback.stop() } }
     }
