@@ -531,7 +531,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.8.1;
-				PRODUCT_BUNDLE_IDENTIFIER = net.taptix.Telly;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.Telly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -563,7 +563,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.8.1;
-				PRODUCT_BUNDLE_IDENTIFIER = net.taptix.Telly;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.Telly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -593,7 +593,6 @@
 				);
 				MARKETING_VERSION = 0.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=appletvos*]" = net.taptix.Telly.TopShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -602,7 +601,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TELLY_APP_BUNDLE_IDENTIFIER = net.taptix.Telly;
+				TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;
 				TVOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Debug;
@@ -624,14 +623,13 @@
 				);
 				MARKETING_VERSION = 0.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=appletvos*]" = net.taptix.Telly.TopShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TELLY_APP_BUNDLE_IDENTIFIER = net.taptix.Telly;
+				TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;
 				TVOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Release;
