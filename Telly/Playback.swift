@@ -31,6 +31,7 @@ import AVKit
     @Published var displayTitle = ""
     @Published var displaySubtitle = ""
     @Published private(set) var isLive = false
+    @Published var pictureInPictureActive = false
     @Published private(set) var liveChannelID: String?
     /// Start of the programme on air when a live channel was opened (for Watch from start).
     @Published private(set) var liveProgrammeStart: Date?
@@ -523,10 +524,19 @@ import AVKit
     }
     #endif
 }
+/// Retains the player and delegate while the full-screen SwiftUI view is dismissed for PiP.
+@MainActor private enum LivePictureInPicture {
+    static var container: PlayerContainerViewController?
+    static var coordinator: NativePlayer.Coordinator?
+    static var model: PlaybackModel?
+    static func release() { container = nil; coordinator = nil; model = nil }
+}
 /// Native controls and Info with a year-free title/episode line above the scrubber.
 struct NativePlayer: UIViewControllerRepresentable {
     @ObservedObject var model: PlaybackModel
     let closeScreen: () -> Void
+    var leaveForPictureInPicture: () -> Void = {}
+    var restoreFromPictureInPicture: (@escaping (Bool) -> Void) -> Void = { $0(false) }
     var liveChannels: [LiveChannel] = []
     var switchChannel: (LiveChannel) -> Void = { _ in }
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -539,6 +549,10 @@ struct NativePlayer: UIViewControllerRepresentable {
         context.coordinator.close = closeScreen
         container.exitPlayer = closeScreen
         controller.showsPlaybackControls = true
+        controller.allowsPictureInPicturePlayback = model.isLive
+        context.coordinator.model = model
+        context.coordinator.leaveForPictureInPicture = leaveForPictureInPicture
+        context.coordinator.restoreFromPictureInPicture = restoreFromPictureInPicture
         // Preserve native audio/subtitle settings; our Info action owns the
         // description card and no description is supplied to AVKit.
         controller.playbackControlsIncludeInfoViews = true
@@ -550,6 +564,10 @@ struct NativePlayer: UIViewControllerRepresentable {
     }
     func updateUIViewController(_ container: PlayerContainerViewController, context: Context) {
         let controller = container.playerController
+        controller.allowsPictureInPicturePlayback = model.isLive
+        context.coordinator.model = model
+        context.coordinator.leaveForPictureInPicture = leaveForPictureInPicture
+        context.coordinator.restoreFromPictureInPicture = restoreFromPictureInPicture
         let rates: [Float] = model.isLive ? [] : [0.5, 0.75, 1, 1.25, 1.5, 2]
         if controller.speeds.map(\.rate) != rates { controller.speeds = rates.map { AVPlaybackSpeed(rate: $0, localizedName: "\($0)×") } }
         container.configureMenus(isLive:model.isLive && model.provider == .bbc)
@@ -580,6 +598,36 @@ struct NativePlayer: UIViewControllerRepresentable {
             let showTitle = visible && container?.infoVisible != true
             self.badge.setControlsVisible(showTitle)
             coordinator.addCoordinatedAnimations({ self.badge.alpha = showTitle ? 1 : 0 }, completion: nil)
+        }
+        weak var model: PlaybackModel?
+        var leaveForPictureInPicture: () -> Void = {}
+        var restoreFromPictureInPicture: (@escaping (Bool) -> Void) -> Void = { $0(false) }
+        private var restoring = false
+        func playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart(_ playerViewController: AVPlayerViewController) -> Bool { false }
+        func playerViewControllerWillStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
+            guard let model, model.isLive, let container else { return }
+            model.pictureInPictureActive = true
+            LivePictureInPicture.model = model
+            LivePictureInPicture.container = container
+            LivePictureInPicture.coordinator = self
+        }
+        func playerViewControllerDidStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
+            guard model?.pictureInPictureActive == true else { return }
+            leaveForPictureInPicture()
+        }
+        func playerViewController(_ playerViewController: AVPlayerViewController, failedToStartPictureInPictureWithError error: Error) {
+            model?.pictureInPictureActive = false
+            LivePictureInPicture.release()
+        }
+        func playerViewController(_ playerViewController: AVPlayerViewController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+            restoring = true
+            restoreFromPictureInPicture(completionHandler)
+        }
+        func playerViewControllerDidStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
+            let model = model
+            model?.pictureInPictureActive = false
+            if !restoring { model?.stop() }
+            LivePictureInPicture.release()
         }
         var marker: SkipMarker?
         var close: (() -> Void)?
@@ -791,7 +839,7 @@ final class PlayerContainerViewController: UIViewController, UIGestureRecognizer
         if channels.isEmpty && channelsVisible { hideChannels() }
     }
     @objc private func showChannels() {
-        guard controlsVisible, !infoVisible, !channelsVisible, !channelItems.isEmpty, presentedViewController == nil else { return }
+        guard !infoVisible, !channelsVisible, !channelItems.isEmpty, presentedViewController == nil else { return }
         let host = UIHostingController(rootView: LivePlayerChannels(channels: channelItems, currentID: currentChannelID, select: { [weak self] channel in
             guard let self else { return }
             self.hideChannels()
@@ -1103,6 +1151,7 @@ struct PlaybackScreen: View {
     @ObservedObject var model: PlaybackModel
     var liveChannels: [LiveChannel] = []
     var switchChannel: (LiveChannel) -> Void = { _ in }
+    var restoreFromPictureInPicture: (@escaping (Bool) -> Void) -> Void = { $0(false) }
     @Environment(\.scenePhase) private var phase
     @Environment(\.dismiss) private var dismiss
     @FocusState private var cancelNextFocused: Bool
@@ -1113,7 +1162,7 @@ struct PlaybackScreen: View {
             NativePlayer(model:model,closeScreen:{
                 if model.upNext != nil { model.cancelAutoplay() }
                 else { model.stop(); dismiss() }
-            }, liveChannels: liveChannels, switchChannel: switchChannel).ignoresSafeArea()
+            }, leaveForPictureInPicture: { dismiss() }, restoreFromPictureInPicture: restoreFromPictureInPicture, liveChannels: liveChannels, switchChannel: switchChannel).ignoresSafeArea()
                 // AVKit draws its own activity wheel. Conceal that surface
                 // during catch-up as well as live buffering, keeping the player
                 // attached so playback, FairPlay and subtitles can progress.

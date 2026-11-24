@@ -2,7 +2,7 @@
 import SwiftUI
 import CryptoKit
 
-private enum TellyTab: String, CaseIterable { case home = "Home", browse = "Browse", search = "Search", live = "Live", saved = "Saved", settings = "Settings" }
+private enum TellyTab: String, CaseIterable { case live = "Live", home = "Discover", browse = "Browse", search = "Search", saved = "Saved", settings = "Settings" }
 struct HomeView: View {
     @StateObject private var catalogue = CatalogueStore()
     @StateObject private var index = CatalogueIndexStore()
@@ -701,11 +701,14 @@ struct LiveView: View {
         }.sheet(isPresented: $state.channel5Pairing, onDismiss: {
             if channel5Account.signedIn, let channel = state.selected, channel.provider == .channel5 { playback.startLive(channel) { state.playing = true } }
         }) { Channel5AccountView() }
-        .fullScreenCover(isPresented: $state.playing, onDismiss: { playback.stop() }) {
-            PlaybackScreen(model: playback, liveChannels: favourites.ids.isEmpty ? guideChannels : favourites.ordered(guideChannels.filter { favourites.contains($0.id) }) { $0.id }, switchChannel: { play($0, fromStart: false) })
+        .fullScreenCover(isPresented: $state.playing, onDismiss: { if !playback.pictureInPictureActive { playback.stop() } }) {
+            PlaybackScreen(model: playback, liveChannels: favourites.ids.isEmpty ? guideChannels : favourites.ordered(guideChannels.filter { favourites.contains($0.id) }) { $0.id }, switchChannel: { play($0, fromStart: false) }, restoreFromPictureInPicture: { completion in
+                state.playing = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { completion(state.playing) }
+            })
         }
         .modifier(LoadingBackAction(active: playback.loading) { playback.stop() })
-        .onDisappear { if !state.playing { playback.stop() } }
+        .onDisappear { if !state.playing && !playback.pictureInPictureActive { playback.stop() } }
     }
     /// A live channel; long-press to add it to or remove it from Favourites.
     private func channelCard(_ channel: LiveChannel) -> some View {
