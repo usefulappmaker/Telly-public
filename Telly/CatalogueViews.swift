@@ -3,14 +3,14 @@ import SwiftUI
 import AVKit
 import CryptoKit
 
-private enum TellyTab: String, CaseIterable { case live = "Live", home = "Discover", browse = "Browse", search = "Search", saved = "Saved", settings = "Settings" }
+private enum TellyTab: String, CaseIterable { case home = "Home", browse = "Browse", search = "Search", live = "Live", saved = "Saved", settings = "Settings" }
 struct HomeView: View {
     @StateObject private var catalogue = CatalogueStore()
     @StateObject private var index = CatalogueIndexStore()
     @StateObject private var library = Library()
     @StateObject private var history = WatchHistory()
     @State private var liveLaunch: LiveLaunch?
-    @State private var tab = TellyTab.live
+    @State private var tab = TellyTab.home
     @State private var navigationRevision = 0
     @FocusState private var focusedTab: TellyTab?
     @Environment(\.scenePhase) private var phase
@@ -54,7 +54,7 @@ struct HomeView: View {
                 case .settings: SettingsView(catalogue: catalogue)
                 }
             }.id("\(tab.rawValue)-\(navigationRevision)")
-        }.environmentObject(history).tint(Color(white: 0.75)).progressViewStyle(FTVProgressViewStyle()).defaultFocus($focusedTab, .live)
+        }.environmentObject(history).tint(Color(white: 0.75)).progressViewStyle(FTVProgressViewStyle()).defaultFocus($focusedTab, .home)
         .onChange(of: profiles.current) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .onChange(of: profiles.kidsMode) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .fullScreenCover(isPresented: $showProfilePicker) {
@@ -663,22 +663,11 @@ struct LiveView: View {
                 LiveChannelOrder.section($0.id) == section && (!ProfileStore.shared.kidsMode || ["cbbc", "cbeebies"].contains($0.id))
             }, id: { $0.id }, title: { $0.title })
         }.map { $0.provider == .bbc ? RegionalChannels.resolve($0) : $0 }
-        func rank(_ channel: LiveChannel) -> Int {
-            let id = channel.id.hasPrefix("bbc_one_") ? "bbc_one" : channel.id.hasPrefix("bbc_two_") ? "bbc_two" : channel.id
-            return Self.guideOrder.firstIndex(of: id) ?? Self.guideOrder.count
-        }
-        let networks: [ContentProvider] = [.bbc, .itv, .channel4, .channel5]
+        // Freeview order (BBC One, BBC Two, ITV1, Channel 4, Channel 5…), then regional and additional
+        // channels, then the ITV and Channel 5 themed channels; favourites first, in the profile's order.
         let favourite = favourites.ordered(all.filter { favourites.contains($0.id) }) { $0.id }
-        let rest = networks.flatMap { network in
-            all.enumerated().filter { $0.element.provider == network }
-                .sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }.map(\.element)
-        } + all.filter { !networks.contains($0.provider) }
-        // Favourites first, in the profile's order.
-        return favourite + rest.filter { !favourites.contains($0.id) }
+        return favourite + all.filter { !favourites.contains($0.id) }
     }
-    private static let guideOrder = ["bbc_one", "bbc_two", "bbc_three", "bbc_four", "cbbc", "cbeebies", "bbc_news24", "bbc_parliament",
-        "bbc_scotland", "bbc_alba", "s4cpbs", "itv:itv", "itv:itv2", "itv:itv3", "itv:itv4", "itv:itvbe",
-        "c4:C4", "c4:E4", "c4:M4", "c4:F4", "c4:4S", "c5:C5", "c5:C7", "c5:C6", "c5:C0", "c5:C8"]
     private var liveBody: some View {
         Group {
             if liveMode == "Guide" {
@@ -1061,7 +1050,7 @@ private struct RegionSelectionView: View {
                             HStack {
                                 Text(choice.title); Spacer()
                                 Image(systemName: selection == choice.id ? "checkmark.circle.fill" : "circle").opacity(selection == choice.id ? 1 : 0.3)
-                                    .symbolRenderingMode(.palette).foregroundStyle(selection == choice.id ? Color.pink : Color.secondary)
+                                    .symbolRenderingMode(.palette).foregroundStyle(selection == choice.id ? TellyColour.blue : Color.secondary)
                             }.frame(maxWidth: .infinity).padding(.horizontal, 16).padding(.vertical, 14)
                         }.buttonStyle(OutlinedActionButtonStyle())
                     }

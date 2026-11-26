@@ -1,14 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import SwiftUI
 
+/// The blue, red and green of the Telly wordmark. Surfaces and focus stay neutral; colour carries meaning:
+/// blue for what is selected, saved or on now, green for what is watched or ready on demand.
+/// Red stays in the wordmark (and live badges), never as a general accent.
+enum TellyColour {
+    static let blue = Color(red: 29/255, green: 148/255, blue: 250/255)
+    static let red = Color(red: 248/255, green: 55/255, blue: 44/255)
+    static let green = Color(red: 23/255, green: 185/255, blue: 90/255)
+    /// The same green, darker so white text on it stays readable.
+    static let watched = Color(red: 14/255, green: 122/255, blue: 58/255)
+}
+
 /// Straight colour bars, drawn as vectors so each glow keeps its own colour.
 struct FTVLoadingBars: View {
     var width: CGFloat = 76
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
-    private let colours = [Color(red:29/255,green:148/255,blue:250/255),
-                           Color(red:248/255,green:55/255,blue:44/255),
-                           Color(red:23/255,green:185/255,blue:90/255)]
+    private let colours = [TellyColour.blue, TellyColour.red, TellyColour.green]
     var body: some View {
         TimelineView(.animation(minimumInterval:1/30,paused:reduceMotion || scenePhase != .active)) { context in
             let phase = context.date.timeIntervalSinceReferenceDate * 2 * .pi / 1.8

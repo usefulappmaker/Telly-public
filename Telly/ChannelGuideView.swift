@@ -184,9 +184,9 @@ struct ChannelGuideView: View {
                     Text((Calendar.current.isDateInToday(focused.entry.start) ? "" : Self.dayName(focused.entry.start, now: now) + " ") + ChannelGuide.times(focused.entry))
                         .font(.system(size: 25, weight: .medium).monospaced())
                     Text(focused.channel.title).font(.system(size: 25)).foregroundStyle(.secondary)
-                    if focused.entry.isOnAir(at: now) { Text("On now").font(.system(size: 25, weight: .semibold)).foregroundStyle(.pink) }
-                    else if focused.entry.onDemand { Text(focused.entry.isPast(at: now) ? "Shown earlier · available on demand" : "Available on demand").font(.system(size: 25, weight: .semibold)).foregroundStyle(.teal) }
-                    else if focused.entry.isPast(at: now), focused.entry.catchUp != nil { Text("Shown earlier · look up on ITVX").font(.system(size: 25, weight: .semibold)).foregroundStyle(.teal) }
+                    if focused.entry.isOnAir(at: now) { Text("On now").font(.system(size: 25, weight: .semibold)).foregroundStyle(TellyColour.blue) }
+                    else if focused.entry.onDemand { Text(focused.entry.isPast(at: now) ? "Shown earlier · available on demand" : "Available on demand").font(.system(size: 25, weight: .semibold)).foregroundStyle(TellyColour.green) }
+                    else if focused.entry.isPast(at: now), focused.entry.catchUp != nil { Text("Shown earlier · look up on ITVX").font(.system(size: 25, weight: .semibold)).foregroundStyle(TellyColour.green) }
                     else if focused.entry.isPast(at: now) { Text("Shown earlier · not available").font(.system(size: 25, weight: .semibold)).foregroundStyle(.secondary) }
                 }
                 Text(focused.entry.synopsis).font(.system(size: 25)).foregroundStyle(.secondary).lineLimit(2)
@@ -197,7 +197,7 @@ struct ChannelGuideView: View {
                         Text("\(ChannelGuide.clock(start)) – \(ChannelGuide.clock(current.end))").font(.system(size: 25, weight: .medium).monospaced())
                     }
                     Text(channel.title).font(.system(size: 25)).foregroundStyle(.secondary)
-                    if channel.current != nil { Text("On now").font(.system(size: 25, weight: .semibold)).foregroundStyle(.pink) }
+                    if channel.current != nil { Text("On now").font(.system(size: 25, weight: .semibold)).foregroundStyle(TellyColour.blue) }
                 }
                 Text("This channel doesn't publish a schedule for this time. Select to watch it live.").font(.system(size: 25)).foregroundStyle(.secondary).lineLimit(2)
             } else if let stream = focusedStream {
@@ -316,7 +316,7 @@ struct ChannelGuideView: View {
                 }
                 .overlay(alignment: .topLeading) {
                     if now >= start && now < end {
-                        Rectangle().fill(.pink).frame(width: 3)
+                        Rectangle().fill(TellyColour.blue).frame(width: 3)
                             .offset(x: x(now) - 1.5)
                             .allowsHitTesting(false).accessibilityHidden(true)
                     }
@@ -419,7 +419,7 @@ struct ChannelGuideView: View {
                         .foregroundStyle(.black)
                         .frame(width: Self.expandedWidth, height: rowHeight)
                         .background(available ? Color.white : Color(white: 0.6), in: RoundedRectangle(cornerRadius: 12))
-                        .shadow(color: .pink.opacity(0.55), radius: 14)
+                        .shadow(color: TellyColour.blue.opacity(0.55), radius: 14)
                         .allowsHitTesting(false).accessibilityHidden(true)
                         .transition(.opacity)
                 }
@@ -514,7 +514,7 @@ private struct GuideCellLabel: View {
     }
 }
 
-/// Slim day choice: the day on screen is pink and underlined; focus is a small white pill.
+/// Slim day choice: the day on screen is blue and underlined; focus is a small white pill.
 private struct GuideDayStyle: ButtonStyle {
     let selected: Bool
     func makeBody(configuration: Configuration) -> some View { GuideDayLabel(label: configuration.label, selected: selected) }
@@ -525,11 +525,11 @@ private struct GuideDayLabel<Label: View>: View {
     @Environment(\.isFocused) private var focused
     var body: some View {
         label.font(.system(size: 22, weight: .semibold)).lineLimit(1).fixedSize()
-            .foregroundStyle(focused ? Color.black : selected ? Color.pink : Color.white.opacity(0.6))
+            .foregroundStyle(focused ? Color.black : selected ? TellyColour.blue : Color.white.opacity(0.6))
             .padding(.horizontal, 14).padding(.vertical, 6)
             .background(focused ? Color.white : Color.clear, in: Capsule())
             .overlay(alignment: .bottom) {
-                if selected && !focused { Capsule().fill(.pink).frame(height: 3).padding(.horizontal, 14).offset(y: 2) }
+                if selected && !focused { Capsule().fill(TellyColour.blue).frame(height: 3).padding(.horizontal, 14).offset(y: 2) }
             }
             .animation(.easeOut(duration: 0.12), value: focused)
             .focusEffectDisabled()
@@ -561,13 +561,13 @@ private struct GuideCellSurface<Content: View>: View {
     @Environment(\.isFocused) private var focused
     private var fill: Color {
         if unavailable { return focused ? Color(white: 0.6) : Color.white.opacity(0.03) }
-        return focused ? Color.white : onAir ? Color.pink.opacity(0.3) : onDemand ? Color.teal.opacity(0.3) : Color.white.opacity(0.08)
+        return focused ? Color.white : onAir ? TellyColour.blue.opacity(0.3) : onDemand ? TellyColour.green.opacity(0.28) : Color.white.opacity(0.08)
     }
     var body: some View {
         content.foregroundStyle(focused ? Color.black : unavailable ? Color.white.opacity(0.35) : Color.white)
             .background(fill, in: RoundedRectangle(cornerRadius: 12))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .pink.opacity(focused && !unavailable ? 0.55 : 0), radius: 14)
+            .shadow(color: TellyColour.blue.opacity(focused && !unavailable ? 0.55 : 0), radius: 14)
             .opacity(pressed ? 0.7 : 1)
             .animation(.easeOut(duration: 0.12), value: focused)
             .focusEffectDisabled()

@@ -15,7 +15,7 @@ private struct ProfilePillSurface<Content: View>: View {
             .foregroundStyle(focused ? Color.black : Color.white.opacity(0.9))
             .padding(.horizontal, 20).padding(.vertical, 16)
             .background { Capsule().fill(focused ? Color.white : Color.white.opacity(0.08)) }
-            .shadow(color: .pink.opacity(focused ? 0.55 : 0), radius: 20)
+            .shadow(color: TellyColour.blue.opacity(focused ? 0.55 : 0), radius: 20)
             .scaleEffect(pressed ? 0.96 : focused ? 1.06 : 1)
             .animation(.easeOut(duration: 0.15), value: focused)
             .focusEffectDisabled()
@@ -150,7 +150,7 @@ struct ProfileAvatar: View {
     var body: some View {
         VStack(spacing: size * 0.09) {
             Text(String(name.prefix(1)).uppercased()).font(.system(size: size * 0.4, weight: .bold))
-                .frame(width: size, height: size).background(Circle().fill(Color.pink.opacity(0.85)))
+                .frame(width: size, height: size).background(Circle().fill(TellyColour.blue.opacity(0.85)))
                 .overlay { if current { Circle().strokeBorder(.white, lineWidth: max(4, size * 0.03)) } }
             Text(name.isEmpty ? " " : name).font(.system(size: max(22, size * 0.16), weight: .semibold)).lineLimit(1)
         }.padding(size * 0.12)
@@ -224,9 +224,9 @@ private struct PrimaryPlaySurface<Content: View>: View {
         content.font(.system(size: 36, weight: .semibold)).foregroundStyle(.white)
             .lineLimit(1).fixedSize()   // never truncate "Resume 1:02:03"
             .padding(.horizontal, 48).frame(minWidth: 260, minHeight: 84)
-            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.pink.opacity(focused ? 1 : 0.5)))
+            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(TellyColour.blue.opacity(focused ? 1 : 0.5)))
             .scaleEffect(pressed ? 0.97 : focused ? 1.08 : 1)
-            .shadow(color: .pink.opacity(focused ? 0.55 : 0), radius: 22, y: 6)
+            .shadow(color: TellyColour.blue.opacity(focused ? 0.55 : 0), radius: 22, y: 6)
             .animation(.easeOut(duration: 0.15), value: focused)
             .focusEffectDisabled()
     }
@@ -243,7 +243,7 @@ struct TellySegments: View {
                 Button { selection = option } label: {
                     Text(option).font(.system(size: 26, weight: .semibold)).frame(maxWidth: .infinity, minHeight: 40)
                 }.buttonStyle(.bordered).buttonBorderShape(.roundedRectangle(radius: 12))
-                    .tint(selection == option ? .pink : .gray)
+                    .tint(selection == option ? TellyColour.blue : .gray)
                     .accessibilityAddTraits(selection == option ? .isSelected : [])
             }
         }.padding(8).background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 18))
