@@ -4,6 +4,44 @@ import AVKit
 import CryptoKit
 
 private enum TellyTab: String, CaseIterable { case home = "Home", browse = "Browse", search = "Search", live = "Channels", saved = "Saved", settings = "Settings" }
+private extension TellyTab {
+    var symbol: String {
+        switch self {
+        case .home: return "house"
+        case .browse: return "square.grid.2x2"
+        case .search: return "magnifyingglass"
+        case .live: return "play.tv"
+        case .saved: return "bookmark"
+        case .settings: return "gearshape"
+        }
+    }
+}
+/// Height of the top bar; screens start below it.
+let tellyHeaderHeight: CGFloat = 132
+/// The artwork shown full-screen behind everything, top bar included. The screen that last appeared owns it,
+/// and only its owner clears it, so going back to Home restores Home's artwork in either order of events.
+@MainActor final class TellyBackdropModel: ObservableObject {
+    @Published private(set) var url: URL?
+    private var owner: UUID?
+    func show(_ url: URL?, by id: UUID) { owner = id; self.url = url }
+    func clear(by id: UUID) { if owner == id { owner = nil; url = nil } }
+}
+private struct TellyBackdropKey: EnvironmentKey { static let defaultValue: TellyBackdropModel? = nil }
+extension EnvironmentValues {
+    /// Present inside the main tabs; screens shown elsewhere simply have no full-screen artwork.
+    var tellyBackdrop: TellyBackdropModel? {
+        get { self[TellyBackdropKey.self] }
+        set { self[TellyBackdropKey.self] = newValue }
+    }
+}
+extension View {
+    /// Shows this artwork behind the whole app while the view is on screen.
+    func tellyBackdrop(_ url: URL?, model: TellyBackdropModel?, id: UUID) -> some View {
+        onAppear { model?.show(url, by: id) }
+            .onChange(of: url) { _, value in model?.show(value, by: id) }
+            .onDisappear { model?.clear(by: id) }
+    }
+}
 struct HomeView: View {
     @StateObject private var catalogue = CatalogueStore()
     @StateObject private var index = CatalogueIndexStore()
@@ -16,32 +54,46 @@ struct HomeView: View {
     @Environment(\.scenePhase) private var phase
     @ObservedObject private var profiles = ProfileStore.shared
     @State private var showProfilePicker = ProfileStore.shared.pickerRequired
+    /// Artwork the current screen wants full-screen behind the top bar (Home's featured programme, a programme page).
+    @StateObject private var backdrop = TellyBackdropModel()
     /// Kids profiles see Home, Live and Saved only.
     private var visibleTabs: [TellyTab] { TellyTab.allCases.filter { !profiles.kidsMode || [.home, .live, .saved].contains($0) } }
     /// Current person, after the tabs (only with 2+ profiles); opens the Who's watching picker.
     @ViewBuilder private var profileTab: some View {
         if profiles.profiles.count > 1 {
             Button { profiles.pickerRequired = false; showProfilePicker = true } label: {
-                HStack(spacing: 8) { Image(systemName: "person.crop.circle.fill"); Text(profiles.currentProfile.name) }
+                HStack(spacing: 12) {
+                    Text(String(profiles.currentProfile.name.prefix(1)).uppercased()).font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(.white).frame(width: 50, height: 50).background(Circle().fill(TellyColour.blue))
+                    Text(profiles.currentProfile.name)
+                }
             }.buttonStyle(ProfilePillStyle()).accessibilityLabel("Profile \(profiles.currentProfile.name). Select to switch profile.")
         }
     }
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 30) {
-                HStack(spacing:14) {
-                    ForEach(visibleTabs,id:\.self) { value in
-                        TellyTabButton(tab:value,selection:$tab,focus:$focusedTab) {
-                            // Re-selecting a root tab also discards nested view-based destinations.
-                            if value == tab && (value == .home || value == .browse) { navigationRevision &+= 1 }
-                            tab = value
-                        }
+    /// Logo on the left, the tabs in a frosted-glass capsule in the middle, the profile on the right.
+    private var header: some View {
+        ZStack {
+            HStack { TellyHeaderLogo(); Spacer(minLength: 0); profileTab }
+            HStack(spacing: 6) {
+                ForEach(visibleTabs,id:\.self) { value in
+                    TellyTabButton(tab:value,selection:$tab,focus:$focusedTab) {
+                        // Re-selecting a root tab also discards nested view-based destinations.
+                        if value == tab && (value == .home || value == .browse) { navigationRevision &+= 1 }
+                        tab = value
                     }
-                    profileTab
-                }.focusSection()
-                Spacer(minLength: 0)
-                TellyHeaderLogo()
-            }.padding(.horizontal, 64).padding(.vertical, 18)
+                }
+            }.padding(8)
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay { Capsule().strokeBorder(.white.opacity(0.1), lineWidth: 1) }
+        }.focusSection()
+        .padding(.horizontal, 64).padding(.top, 34).frame(height: tellyHeaderHeight, alignment: .top)
+    }
+    var body: some View {
+        ZStack(alignment: .top) {
+            TellyBackdrop()
+            if let url = backdrop.url { HomeHeroBackdrop(url: url) }
+            VStack(spacing: 0) {
+            header
             NavigationStack {
                 switch tab {
                 case .home:
@@ -54,7 +106,8 @@ struct HomeView: View {
                 case .settings: SettingsView(catalogue: catalogue)
                 }
             }.id("\(tab.rawValue)-\(navigationRevision)")
-        }.environmentObject(history).tint(Color(white: 0.75)).defaultFocus($focusedTab, .home)
+            }
+        }.environmentObject(history).environment(\.tellyBackdrop, backdrop).tint(Color(white: 0.75)).defaultFocus($focusedTab, .home)
         .onChange(of: profiles.current) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .onChange(of: profiles.kidsMode) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .fullScreenCover(isPresented: $showProfilePicker) {
@@ -92,9 +145,14 @@ private struct TellyTabButton: View {
     private var focused: Bool { focus.wrappedValue == tab }
     var body: some View {
         Button(action:action) {
-            Text(tab.rawValue).font(.headline).padding(.horizontal, 24).padding(.vertical, 16)
-                .foregroundStyle(focused || selection == tab ? .white : .white.opacity(0.7))
-                .background(focused ? Color.white.opacity(0.2) : selection == tab ? Color.white.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 12))
+            HStack(spacing: 10) { Image(systemName: tab.symbol).font(.system(size: 24, weight: .semibold)); Text(tab.rawValue) }
+                .font(.system(size: 27, weight: .semibold))
+                .padding(.horizontal, 26).frame(height: 62)
+                .foregroundStyle(focused ? Color.black : selection == tab ? Color.white : Color.white.opacity(0.72))
+                .background { Capsule().fill(focused ? Color.white : selection == tab ? Color.white.opacity(0.16) : Color.clear) }
+                .scaleEffect(focused ? 1.06 : 1)
+                .shadow(color: .black.opacity(focused ? 0.4 : 0), radius: 14, y: 6)
+                .animation(.easeOut(duration: 0.15), value: focused)
         }.buttonStyle(TellyTabStyle()).focused(focus, equals: tab).focusEffectDisabled()
             .accessibilityAddTraits(selection == tab ? .isSelected : [])
     }
@@ -102,11 +160,52 @@ private struct TellyTabButton: View {
 private struct TellyTabStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View { configuration.label.opacity(configuration.isPressed ? 0.7 : 1) }
 }
+/// The featured programme's artwork, full screen behind the top bar, fading into the background on the left and below.
+private struct HomeHeroBackdrop: View {
+    let url: URL?
+    var body: some View {
+        GeometryReader { geometry in
+            AsyncImage(url: url) { $0.resizable().scaledToFill() } placeholder: { Color.clear }
+                .frame(width: geometry.size.width, height: geometry.size.height * 0.92).clipped()
+                .overlay {
+                    LinearGradient(stops: [.init(color: TellyBackdrop.base.opacity(0.97), location: 0), .init(color: TellyBackdrop.base.opacity(0.85), location: 0.3), .init(color: TellyBackdrop.base.opacity(0.45), location: 0.55), .init(color: .clear, location: 0.8)], startPoint: .leading, endPoint: .trailing)
+                }
+                .overlay {
+                    LinearGradient(colors: [TellyBackdrop.base.opacity(0.6), .clear], startPoint: .top, endPoint: .init(x: 0.5, y: 0.25))
+                }
+                .overlay {
+                    LinearGradient(stops: [.init(color: .clear, location: 0.45), .init(color: TellyBackdrop.base, location: 1)], startPoint: .top, endPoint: .bottom)
+                }
+                .animation(.easeInOut(duration: 0.4), value: url)
+        }.ignoresSafeArea()
+    }
+}
+/// Large rounded button for the Home hero: frosted until focused, then white.
+struct TellyHeroButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View { TellyHeroButtonSurface(content: configuration.label, pressed: configuration.isPressed) }
+}
+private struct TellyHeroButtonSurface<Content: View>: View {
+    let content: Content
+    let pressed: Bool
+    @Environment(\.isFocused) private var focused
+    var body: some View {
+        content.font(.system(size: 29, weight: .semibold))
+            .padding(.horizontal, 38).frame(height: 80)
+            .foregroundStyle(focused ? Color.black : Color.white)
+            .background { RoundedRectangle(cornerRadius: 20, style: .continuous).fill(focused ? AnyShapeStyle(Color.white) : AnyShapeStyle(.ultraThinMaterial)) }
+            .scaleEffect(pressed ? 0.98 : focused ? 1.06 : 1)
+            .shadow(color: .black.opacity(focused ? 0.5 : 0), radius: 18, y: 8)
+            .animation(.easeOut(duration: 0.15), value: focused)
+            .focusEffectDisabled()
+    }
+}
 private struct BannerRotationKey: Hashable { let index: Int; let count: Int; let paused: Bool }
 @MainActor final class HomeState: ObservableObject { @Published var banner = 0 }
 struct DiscoveryHome: View {
     @ObservedObject var catalogue: CatalogueStore
     @ObservedObject var library: Library
+    @Environment(\.tellyBackdrop) private var backdrop
+    @State private var backdropID = UUID()
     @StateObject private var state = HomeState()
     @StateObject private var featured = UnifiedFeaturedStore()
     @ObservedObject private var networks = NetworkSettings.shared
@@ -126,45 +225,48 @@ struct DiscoveryHome: View {
                 if !bannerFeatures.isEmpty {
                     let index = min(state.banner, bannerFeatures.count - 1)
                     let feature = bannerFeatures[index]
-                    NavigationLink { CatalogueShowView(show: feature.show, catalogue: catalogue, library: library) } label: {
-                        ZStack(alignment: .bottomLeading) {
-                            Color.clear.overlay {
-                                GeometryReader { geometry in
-                                    AsyncImage(url: feature.image) { $0.resizable().scaledToFill() } placeholder: { Rectangle().fill(.gray.opacity(0.15)) }
-                                        .frame(width: geometry.size.width, height: geometry.size.height).clipped()
-                                }
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Featured").font(.system(size: 23, weight: .bold)).tracking(5).textCase(.uppercase).foregroundStyle(TellyColour.blue)
+                        Text(feature.headline).font(.system(size: 76, weight: .heavy)).lineLimit(2).minimumScaleFactor(0.7)
+                            .shadow(color: .black.opacity(0.5), radius: 12)
+                        HStack(spacing: 14) { ProviderBadge(provider: feature.show.provider, subdued: true) }
+                        Text(feature.synopsis).font(.system(size: 29)).foregroundStyle(.white.opacity(0.86)).lineLimit(2)
+                            .frame(maxWidth: 1000, alignment: .leading)
+                        NavigationLink { CatalogueShowView(show: feature.show, catalogue: catalogue, library: library) } label: {
+                            Label("Explore programme", systemImage: "play.fill")
+                        }.buttonStyle(TellyHeroButtonStyle()).focused($bannerFocused).padding(.top, 14)
+                        .onMoveCommand { direction in
+                            guard bannerFocused else { return }
+                            switch direction {
+                            case .left: advanceBanner(by: -1)
+                            case .right: advanceBanner(by: 1)
+                            default: break
                             }
-                            LinearGradient(colors: [.clear, .black.opacity(0.95)], startPoint: .top, endPoint: .bottom)
-                            VStack(alignment: .leading, spacing: 14) {
-                                Text("Featured").font(.caption).tracking(4).foregroundStyle(.white.opacity(0.7))
-                                Text(feature.headline).font(.system(size: 48, weight: .bold)).lineLimit(2)
-                                Text(feature.synopsis).font(.title3).lineLimit(2).frame(maxWidth: 1000, alignment: .leading)
-                            }.padding(38)
-                        }.overlay(alignment: .bottomTrailing) { ProviderBadge(provider: feature.show.provider, subdued: true).padding(30) }.aspectRatio(2.35, contentMode: .fit).cornerRadius(18)
-                    }.buttonStyle(ProgrammeCardStyle()).focused($bannerFocused)
-                    .onMoveCommand { direction in
-                        guard bannerFocused else { return }
-                        switch direction {
-                        case .left: advanceBanner(by: -1)
-                        case .right: advanceBanner(by: 1)
-                        default: break
                         }
-                    }
-                    .accessibilityAdjustableAction { direction in
-                        switch direction {
-                        case .increment: advanceBanner(by: 1)
-                        case .decrement: advanceBanner(by: -1)
-                        @unknown default: break
+                        .accessibilityAdjustableAction { direction in
+                            switch direction {
+                            case .increment: advanceBanner(by: 1)
+                            case .decrement: advanceBanner(by: -1)
+                            @unknown default: break
+                            }
                         }
-                    }
-                    // Match the 30-point bottom focus space beneath programme rows.
-                    .padding(.bottom, 30)
+                        if bannerFeatures.count > 1 {
+                            HStack(spacing: 10) {
+                                ForEach(bannerFeatures.indices, id: \.self) { i in
+                                    Capsule().fill(.white.opacity(i == index ? 1 : 0.35)).frame(width: i == index ? 36 : 12, height: 12)
+                                }
+                            }.padding(.top, 18).accessibilityHidden(true)
+                        }
+                    }.frame(maxWidth: .infinity, minHeight: 520, alignment: .bottomLeading)
+                    .transaction { $0.animation = nil }   // swap the text at once; only the artwork fades
+                    .padding(.bottom, 40)
                 }
                 ContinueWatchingRow(catalogue: catalogue, library: library)
                 MixedHomepageRows(catalogue:catalogue,library:library,focus:$focusedCard)
                 if catalogue.home == nil && !catalogue.loading { Button("Retry homepage") { Task { await catalogue.refreshHome() } } }
-            }.padding(.horizontal, 64).padding(.vertical, 26)
+            }.padding(.horizontal, 80).padding(.vertical, 26)
         }.scrollClipDisabled()
+        .tellyBackdrop(bannerFeatures.isEmpty ? nil : bannerFeatures[min(state.banner, bannerFeatures.count - 1)].image, model: backdrop, id: backdropID)
         .onAppear { visible = true; featured.seed(catalogue) }
         .task { await featured.refresh(catalogue) }
         .onReceive(catalogue.$home) { featured.update(.bbc,$0?.features ?? []) }
@@ -383,10 +485,11 @@ private struct ProgrammeCardSurface<Content: View>: View {
     @Environment(\.isFocused) private var focused
     var body: some View {
         content
-            .background(focused ? Color.white.opacity(0.16) : Color.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 16))
-            .overlay { RoundedRectangle(cornerRadius: 16).strokeBorder(focused ? .white : .clear, lineWidth: 3) }
-            .scaleEffect(pressed ? 0.99 : focused ? 1.045 : 1)
-            .shadow(color: .black.opacity(focused ? 0.4 : 0), radius: 16, y: 8)
+            // tvOS-style lift: the focused card grows and casts a deep shadow; no outline.
+            .background(focused ? Color.white.opacity(0.14) : Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .scaleEffect(pressed ? 0.98 : focused ? 1.08 : 1)
+            .shadow(color: .black.opacity(focused ? 0.6 : 0), radius: 28, y: 18)
             .animation(.easeOut(duration: 0.15), value: focused)
             .focusEffectDisabled().zIndex(focused ? 1 : 0)
     }
@@ -431,6 +534,8 @@ struct CatalogueShowView: View {
     }
 }
 private struct ProgrammeDetailsView: View {
+    @Environment(\.tellyBackdrop) private var backdrop
+    @State private var backdropID = UUID()
     let show: CatalogueShow
     @EnvironmentObject private var history: WatchHistory
     @ObservedObject var catalogue: CatalogueStore
@@ -449,9 +554,12 @@ private struct ProgrammeDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                Text(current.title).font(.largeTitle).bold()
+                ProviderBadge(provider: current.provider, subdued: true).padding(.top, 20)
+                Text(current.title).font(.system(size: 84, weight: .heavy)).lineLimit(2).minimumScaleFactor(0.6)
+                    .shadow(color: .black.opacity(0.5), radius: 12)
                 if current.premium == true { Text(current.provider == .channel4 ? "Channel 4+ · subscription playback is not available in this build" : "ITV Premium · account playback is not supported in this build").font(.callout).foregroundStyle(.secondary) }
-                Text(current.summary).font(.title3).foregroundStyle(.secondary)
+                Text(current.summary).font(.system(size: 29)).foregroundStyle(.white.opacity(0.86)).lineLimit(3)
+                    .frame(maxWidth: 1050, alignment: .leading)
                 if let error = state.error { Text(error).foregroundStyle(.orange); Button("Retry") { state.retry += 1 } }
                 // Save waits for the page to load, so a second press on a programme card can't land on it.
                 let canSave = state.show != nil || state.error != nil
@@ -497,8 +605,10 @@ private struct ProgrammeDetailsView: View {
                     }
                 }
                 if state.show != nil && selectedEpisodes.isEmpty { Text("No episodes are currently available.").foregroundStyle(.secondary) }
-            }.padding(60)
-        }.task(id: state.retry) {
+            }.padding(.horizontal, 80).padding(.vertical, 40)
+        }.scrollClipDisabled()
+        .tellyBackdrop(current.image, model: backdrop, id: backdropID)
+        .task(id: state.retry) {
             state.error = nil
             do {
                 state.show = try await catalogue.open(show)
@@ -757,10 +867,19 @@ struct LiveView: View {
                                 .accessibilityLabel("Favourite")
                         }
                     }
-                Text(channel.current?.title ?? channel.title).font(.headline).lineLimit(2)
-                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
-                HStack { Text(channel.title).font(.callout).foregroundStyle(.secondary); Spacer(); ProviderBadge(provider: channel.provider, subdued: true) }
-            }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay(alignment: .bottomLeading) { TellyLiveBadge().padding(12) }
+                HStack { Text(channel.title).font(.system(size: 22, weight: .semibold)).foregroundStyle(.secondary).lineLimit(1); Spacer(); ProviderBadge(provider: channel.provider, subdued: true) }
+                Text(channel.current?.title ?? channel.title).font(.system(size: 26, weight: .bold)).lineLimit(1)
+                TimelineView(.periodic(from: .now, by: 30)) { context in
+                    let fraction = channel.current.flatMap { current in
+                        current.start.map { start in min(max(context.date.timeIntervalSince(start) / max(current.end.timeIntervalSince(start), 1), 0), 1) }
+                    }
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(.white.opacity(0.2))
+                        if let fraction { GeometryReader { Capsule().fill(TellyColour.blue).frame(width: $0.size.width * fraction) } }
+                    }.frame(height: 6).opacity(fraction == nil ? 0 : 1)
+                }
+            }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
         }.buttonStyle(ProgrammeCardStyle()).disabled(playback.loading)
         .contextMenu {
             Button(favourites.contains(channel.id) ? "Remove from Favourites" : "Add to Favourites",
@@ -782,7 +901,7 @@ struct LiveView: View {
                 let favouriteRow = favourites.ordered(LiveChannelSection.allCases.flatMap { channels(in: $0) }.filter { favourites.contains($0.id) }) { $0.id }
                 if !favouriteRow.isEmpty {
                     Text("Favourites").font(.title2).bold()
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 30), count: 3), spacing: 30) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 34), count: 4), spacing: 34) {
                         ForEach(favouriteRow) { channel in channelCard(channel) }
                     }
                 }
@@ -795,13 +914,22 @@ struct LiveView: View {
                         } else if section == .additional {
                             Text(section.title).font(.title2).bold().padding(.top,20)
                         }
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 30), count: 3), spacing: 30) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 34), count: 4), spacing: 34) {
                     ForEach(channels) { channel in channelCard(channel) }
                 }
                     }
                 }
-            }.padding(60)
-        }
+            }.padding(.horizontal, 80).padding(.vertical, 40)
+        }.scrollClipDisabled()
+    }
+}
+/// Red LIVE marker: the only place Telly uses red outside its logo.
+struct TellyLiveBadge: View {
+    var body: some View {
+        HStack(spacing: 7) { Circle().fill(.white).frame(width: 9, height: 9); Text("LIVE").font(.system(size: 18, weight: .heavy)).tracking(1) }
+            .padding(.horizontal, 12).padding(.vertical, 5)
+            .background(TellyColour.red, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .accessibilityLabel("Live")
     }
 }
 /// Muted, independently owned previews leave full-screen playback and its DRM session untouched.

@@ -12,6 +12,16 @@ enum TellyColour {
     static let watched = Color(red: 14/255, green: 122/255, blue: 58/255)
 }
 
+/// The deep blue-black behind every screen, with a faint glow at the top.
+struct TellyBackdrop: View {
+    static let base = Color(red: 7/255, green: 9/255, blue: 14/255)
+    var body: some View {
+        Self.base.overlay {
+            RadialGradient(colors: [Color(red: 19/255, green: 34/255, blue: 56/255), .clear], center: .init(x: 0.6, y: -0.1), startRadius: 0, endRadius: 1300)
+        }.ignoresSafeArea()
+    }
+}
+
 /// Straight colour bars, drawn as vectors so each glow keeps its own colour.
 struct FTVLoadingBars: View {
     var width: CGFloat = 76
@@ -41,7 +51,7 @@ struct FTVLoadingBars: View {
 struct TellyHeaderLogo: View {
     var body: some View {
         Image("TellyBoxLogo").renderingMode(.original).resizable().scaledToFit()
-            .frame(width:144,height:68)
+            .frame(width:150,height:62)
             .accessibilityElement(children:.ignore)
             .accessibilityLabel("Telly")
             .accessibilityIdentifier("header-telly-logo")
