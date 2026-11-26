@@ -38,7 +38,7 @@ struct ITVLiveAPI {
                 guard let start = date(slot["start"]), let end = date(slot["end"]), start <= now, now < end,
                       let title = (slot["displayTitle"] ?? slot["brandTitle"] ?? slot["title"]) as? String, !title.isEmpty else { return nil }
                 return LiveProgramme(title: title, subtitle: slot["detailedDisplayTitle"] as? String ?? "",
-                    image: Self.programmeArtwork(slot), end: end)
+                    image: Self.programmeArtwork(slot), end: end, start: start)
             }.first
             return LiveChannel(id: "itv:" + id.lowercased(), title: title, current: programme, logo: logo, itvPlaylistURL: endpoint)
         }
