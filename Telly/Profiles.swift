@@ -160,7 +160,7 @@ enum TellySyncClient {
     }
     /// Every per-profile store on this Apple TV. Add new ones here so removing a profile leaves nothing behind.
     nonisolated static func removeLocalData(for id: String, in defaults: UserDefaults) {
-        for key in ["continueWatching-v1-", "continueWatching-removed-v1-", "savedShows-v3-", "savedShows-meta-v1-",
+        for key in ["continueWatching-v1-", "continueWatching-removed-v1-", "savedShows-v3-", "savedShows-meta-v1-", "savedEpisodes-v1-",
                     "favouriteChannels-v1-", "episodeProgress-v1-", "episodeProgress-removed-v1-"] { defaults.removeObject(forKey: key + id) }
     }
     /// Removes the profile, its local data and (with sync) its data on the server. The last profile can't be removed.

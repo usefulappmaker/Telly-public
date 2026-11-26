@@ -139,10 +139,10 @@ import Foundation
         let legacy = try! JSONDecoder().decode(EpisodeProgress.self, from: Data(#"{"position":1,"duration":2,"completed":true,"updatedAt":0}"#.utf8))
         precondition(legacy.completed && legacy.resetAt == nil, "Earlier saved progress decodes")
         // Removing a profile leaves none of its data, and nobody else's is touched.
-        for id in ["gone", "kept"] { for key in ["continueWatching-v1-", "continueWatching-removed-v1-", "savedShows-v3-", "savedShows-meta-v1-", "favouriteChannels-v1-", "episodeProgress-v1-", "episodeProgress-removed-v1-"] { episodeDefaults.set(Data([1]), forKey: key + id) } }
+        for id in ["gone", "kept"] { for key in ["continueWatching-v1-", "continueWatching-removed-v1-", "savedShows-v3-", "savedShows-meta-v1-", "savedEpisodes-v1-", "favouriteChannels-v1-", "episodeProgress-v1-", "episodeProgress-removed-v1-"] { episodeDefaults.set(Data([1]), forKey: key + id) } }
         ProfileStore.removeLocalData(for: "gone", in: episodeDefaults)
         let left = episodeDefaults.dictionaryRepresentation().keys
-        precondition(!left.contains { $0.hasSuffix("-gone") } && left.filter { $0.hasSuffix("-kept") }.count == 7, "Removing a profile clears only its own stores")
+        precondition(!left.contains { $0.hasSuffix("-gone") } && left.filter { $0.hasSuffix("-kept") }.count == 8, "Removing a profile clears only its own stores")
         marks.setWatched(three.id, true)
         let reloaded = WatchHistory(defaults: episodeDefaults)
         precondition(reloaded.progress(for: three.id)?.completed == true && reloaded.progress(for: one.id) == nil, "Episode marks are kept")

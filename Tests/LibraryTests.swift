@@ -13,6 +13,20 @@ import Foundation
         precondition(restored.contains(show),"Saved programme persists across launches")
         restored.remove(show)
         precondition(!Library(defaults:defaults).contains(show),"Removal persists")
+        // Single episodes are separate from programmes, newest first, and kept per profile.
+        let second = Programme(id:"p0000002",title:"Two",summary:"",image:nil,version:"",guidance:nil)
+        restored.toggle(episode,in:show);restored.toggle(second,in:show)
+        precondition(restored.savedEpisodes.map(\.id)==["p0000002","p0000001"] && restored.contains(episode) && !restored.contains(show),"Saving an episode leaves its programme unsaved")
+        precondition(restored.savedEpisodes[0].show?.id==show.id && restored.savedEpisodes[0].show?.episodes.isEmpty==true,"A saved episode remembers its programme without the episode list")
+        restored.toggle(show);restored.toggle(second,in:show)
+        let relaunched = Library(defaults:defaults)
+        precondition(relaunched.savedEpisodes.map(\.id)==["p0000001"] && relaunched.contains(show),"Removing an episode keeps the other and the programme, across launches")
+        restored.toggle(show)
+        precondition(Library(defaults:defaults).contains(episode),"Removing a programme keeps its saved episode")
+        let profile = UserDefaults.standard.string(forKey:ProfileStore.currentKey)
+        UserDefaults.standard.set("someone-else",forKey:ProfileStore.currentKey)
+        precondition(Library(defaults:defaults).savedEpisodes.isEmpty,"Another profile has its own saved episodes")
+        UserDefaults.standard.set(profile,forKey:ProfileStore.currentKey)
         let oldJSON = Data("[{\"id\":\"p0000001\",\"title\":\"Old episode\",\"summary\":\"\",\"version\":\"\"},{\"id\":\"p0000002\",\"title\":\"Second episode\",\"summary\":\"\",\"version\":\"\"}]".utf8)
         defaults.set(oldJSON,forKey:"saved")
         await restored.migrate(resolve:{_ in show})
@@ -20,6 +34,6 @@ import Foundation
         defaults.set(oldJSON,forKey:"saved")
         await restored.migrate(resolve:{_ in throw BBCError.message("Offline")})
         precondition(defaults.data(forKey:"saved") != nil && restored.migrationWarning != nil,"Failed migration retains old data for retry")
-        print("PASS: programme-level saves, deduplication, persistence, legacy episode migration and failure recovery")
+        print("PASS: programme-level and single-episode saves, per-profile, deduplication, persistence, legacy episode migration and failure recovery")
     }
 }

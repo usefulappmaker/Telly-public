@@ -448,22 +448,39 @@ private struct ProgrammeDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                HStack {
-                    Text(current.title).font(.largeTitle).bold(); Spacer()
-                    ProgrammeBookmarkButton(show: current, library: library)
-                }.focusSection()
+                Text(current.title).font(.largeTitle).bold()
                 if current.premium == true { Text(current.provider == .channel4 ? "Channel 4+ · subscription playback is not available in this build" : "ITV Premium · account playback is not supported in this build").font(.callout).foregroundStyle(.secondary) }
                 Text(current.summary).font(.title3).foregroundStyle(.secondary)
                 if let error = state.error { Text(error).foregroundStyle(.orange); Button("Retry") { state.retry += 1 } }
-                if orderedSeries.count > 1 {
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 20) {
-                            ForEach(orderedSeries) { series in
-                                Button(series.title) { selectSeries(series.id) }
-                                    .tint((state.seriesID.isEmpty ? EpisodeSequence.latestSeries(orderedSeries)?.id : state.seriesID) == series.id ? Color(white: 0.75) : .gray)
+                // Save waits for the page to load, so a second press on a programme card can't land on it.
+                let canSave = state.show != nil || state.error != nil
+                if canSave || orderedSeries.count > 1 {
+                    HStack(spacing: 20) {
+                        if canSave {
+                            ProgrammeBookmarkButton(show: current, library: library)
+                            if orderedSeries.count > 1 { Rectangle().fill(.white.opacity(0.2)).frame(width: 2, height: 44) }
+                        }
+                        if orderedSeries.count > 1 {
+                            ScrollView(.horizontal) {
+                                HStack(spacing: 20) {
+                                    ForEach(orderedSeries) { series in
+                                        Button(series.title) { selectSeries(series.id) }
+                                            .tint((state.seriesID.isEmpty ? EpisodeSequence.latestSeries(orderedSeries)?.id : state.seriesID) == series.id ? Color(white: 0.75) : .gray)
+                                    }
+                                }.padding(.vertical, 30).padding(.leading, 24).padding(.trailing, 64)
                             }
-                        }.padding(.vertical, 30).padding(.horizontal, 24)
-                    }.scrollClipDisabled().padding(.horizontal, -24).focusSection()
+                            // Save stays put while a long list of series scrolls, fading out beside it.
+                            .mask {
+                                HStack(spacing: 0) {
+                                    LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing).frame(width: 20)
+                                    Color.black
+                                    LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing).frame(width: 60)
+                                }
+                            }
+                            .padding(.leading, canSave ? -20 : -24).padding(.trailing, -60)
+                        }
+                        Spacer(minLength: 0)
+                    }.focusSection()
                 }
                 if selectedEpisodes.count > 30 {
                     HStack(spacing: 24) {
@@ -500,20 +517,49 @@ private struct ProgrammeDetailsView: View {
     }
 }
 struct SavedProgrammes: View {
+    @EnvironmentObject private var history: WatchHistory
     @ObservedObject var catalogue: CatalogueStore
     @ObservedObject var library: Library
+    @State private var selection: SavedEpisode?
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 if let warning = library.migrationWarning { Text(warning).foregroundStyle(.orange).font(.callout) }
-                if library.saved.isEmpty { Text("Save a programme to follow all of its series and episodes here.").foregroundStyle(.secondary) }
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 330))], spacing: 30) {
-                    ForEach(library.saved) { show in
-                        NavigationLink { CatalogueShowView(show: show, catalogue: catalogue, library: library) } label: { ShowCard(show: show) }.buttonStyle(ProgrammeCardStyle())
-                    }
+                if library.saved.isEmpty && library.savedEpisodes.isEmpty { Text("Nothing saved yet. Use Save on a programme's page to follow all of its series here, or Save episode to keep just one.").foregroundStyle(.secondary) }
+                if !library.savedEpisodes.isEmpty {
+                    Text("Episodes").font(.title2).bold()
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 330))], spacing: 30) {
+                        ForEach(library.savedEpisodes) { episode in
+                            Button { selection = episode } label: {
+                                ProgrammeCard(programme: episode.programme, progress: history.progress(for: episode.id), showTitle: episode.show?.title ?? episode.programme.showTitle ?? episode.programme.title)
+                            }.buttonStyle(ProgrammeCardStyle()).accessibilityIdentifier("saved-episode-" + episode.id)
+                        }
+                    }.focusSection()
+                }
+                if !library.saved.isEmpty {
+                    Text("Programmes").font(.title2).bold()
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 330))], spacing: 30) {
+                        ForEach(library.saved) { show in
+                            NavigationLink { CatalogueShowView(show: show, catalogue: catalogue, library: library) } label: { ShowCard(show: show) }.buttonStyle(ProgrammeCardStyle())
+                        }
+                    }.focusSection()   // a short row is still reached from any tab or column above
                 }
             }.padding(60)
         }.task { await library.migrate(); await library.refreshArtwork() }
+        .sheet(item: $selection) { SavedEpisodeView(saved: $0, catalogue: catalogue, library: library) }
+    }
+}
+/// A saved episode opens at once from what was stored; its programme then loads so the latest
+/// episode details and the next episode are available, as they are from the programme's own page.
+private struct SavedEpisodeView: View {
+    let saved: SavedEpisode
+    @ObservedObject var catalogue: CatalogueStore
+    @ObservedObject var library: Library
+    @State private var loaded: CatalogueShow?
+    private var programme: Programme { loaded?.episodes.first { $0.id == saved.id }?.programme ?? saved.programme }
+    var body: some View {
+        DetailView(programme: programme, show: loaded ?? saved.show, library: library)
+            .task { if let show = saved.show { loaded = try? await catalogue.open(show) } }
     }
 }
 @MainActor final class LiveState: ObservableObject {
