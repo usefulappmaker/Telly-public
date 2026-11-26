@@ -48,7 +48,6 @@ struct UHDSetupView: View {
                     }.disabled(state.busy)
                 }
             }
-            if state.busy { ProgressView().accessibilityLabel("UHD setup in progress") }
             if let message = state.message { Text(message).font(.callout).accessibilityIdentifier("TwinVineSetupResult") }
         }.onAppear { state.configured = UHDIdentityVault.isConfigured }
             .onDisappear { state.cancel() }

@@ -71,14 +71,13 @@ struct UAccountView: View {
                             Text("u.co.uk/activate").font(.title2).bold()
                             Text("Sign in to U and enter this code:")
                             if let code = model.code { Text(code).font(.system(size:66,weight:.bold,design:.monospaced)).tracking(7) }
-                            else if model.error == nil { ProgressView() }
                             Text(model.status).foregroundStyle(.secondary)
                         }
                     }
                     Text("Telly connects automatically once U confirms your sign-in. Your password stays on U’s website.").foregroundStyle(.secondary)
                     if let error = model.error { Text(error).foregroundStyle(.orange) }
                     Button("Get a new code") { model.retry += 1 }
-                } else { ProgressView("Checking U sign-in…") }
+                } else { Text("Checking U sign-in…").foregroundStyle(.secondary) }
                 if let error = account.error { Text(error).foregroundStyle(.orange) }
                 Button("Close") { dismiss() }
             }.padding(70)

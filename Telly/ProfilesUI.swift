@@ -15,7 +15,7 @@ private struct ProfilePillSurface<Content: View>: View {
             .foregroundStyle(focused ? Color.black : Color.white.opacity(0.9))
             .padding(.horizontal, 20).padding(.vertical, 16)
             .background { Capsule().fill(focused ? Color.white : Color.white.opacity(0.08)) }
-            .shadow(color: TellyColour.blue.opacity(focused ? 0.55 : 0), radius: 20)
+            .shadow(color: .black.opacity(focused ? 0.45 : 0), radius: 16, y: 8)
             .scaleEffect(pressed ? 0.96 : focused ? 1.06 : 1)
             .animation(.easeOut(duration: 0.15), value: focused)
             .focusEffectDisabled()
@@ -112,7 +112,7 @@ struct KidsHomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 36) {
                 ContinueWatchingRow(catalogue: catalogue, library: library)
-                if rows.isEmpty && error == nil { ProgressView("Getting CBeebies and CBBC…") }
+                if rows.isEmpty && error == nil { Text("Getting CBeebies and CBBC…").foregroundStyle(.secondary) }
                 if let error { Text(error).foregroundStyle(.orange) }
                 ForEach(rows) { row in
                     VStack(alignment: .leading, spacing: 12) {
@@ -150,8 +150,8 @@ struct ProfileAvatar: View {
     var body: some View {
         VStack(spacing: size * 0.09) {
             Text(String(name.prefix(1)).uppercased()).font(.system(size: size * 0.4, weight: .bold))
-                .frame(width: size, height: size).background(Circle().fill(TellyColour.blue.opacity(0.85)))
-                .overlay { if current { Circle().strokeBorder(.white, lineWidth: max(4, size * 0.03)) } }
+                .frame(width: size, height: size).background(Circle().fill(Color(white: 0.26)))
+                .overlay { if current { Circle().strokeBorder(TellyColour.blue, lineWidth: max(4, size * 0.03)) } }
             Text(name.isEmpty ? " " : name).font(.system(size: max(22, size * 0.16), weight: .semibold)).lineLimit(1)
         }.padding(size * 0.12)
     }
@@ -221,12 +221,12 @@ private struct PrimaryPlaySurface<Content: View>: View {
     let pressed: Bool
     @Environment(\.isFocused) private var focused
     var body: some View {
-        content.font(.system(size: 36, weight: .semibold)).foregroundStyle(.white)
+        content.font(.system(size: 36, weight: .semibold)).foregroundStyle(focused ? Color.black : Color.white)
             .lineLimit(1).fixedSize()   // never truncate "Resume 1:02:03"
             .padding(.horizontal, 48).frame(minWidth: 260, minHeight: 84)
-            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(TellyColour.blue.opacity(focused ? 1 : 0.5)))
+            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(focused ? Color.white : Color.white.opacity(0.2)))
             .scaleEffect(pressed ? 0.97 : focused ? 1.08 : 1)
-            .shadow(color: TellyColour.blue.opacity(focused ? 0.55 : 0), radius: 22, y: 6)
+            .shadow(color: .black.opacity(focused ? 0.45 : 0), radius: 22, y: 6)
             .animation(.easeOut(duration: 0.15), value: focused)
             .focusEffectDisabled()
     }

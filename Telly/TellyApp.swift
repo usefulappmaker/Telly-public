@@ -6,7 +6,6 @@ import SwiftUI
         WindowGroup {
             #if DEBUG
             if ProcessInfo.processInfo.environment["TELLY_U_ACCOUNT_PREVIEW"] == "1" { UAccountView().preferredColorScheme(.dark) }
-            else if ProcessInfo.processInfo.environment["TELLY_FTV_BRAND_PREVIEW"] == "1" { FTVBrandValidationView().preferredColorScheme(.dark) }
             else if ProcessInfo.processInfo.environment["TELLY_U_CATALOGUE_PREVIEW"] == "1" { UCatalogueValidationView().preferredColorScheme(.dark) }
             else if ProcessInfo.processInfo.environment["TELLY_C4_PREVIEW"] != nil { Channel4Preview().preferredColorScheme(.dark) }
             else if ProcessInfo.processInfo.environment["TELLY_UI_PREVIEW"] == "card-review" { ProgrammeCardReview().preferredColorScheme(.dark) }
@@ -103,8 +102,7 @@ struct DetailView: View {
                 Button {
                     playback.start(programme, history: history, show: show) { state.playing = true }
                 } label: {
-                    if playback.loading { FTVLoadingBars(width:36).frame(width: 40, height: 46) }
-                    else { Image(systemName: "play.fill").font(.system(size: 34)).frame(width: 40, height: 46) }
+                    Image(systemName: "play.fill").font(.system(size: 34)).frame(width: 40, height: 46)
                 }.accessibilityLabel(playback.loading ? "Finding the best stream" : "Play at the best available quality")
                     .disabled(playback.loading || programme.premium == true).buttonStyle(OutlinedActionButtonStyle(square: true))
                 if !playback.loading, history.resumePosition(for: programme.id) > 0 {

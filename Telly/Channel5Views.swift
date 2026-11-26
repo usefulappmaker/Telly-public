@@ -159,14 +159,13 @@ struct Channel5AccountView: View {
                             Text("activate.channel5.com").font(.title2).bold()
                             Text("Sign in to Channel 5 and enter this code:")
                             if let code=model.code { Text(code.uppercased()).font(.system(size:66,weight:.bold,design:.monospaced)).tracking(7) }
-                            else if model.error == nil { ProgressView() }
                             Text(model.status).foregroundStyle(.secondary)
                         }
                     }
                     Text("Telly will connect automatically once Channel 5 confirms your sign-in.").foregroundStyle(.secondary)
                     if let error=model.error { Text(error).foregroundStyle(.orange) }
                     Button("Get a new code") { model.retry += 1 }
-                } else { ProgressView("Checking Channel 5 sign-in…") }
+                } else { Text("Checking Channel 5 sign-in…").foregroundStyle(.secondary) }
                 if let error=account.error { Text(error).foregroundStyle(.orange) }
                 Button("Close") { dismiss() }
             }.padding(70)
