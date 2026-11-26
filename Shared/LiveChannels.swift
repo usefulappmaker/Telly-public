@@ -221,3 +221,15 @@ extension LiveShelfChannel {
         }
     }
 }
+
+/// Small values shared between the app and the Top Shelf extension through the App Group.
+enum TellyShared {
+    static var groupID: String? { Bundle.main.object(forInfoDictionaryKey: "TellyAppGroup") as? String }
+    static var defaults: UserDefaults? { groupID.flatMap { $0.contains("$(") ? nil : UserDefaults(suiteName: $0) } }
+    private static let favouritesKey = "favouriteChannels-v1"
+    /// The current profile's favourite channels, in order: the Top Shelf shows them first.
+    static var favouriteChannels: [String] {
+        get { defaults?.stringArray(forKey: favouritesKey) ?? [] }
+        set { defaults?.set(newValue, forKey: favouritesKey) }
+    }
+}

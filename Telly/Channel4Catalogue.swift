@@ -111,7 +111,7 @@ struct Channel4CatalogueAPI {
             var channel = channel
             let code = String(channel.id.dropFirst(3))
             if let slot = slots.first(where: { $0["channel"] as? String == code }), let endRaw = slot["end"] as? String, let end = date(endRaw), end > now, let startRaw = slot["start"] as? String, let start = date(startRaw), start <= now, slot["offair"] as? Bool != true {
-                channel.current = LiveProgramme(title: slot["title"] as? String ?? channel.title, subtitle: slot["summary"] as? String ?? "", image: image(slot["image"]), end: end)
+                channel.current = LiveProgramme(title: slot["title"] as? String ?? channel.title, subtitle: slot["summary"] as? String ?? "", image: image(slot["image"]), end: end, start: start)
             }
             return channel
         }

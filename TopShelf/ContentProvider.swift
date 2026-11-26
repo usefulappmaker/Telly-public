@@ -84,6 +84,22 @@ final class ContentProvider: TVTopShelfContentProvider {
             let section = TVTopShelfItemCollection(items:items); section.title = kind.title
             return section
         }
+        // The profile's favourite channels first, in their order (BBC One/Two regions count as one channel).
+        func canonical(_ id: String) -> String { id.hasPrefix("bbc_one_") ? "bbc_one_london" : id.hasPrefix("bbc_two_") ? "bbc_two_england" : id }
+        let favourites = TellyShared.favouriteChannels.compactMap { id in channels.first { canonical($0.id) == id } }
+        let favouriteItems = favourites.compactMap { channel -> TVTopShelfSectionedItem? in
+            guard let url = LiveChannelLink.url(for: channel.id) else { return nil }
+            let item = TVTopShelfSectionedItem(identifier: "favourite:" + channel.id)
+            item.title = channel.title; item.imageShape = .hdtv
+            item.displayAction = TVTopShelfAction(url: url); item.playAction = TVTopShelfAction(url: url)
+            let image = channel.image ?? fallbackImage(channel)
+            item.setImageURL(image, for: .screenScale1x); item.setImageURL(image, for: .screenScale2x)
+            return item
+        }
+        if !favouriteItems.isEmpty {
+            let section = TVTopShelfItemCollection(items: favouriteItems); section.title = "Favourites"
+            return TVTopShelfSectionedContent(sections: [section] + sections)
+        }
         return TVTopShelfSectionedContent(sections:sections)
     }
     @MainActor private func fallbackImage(_ channel: LiveShelfChannel) -> URL? {
