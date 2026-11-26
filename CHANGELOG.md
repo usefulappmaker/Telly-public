@@ -1,3 +1,20 @@
+# Telly 0.9.0 — Native Apple TV redesign
+
+Changes since 0.8.1:
+
+- **A native tvOS layout:** a frosted-glass top bar with icon tabs, a full-screen featured programme on Home, and cards that lift on focus instead of showing an outline. One colour palette taken from the Telly wordmark — blue for what's selected or on now, green for watched and on-demand, red kept for the logo and live badges.
+- **Home is the first tab again**, with Browse, Search, Channels, Saved and Settings after it.
+- **Turn networks on or off:** Settings › Networks hides a broadcaster (BBC, ITV, Channel 4, Channel 5 or U) from Home, Browse, Search, Channels, the guide and the Top Shelf. Kids profiles are unaffected, and the last network can't be turned off.
+- **Save a show or just one episode:** Save now leads the series row on a programme page and is easy to reach with the remote; episode pages gain Save episode; the Saved tab lists Programmes and Episodes separately.
+- **Live TV in Freeview order:** the Channels page and the guide share BBC One, BBC Two, ITV1, Channel 4, Channel 5, then the rest, with regional/additional and themed channels after. Channel tiles show a LIVE badge, the programme on now and a progress bar.
+- Carried forward from the community branches: the channel guide, Continue Watching, profiles/kids mode/household sync, favourites, watch from start, picture-in-picture and the in-player channel switcher.
+
+Known issue: **Channel 5 playback currently fails** with HTTP 403 (code 4003) — Channel 5's request-signing keys have rotated again since the 0.8.1 hotfix and need updating upstream. All other networks are unaffected.
+
+Downloads include the unsigned Apple TV IPA (with Top Shelf) and its SHA-256 checksum. Build and automated checks passed; wider Apple TV testing is still needed.
+
+---
+
 # Telly 0.8.1 — Playback hotfix
 
 Changes since 0.8.0:
