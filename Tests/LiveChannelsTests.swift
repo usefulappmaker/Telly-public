@@ -35,6 +35,8 @@ import Foundation
         let itvThemed = ordered.filter { LiveChannelOrder.section($0.id) == .itvThemed }
         check(itvThemed.count == 20 && itvThemed.first?.title == "Carry On and On" && itvThemed.last?.title == "Vera","ITV themed channels remain in their approved section")
         check(ordered.filter { LiveChannelOrder.section($0.id) == .channel5Themed }.count == 19,"Channel 5 themed channels separated from five main services")
+        let firstThemed = ordered.firstIndex { LiveChannelOrder.isThemed($0.id) }!
+        check(ordered[firstThemed...].allSatisfy { LiveChannelOrder.isThemed($0.id) } && ordered[firstThemed...].count == 39,"Themed channels are last in the guide, after every Freeview channel and regional extra")
         check(LiveChannelOrder.section("bbc_one_northern_ireland") == .main,"Regional BBC One keeps the primary slot")
         check(LiveChannelOrder.sorted(combined+combined,id:{ $0.id },title:{ $0.title }).count == combined.count,"Deduplicate cached/feed channels")
         let future = LiveShelfChannel(id:"itv:fast99",title:"Future channel")

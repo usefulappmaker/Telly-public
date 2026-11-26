@@ -94,7 +94,6 @@ struct Channel4CategoryPreview: View {
                     }
                 }.padding(.vertical, 30).padding(.horizontal, 24)
             }.scrollClipDisabled().padding(.horizontal, -24)
-            if loading && shows.isEmpty { ProgressView() }
             if let error { Text(error).font(.callout).foregroundStyle(.secondary) }
         }.task {
             guard shows.isEmpty else { return }
@@ -151,7 +150,6 @@ struct Channel4CategoryView: View {
                             .task { if position >= state.shows.count - 8 { await state.next(genres, store: catalogue.channel4) } }
                     }
                 }
-                if state.loading { ProgressView() }
                 if let error = state.error { Text(error).foregroundStyle(.secondary); Button("Retry") { Task { await state.next(genres, store: catalogue.channel4) } } }
             }.padding(60)
         }.task { if state.shows.isEmpty { await state.next(genres, store: catalogue.channel4) } }.onExitCommand { dismiss() }

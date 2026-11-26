@@ -3,7 +3,7 @@ import SwiftUI
 import AVKit
 import CryptoKit
 
-private enum TellyTab: String, CaseIterable { case home = "Home", browse = "Browse", search = "Search", live = "Live", saved = "Saved", settings = "Settings" }
+private enum TellyTab: String, CaseIterable { case home = "Home", browse = "Browse", search = "Search", live = "Channels", saved = "Saved", settings = "Settings" }
 struct HomeView: View {
     @StateObject private var catalogue = CatalogueStore()
     @StateObject private var index = CatalogueIndexStore()
@@ -40,7 +40,7 @@ struct HomeView: View {
                     profileTab
                 }.focusSection()
                 Spacer(minLength: 0)
-                TellyHeaderLogo(loading: catalogue.loading || catalogue.resumingEpisode || !catalogue.programmeLoadingIDs.isEmpty)
+                TellyHeaderLogo()
             }.padding(.horizontal, 64).padding(.vertical, 18)
             NavigationStack {
                 switch tab {
@@ -54,7 +54,7 @@ struct HomeView: View {
                 case .settings: SettingsView(catalogue: catalogue)
                 }
             }.id("\(tab.rawValue)-\(navigationRevision)")
-        }.environmentObject(history).tint(Color(white: 0.75)).progressViewStyle(FTVProgressViewStyle()).defaultFocus($focusedTab, .home)
+        }.environmentObject(history).tint(Color(white: 0.75)).defaultFocus($focusedTab, .home)
         .onChange(of: profiles.current) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .onChange(of: profiles.kidsMode) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .fullScreenCover(isPresented: $showProfilePicker) {
@@ -109,6 +109,7 @@ struct DiscoveryHome: View {
     @ObservedObject var library: Library
     @StateObject private var state = HomeState()
     @StateObject private var featured = UnifiedFeaturedStore()
+    @ObservedObject private var networks = NetworkSettings.shared
     @State private var bannerFeatures: [HomeFeature] = []
     @State private var pendingFeatures: [HomeFeature]?
     @Environment(\.scenePhase) private var phase
@@ -161,10 +162,7 @@ struct DiscoveryHome: View {
                 }
                 ContinueWatchingRow(catalogue: catalogue, library: library)
                 MixedHomepageRows(catalogue:catalogue,library:library,focus:$focusedCard)
-                if catalogue.home == nil {
-                    if catalogue.loading { ProgressView("Getting the latest programmes…") }
-                    else { Button("Retry homepage") { Task { await catalogue.refreshHome() } } }
-                }
+                if catalogue.home == nil && !catalogue.loading { Button("Retry homepage") { Task { await catalogue.refreshHome() } } }
             }.padding(.horizontal, 64).padding(.vertical, 26)
         }.scrollClipDisabled()
         .onAppear { visible = true; featured.seed(catalogue) }
@@ -198,6 +196,7 @@ struct DiscoveryHome: View {
         }
     }
     private func applyFeatures(_ values: [HomeFeature]) {
+        let values = values.filter { networks.isOn($0.show.provider) }
         let current = bannerFeatures.indices.contains(state.banner) ? bannerFeatures[state.banner].id : nil
         bannerFeatures = values
         state.banner = current.flatMap { id in values.firstIndex { $0.id == id } } ?? 0
@@ -227,6 +226,7 @@ private struct MixedHomepageRows: View {
     @ObservedObject private var channel4: Channel4CatalogueStore
     @ObservedObject private var channel5: Channel5CatalogueStore
     @ObservedObject private var u: UCatalogueStore
+    @ObservedObject private var networks = NetworkSettings.shared
     @State private var rows: [HomepageRail] = []
     @State private var rebuildScheduled = false
     init(catalogue: CatalogueStore,library: Library,focus: FocusState<String?>.Binding) {
@@ -238,6 +238,7 @@ private struct MixedHomepageRows: View {
         rows = HomepageRows.make(bbc:catalogue.home?.rows ?? [],itv:itv.home,
             channel4:channel4.home,channel4All:channel4.knownShows,
             channel5:channel5.home,channel5All:channel5.knownShows,u:u.home,uAll:u.knownShows)
+            .filter { networks.isOn($0.provider) }
     }
     // Published properties notify before assignment. Read the completed catalogue
     // update on the next actor turn, never recalculate genre lists on focus moves.
@@ -323,7 +324,6 @@ struct ProgrammePage: View {
                             .task {if position >= page.shows.count-6 {await page.next(category:category,letter:letter,sort:sortOrder)}}
                     }
                 }
-                if page.loading {ProgressView()}
                 if let error = page.error {
                     Text(error).font(.callout).foregroundStyle(.orange)
                     Button("Retry") {Task {await page.next(category:category,letter:letter,sort:sortOrder)}}
@@ -508,8 +508,7 @@ private struct ProgrammeDetailsView: View {
                 }
                 selectSeries(state.seriesID)
             } catch { if !Task.isCancelled { state.error = error.localizedDescription } }
-        }.modifier(ProgrammeLoadingFeedback(active:state.show == nil && state.error == nil,catalogue:catalogue))
-        .defaultFocus($focusedEpisode, visibleEpisodes.first?.id)
+        }.defaultFocus($focusedEpisode, visibleEpisodes.first?.id)
         .task(id: visibleEpisodes.first?.id) {
             guard let first = visibleEpisodes.first?.id else { return }
             do { try await Task.sleep(nanoseconds: 150_000_000) } catch { return }
@@ -625,6 +624,7 @@ struct LiveView: View {
     @ObservedObject private var channel5Account = Channel5AccountModel.shared
     @State private var providerFilter: ContentProvider?
     @ObservedObject private var favourites = FavouriteChannels.shared
+    @ObservedObject private var networks = NetworkSettings.shared
     @AppStorage("liveMode") private var liveMode = "Channels"
     @EnvironmentObject private var history: WatchHistory
     @AppStorage("offerLiveFromStart") private var offerFromStart = false
@@ -636,10 +636,16 @@ struct LiveView: View {
         else if fromStart == nil, offerFromStart, let start = channel.current?.start, Date().timeIntervalSince(start) > 60 { askFromStart = channel }
         else { playback.startLive(channel, fromStart: fromStart ?? false) { state.playing = true } }
     }
+    /// Channels of the networks that are on; kids profiles always get CBBC and CBeebies and nothing else.
+    private var availableChannels: [LiveChannel] {
+        state.channels.filter { ProfileStore.shared.kidsMode ? ["cbbc", "cbeebies"].contains($0.id) : networks.isOn($0.provider) }
+    }
+    private func shows(_ network: ContentProvider) -> Bool { networks.isOn(network) || ProfileStore.shared.kidsMode }
+    /// The network button chosen, unless that network has since been turned off.
+    private var activeFilter: ContentProvider? { providerFilter.flatMap { shows($0) ? $0 : nil } }
     private func channels(in section: LiveChannelSection) -> [LiveChannel] {
-        LiveChannelOrder.sorted(state.channels.filter {
-            (providerFilter == nil || $0.provider == providerFilter) && LiveChannelOrder.section($0.id) == section
-                && (!ProfileStore.shared.kidsMode || ["cbbc", "cbeebies"].contains($0.id))
+        LiveChannelOrder.sorted(availableChannels.filter {
+            (activeFilter == nil || $0.provider == activeFilter) && LiveChannelOrder.section($0.id) == section
         },id: { $0.id },title: { $0.title })
     }
     var body: some View {
@@ -653,20 +659,13 @@ struct LiveView: View {
             }
         }
     }
-    /// Channels with a published schedule (BBC, ITV, Channel 4, Channel 5 and the regional extras), in Live page
-    /// order; BBC One/Two follow the chosen region so the listings match what plays.
-    /// Every live channel grouped by broadcaster (the network buttons then filter the guide), each in its own channel
-    /// order; BBC One/Two follow the chosen region so the listings match what plays.
+    /// Every live channel in Freeview listings order, then the regional extras, with the themed channels last. The
+    /// network buttons then filter the guide. BBC One/Two follow the chosen region so the listings match what plays.
     private var guideChannels: [LiveChannel] {
-        let all = LiveChannelSection.allCases.flatMap { section in
-            LiveChannelOrder.sorted(state.channels.filter {
-                LiveChannelOrder.section($0.id) == section && (!ProfileStore.shared.kidsMode || ["cbbc", "cbeebies"].contains($0.id))
-            }, id: { $0.id }, title: { $0.title })
-        }.map { $0.provider == .bbc ? RegionalChannels.resolve($0) : $0 }
-        // Freeview order (BBC One, BBC Two, ITV1, Channel 4, Channel 5…), then regional and additional
-        // channels, then the ITV and Channel 5 themed channels; favourites first, in the profile's order.
-        let favourite = favourites.ordered(all.filter { favourites.contains($0.id) }) { $0.id }
-        return favourite + all.filter { !favourites.contains($0.id) }
+        let all = LiveChannelOrder.sorted(availableChannels, id: { $0.id }, title: { $0.title })
+            .map { $0.provider == .bbc ? RegionalChannels.resolve($0) : $0 }
+        // Favourites first, in the profile's order.
+        return favourites.ordered(all.filter { favourites.contains($0.id) }) { $0.id } + all.filter { !favourites.contains($0.id) }
     }
     private var liveBody: some View {
         Group {
@@ -674,12 +673,12 @@ struct LiveView: View {
                 // The guide scrolls itself, keeping its programme panel in view.
                 VStack(alignment: .leading, spacing: 24) {
                     HStack(spacing: 30) {
-                        TellySegments(title: "Live view", options: ["Channels", "Guide"], selection: $liveMode).frame(width: 460)
+                        TellySegments(title: "Channels view", options: ["Channels", "Guide"], selection: $liveMode).frame(width: 460)
                         NetworkFilter(selection: $providerFilter)
                     }
                     if let error = playback.error { Text(error).foregroundStyle(.orange) }
-                    ChannelGuideView(channels: guideChannels, filter: providerFilter,
-                                     additionalStreams: ProfileStore.shared.kidsMode || (providerFilter ?? .bbc) != .bbc ? [] : AdditionalLiveStream.all,
+                    ChannelGuideView(channels: guideChannels, filter: activeFilter,
+                                     additionalStreams: ProfileStore.shared.kidsMode || !networks.isOn(.bbc) || (activeFilter ?? .bbc) != .bbc ? [] : AdditionalLiveStream.all,
                                      playLive: { play($0) },
                                      playStream: { stream in playback.startAdditional(stream) { state.playing = true } },
                                      playEpisode: { programme in
@@ -697,10 +696,11 @@ struct LiveView: View {
             guard phase == .active, !state.playing, !state.pairing, !state.channel5Pairing else { return }
             await account.reload(); await channel5Account.reload()
             while !Task.isCancelled {
-                async let bbc: Void = state.refreshBBC()
-                async let itv: Void = state.refreshITV()
-                async let channel4: Void = state.refreshChannel4()
-                async let channel5: Void = state.refreshChannel5()
+                // Networks that are off aren't contacted.
+                async let bbc: Void? = shows(.bbc) ? state.refreshBBC() : nil
+                async let itv: Void? = shows(.itv) ? state.refreshITV() : nil
+                async let channel4: Void? = shows(.channel4) ? state.refreshChannel4() : nil
+                async let channel5: Void? = shows(.channel5) ? state.refreshChannel5() : nil
                 _ = await (bbc, itv, channel4, channel5)
                 do { try await Task.sleep(nanoseconds: 60_000_000_000) } catch { return }
             }
@@ -771,14 +771,13 @@ struct LiveView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 30) {
                 HStack(spacing: 30) {
-                    TellySegments(title: "Live view", options: ["Channels", "Guide"], selection: $liveMode).frame(width: 460)
+                    TellySegments(title: "Channels view", options: ["Channels", "Guide"], selection: $liveMode).frame(width: 460)
                     NetworkFilter(selection: $providerFilter)
                 }
-                if let error = state.bbcError { Text(error).foregroundStyle(.orange) }
-                if let error = state.itvError { Text(error).foregroundStyle(.orange) }
-                if let error = state.channel4Error { Text(error).foregroundStyle(.orange) }
-                if let error = state.channel5Error { Text(error).foregroundStyle(.orange) }
-                if state.bbcError != nil || state.itvError != nil || state.channel4Error != nil || state.channel5Error != nil { Button("Retry channels") { state.retry += 1 } }
+                let errors = [(ContentProvider.bbc, state.bbcError), (.itv, state.itvError), (.channel4, state.channel4Error), (.channel5, state.channel5Error)]
+                    .compactMap { network, error in shows(network) ? error : nil }
+                ForEach(errors, id: \.self) { Text($0).foregroundStyle(.orange) }
+                if !errors.isEmpty { Button("Retry channels") { state.retry += 1 } }
                 if let error = playback.error { Text(error).foregroundStyle(.orange) }
                 let favouriteRow = favourites.ordered(LiveChannelSection.allCases.flatMap { channels(in: $0) }.filter { favourites.contains($0.id) }) { $0.id }
                 if !favouriteRow.isEmpty {
@@ -997,6 +996,7 @@ struct SettingsView: View {
                     .focusSection()
                     .onChange(of: syncURL) { _, _ in profileStore.scheduleSync(); NotificationCenter.default.post(name: ProfileStore.changed, object: nil) }
                     .onChange(of: syncSecret) { _, _ in profileStore.scheduleSync(); NotificationCenter.default.post(name: ProfileStore.changed, object: nil) }
+                NetworkSwitches()
                 Text("Playback automatically selects the best available quality, including 4K HDR when available. Live channel quality adapts to the stream each broadcaster supplies.").foregroundStyle(.secondary)
                 Text("Programme listings load only when you select a category or letter. Series and episodes load when you open a programme. Saved programmes include all their series.")
                 if let warning = catalogue.storageWarning { Text(warning).foregroundStyle(.orange) }
@@ -1095,7 +1095,7 @@ struct FavouriteChannelsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 Text("Favourite channels").font(.largeTitle).bold()
-                Text("Favourites come first on the Live page, in the guide and on the Top Shelf. Each profile has its own, and they sync with household sync. You can also long-press a channel on the Live page.")
+                Text("Favourites come first on the Channels page, in the guide and on the Top Shelf. Each profile has its own, and they sync with household sync. You can also long-press a channel on the Channels page.")
                     .font(.system(size: 24)).foregroundStyle(.secondary)
                 if !favourites.ids.isEmpty {
                     Text(moving == nil ? "Your order: select a channel to move it" : "Moving: use Up and Down, then select to drop")

@@ -174,6 +174,11 @@ enum LiveChannelOrder {
         if id.hasPrefix("bbc_two_") { return "bbc_two_england" }
         return id
     }
+    /// The network a live channel belongs to, named as in Settings.
+    static func network(_ id: String) -> String {
+        id.hasPrefix("itv:") ? "itv" : id.hasPrefix("c4:") ? "channel4" : id.hasPrefix("c5:") ? "channel5" : "bbc"
+    }
+    static func isThemed(_ id: String) -> Bool { [.itvThemed, .channel5Themed].contains(section(id)) }
     static func section(_ id: String) -> LiveChannelSection {
         let id = canonical(id)
         if main.contains(id) { return .main }
@@ -190,6 +195,7 @@ enum LiveChannelOrder {
         case .channel5Themed: return channel5Themed.firstIndex(of:id) ?? Int.max
         }
     }
+    /// Freeview listings order across every network, then the regional extras, with the themed channels last.
     static func sorted<T>(_ channels: [T], id: (T)->String, title: (T)->String) -> [T] {
         var seen = Set<String>()
         return channels.filter { seen.insert(id($0)).inserted }.sorted { a,b in
@@ -231,5 +237,11 @@ enum TellyShared {
     static var favouriteChannels: [String] {
         get { defaults?.stringArray(forKey: favouritesKey) ?? [] }
         set { defaults?.set(newValue, forKey: favouritesKey) }
+    }
+    private static let hiddenNetworksKey = "hiddenNetworks-v1"
+    /// Networks turned off in Settings, by name ("bbc", "itv", "channel4", "channel5", "u").
+    static var hiddenNetworks: [String] {
+        get { defaults?.stringArray(forKey: hiddenNetworksKey) ?? [] }
+        set { defaults?.set(newValue, forKey: hiddenNetworksKey) }
     }
 }

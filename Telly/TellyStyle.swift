@@ -37,54 +37,16 @@ struct FTVLoadingBars: View {
             .allowsHitTesting(false)
     }
 }
-/// The loading glow sits directly over the three colour segments in the wordmark.
+
 struct TellyHeaderLogo: View {
-    let loading: Bool
     var body: some View {
         Image("TellyBoxLogo").renderingMode(.original).resizable().scaledToFit()
             .frame(width:144,height:68)
-            .overlay {
-                if loading {
-                    Rectangle().fill(Color(red:16/255,green:22/255,blue:30/255))
-                        .frame(width:79.5,height:4.2).position(x:72,y:64.5)
-                    FTVLoadingBars(width:79.3)
-                        .position(x:72,y:64.5)
-                        .accessibilityHidden(true)
-                }
-            }
             .accessibilityElement(children:.ignore)
-            .accessibilityLabel(loading ? "Telly, loading" : "Telly")
+            .accessibilityLabel("Telly")
             .accessibilityIdentifier("header-telly-logo")
     }
 }
-
-struct FTVProgressViewStyle: ProgressViewStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        if let value = configuration.fractionCompleted {
-            ProgressView(value:value) { configuration.label }.progressViewStyle(.linear)
-        } else {
-            HStack(spacing:16) {
-                FTVLoadingBars()
-                configuration.label
-            }
-        }
-    }
-}
-
-#if DEBUG
-/// Isolated native preview for checking transparency and the loading animation.
-struct FTVBrandValidationView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            FTVLoadingBars(width:220)
-        }.overlay(alignment:.topTrailing) {
-            Image("TellyBoxLogo").resizable().scaledToFit().frame(width:128,height:46)
-                .padding(.trailing,64).padding(.top,18)
-        }
-    }
-}
-#endif
 
 /// Home sections share the same network mark sizing as Browse category pages.
 struct HomepageNetworkHeading: View {
@@ -100,11 +62,12 @@ struct HomepageNetworkHeading: View {
 
 struct NetworkFilter: View {
     @Binding var selection: ContentProvider?
+    @ObservedObject private var networks = NetworkSettings.shared
     var body: some View {
         HStack(spacing: 22) {
             Button { selection = nil } label: { Text("All").frame(width: 60, height: 30) }
                 .buttonStyle(NeutralPillStyle(selected: selection == nil)).accessibilityIdentifier("live-filter-all")
-            ForEach([ContentProvider.bbc, .itv, .channel4, .channel5], id: \.self) { provider in
+            ForEach([ContentProvider.bbc, .itv, .channel4, .channel5].filter { networks.isOn($0) || ProfileStore.shared.kidsMode }, id: \.self) { provider in
                 Button { selection = provider } label: {
                     Image(provider.logo).renderingMode(.template).resizable().scaledToFit().frame(width: 60, height: 30)
                 }.buttonStyle(NeutralPillStyle(selected: selection == provider))
@@ -188,34 +151,12 @@ struct ProgrammeCardReview: View {
 }
 #endif
 
-/// Keep Back cancellation during live-source discovery without intercepting
-/// normal navigation once the request has finished.
+/// Back cancels live-source discovery without intercepting normal navigation
+/// once the request has finished.
 struct LoadingBackAction: ViewModifier {
     let active: Bool
     let cancel: () -> Void
-    func body(content: Content) -> some View {
-        content.overlay {
-            if active {
-                ZStack {
-                    Color.black.opacity(0.45).ignoresSafeArea()
-                    FTVLoadingBars(width:220)
-                }.allowsHitTesting(false)
-            }
-        }.onExitCommand(perform: active ? cancel : nil)
-    }
-}
-
-/// Multiple programme loads can overlap without one clearing another's feedback.
-struct ProgrammeLoadingFeedback: ViewModifier {
-    let active: Bool
-    @ObservedObject var catalogue: CatalogueStore
-    @State private var token = UUID()
-    func body(content: Content) -> some View {
-        content.onChange(of:active,initial:true) { _,value in
-            if value { catalogue.beginProgrammeLoading(token) } else { catalogue.endProgrammeLoading(token) }
-        }.onAppear { if active { catalogue.beginProgrammeLoading(token) } }
-         .onDisappear { catalogue.endProgrammeLoading(token) }
-    }
+    func body(content: Content) -> some View { content.onExitCommand(perform: active ? cancel : nil) }
 }
 
 struct CategorySortToggle: View {

@@ -83,14 +83,14 @@ struct ITVAccountView: View {
                             if let code = model.code {
                                 Text(code).font(.system(size: 66, weight: .bold, design: .monospaced)).tracking(7)
                                     .accessibilityLabel("ITV code " + code.map(String.init).joined(separator: " "))
-                            } else if model.error == nil { ProgressView() }
+                            }
                             Text(model.status).foregroundStyle(.secondary)
                         }
                     }
                     Text("Telly will connect automatically once ITV confirms your sign-in.").foregroundStyle(.secondary)
                     if let error = model.error { Text(error).foregroundStyle(.orange) }
                     Button("Get a new code") { model.retry += 1 }
-                } else { ProgressView("Checking ITV sign-in…") }
+                } else { Text("Checking ITV sign-in…").foregroundStyle(.secondary) }
                 if let error = account.error { Text(error).foregroundStyle(.orange) }
                 Button("Close") { dismiss() }
             }.padding(70)

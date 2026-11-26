@@ -55,6 +55,7 @@
 		0000000000000000000F0006 /* ChannelGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0005 /* ChannelGuide.swift */; };
 		0000000000000000000F0008 /* ChannelGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0007 /* ChannelGuideView.swift */; };
 		0000000000000000000F0010 /* FavouriteChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0009 /* FavouriteChannels.swift */; };
+		0000000000000000000F0012 /* NetworkSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0011 /* NetworkSettings.swift */; };
 		A60000000000000000000001 /* UCatalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000000 /* UCatalogue.swift */; };
 		A60000000000000000000003 /* UViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000002 /* UViews.swift */; };
 		A60000000000000000000005 /* USeed.json in Resources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000004 /* USeed.json */; };
@@ -156,6 +157,7 @@
 		0000000000000000000F0005 /* ChannelGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuide.swift; sourceTree = "<group>"; };
 		0000000000000000000F0007 /* ChannelGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuideView.swift; sourceTree = "<group>"; };
 		0000000000000000000F0009 /* FavouriteChannels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteChannels.swift; sourceTree = "<group>"; };
+		0000000000000000000F0011 /* NetworkSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSettings.swift; sourceTree = "<group>"; };
 		A60000000000000000000000 /* UCatalogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCatalogue.swift; sourceTree = "<group>"; };
 		A60000000000000000000002 /* UViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UViews.swift; sourceTree = "<group>"; };
 		A60000000000000000000004 /* USeed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = USeed.json; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 				0000000000000000000F0007 /* ChannelGuideView.swift */,
 				0000000000000000000F0005 /* ChannelGuide.swift */,
 				0000000000000000000F0009 /* FavouriteChannels.swift */,
+				0000000000000000000F0011 /* NetworkSettings.swift */,
 				0000000000000000000F0003 /* ProfilesUI.swift */,
 				0000000000000000000F0001 /* Profiles.swift */,
 				0000000000000000000001A1 /* PlaybackExtras.swift */,
@@ -417,6 +420,7 @@
 				0000000000000000000F0008 /* ChannelGuideView.swift in Sources */,
 				0000000000000000000F0006 /* ChannelGuide.swift in Sources */,
 				0000000000000000000F0010 /* FavouriteChannels.swift in Sources */,
+				0000000000000000000F0012 /* NetworkSettings.swift in Sources */,
 				0000000000000000000F0004 /* ProfilesUI.swift in Sources */,
 				0000000000000000000F0002 /* Profiles.swift in Sources */,
 				000000000000000000000206 /* CatalogueIndex.swift in Sources */,

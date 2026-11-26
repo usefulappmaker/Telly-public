@@ -63,6 +63,17 @@ struct ChannelGuideView: View {
         let loaded = Dictionary(guide.map { ($0.id, $0.entries) }, uniquingKeysWith: { first, _ in first })
         return channels.filter { filter == nil || $0.provider == filter }.map { GuideChannel(channel: $0, entries: loaded[$0.id] ?? []) }
     }
+    /// The themed channels at the end; the Red Button rows go just above them.
+    private var splitRows: (lead: [GuideChannel], themed: [GuideChannel]) {
+        let rows = rows
+        let end = (rows.lastIndex { !LiveChannelOrder.isThemed($0.id) } ?? -1) + 1
+        return (Array(rows[..<end]), Array(rows[end...]))
+    }
+    /// Row ids from top to bottom, as laid out.
+    private var rowOrder: [String] {
+        let split = splitRows
+        return split.lead.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id } + split.themed.map(\.id)
+    }
     private var focusedHold: LiveChannel? {
         guard let cell = focusedCell, cell.hasPrefix(Self.holdPrefix) else { return nil }
         return channels.first { Self.holdPrefix + $0.id == cell }
@@ -85,7 +96,7 @@ struct ChannelGuideView: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            if !loaded { ProgressView("Getting schedules…") }
+            if !loaded { Text("Getting schedules…").foregroundStyle(.secondary) }
             else if rows.isEmpty && additionalStreams.isEmpty { Text("No schedules are available at the moment.").foregroundStyle(.secondary) }
             else {
                 // Half-minute ticks keep the "now" line and the on-air highlight current.
@@ -266,20 +277,35 @@ struct ChannelGuideView: View {
         func x(_ date: Date) -> CGFloat { CGFloat(date.timeIntervalSince(start) / 60) * pointsPerMinute }
         let marks = stride(from: ChannelGuide.halfHour(start, roundingUp: true).timeIntervalSinceReferenceDate, to: end.timeIntervalSinceReferenceDate - 1500, by: 1800)
             .map { Date(timeIntervalSinceReferenceDate: $0) }
+        let split = splitRows
+        @ViewBuilder func timeline(_ row: GuideChannel) -> some View {
+            // Away from the focused row only the programme at the focus time takes focus,
+            // so Up and Down land in the same column.
+            let landing = currentRow == row.id || !neighbours.contains(row.id) ? nil : ChannelGuide.landing(in: row.entries, at: aim, from: start, to: end)
+            let segments = ChannelGuide.segments(row.entries, from: start, to: end)
+            if !segments.contains(where: { $0.entry != nil }) {
+                holdingCell(row.channel, width: width, reachable: currentRow == row.id || neighbours.contains(row.id))
+            } else {
+                HStack(spacing: 0) {
+                    ForEach(segments) { segment in
+                        let cellWidth = CGFloat(segment.minutes) * pointsPerMinute
+                        if let entry = segment.entry {
+                            cell(entry, on: row.channel, width: cellWidth, continues: entry.start < start, now: now,
+                                 reachable: currentRow == row.id || landing?.id == entry.id,
+                                 growsLeft: x(segment.start) + Self.expandedWidth > width)
+                        }
+                        else { Color.clear.frame(width: cellWidth, height: rowHeight) }
+                    }
+                }.frame(width: width, height: rowHeight, alignment: .leading)
+            }
+        }
         return ScrollView(.vertical) {
             HStack(alignment: .top, spacing: gap) {
                 VStack(alignment: .leading, spacing: gap) {
                     Color.clear.frame(width: channelWidth, height: rulerHeight)
-                    ForEach(rows) { row in
-                        channelName(row.channel.title).overlay {
-                            Button {} label: { Color.clear }
-                                .buttonStyle(GuideEdgeStyle())
-                                .focused($focusedCell, equals: Self.edgePrefix + row.id)
-                                .disabled(currentRow != row.id)
-                                .accessibilityHidden(true)
-                        }
-                    }
+                    ForEach(split.lead) { row in rowName(row, currentRow: currentRow) }
                     ForEach(additionalStreams) { stream in channelName(stream.title) }
+                    ForEach(split.themed) { row in rowName(row, currentRow: currentRow) }
                 }
                 VStack(alignment: .leading, spacing: gap) {
                     ZStack(alignment: .topLeading) {
@@ -288,35 +314,16 @@ struct ChannelGuideView: View {
                                 .offset(x: x(mark))
                         }
                     }.frame(width: width, height: rulerHeight, alignment: .topLeading).clipped()
-                    ForEach(rows) { row in
-                        // Away from the focused row only the programme at the focus time takes focus,
-                        // so Up and Down land in the same column.
-                        let landing = currentRow == row.id || !neighbours.contains(row.id) ? nil : ChannelGuide.landing(in: row.entries, at: aim, from: start, to: end)
-                        let segments = ChannelGuide.segments(row.entries, from: start, to: end)
-                        if !segments.contains(where: { $0.entry != nil }) {
-                            holdingCell(row.channel, width: width, reachable: currentRow == row.id || neighbours.contains(row.id))
-                        } else {
-                        HStack(spacing: 0) {
-                            ForEach(segments) { segment in
-                                let cellWidth = CGFloat(segment.minutes) * pointsPerMinute
-                                if let entry = segment.entry {
-                                    cell(entry, on: row.channel, width: cellWidth, continues: entry.start < start, now: now,
-                                         reachable: currentRow == row.id || landing?.id == entry.id,
-                                         growsLeft: x(segment.start) + Self.expandedWidth > width)
-                                }
-                                else { Color.clear.frame(width: cellWidth, height: rowHeight) }
-                            }
-                        }.frame(width: width, height: rowHeight, alignment: .leading)
-                        }
-                    }
+                    ForEach(split.lead) { row in timeline(row) }
                     ForEach(additionalStreams) { stream in
                         let id = Self.streamPrefix + stream.id
                         streamCell(stream, width: width, reachable: currentRow == id || neighbours.contains(id))
                     }
+                    ForEach(split.themed) { row in timeline(row) }
                 }
                 .overlay(alignment: .topLeading) {
                     if now >= start && now < end {
-                        Rectangle().fill(TellyColour.blue).frame(width: 3)
+                        Rectangle().fill(.white).frame(width: 3)
                             .offset(x: x(now) - 1.5)
                             .allowsHitTesting(false).accessibilityHidden(true)
                     }
@@ -334,15 +341,17 @@ struct ChannelGuideView: View {
     private func landings(now: Date) -> [(row: String, cell: String)] {
         let start = start(now), end = start.addingTimeInterval(span)
         let aim = min(max(focusTime ?? now, start), end.addingTimeInterval(-60))
-        return rows.compactMap { row in
+        func landing(_ row: GuideChannel) -> (row: String, cell: String)? {
             if let entry = ChannelGuide.landing(in: row.entries, at: aim, from: start, to: end) { return (row.id, cellID(row.channel, entry)) }
             // Nothing scheduled on screen: the row's holding tile.
             return ChannelGuide.segments(row.entries, from: start, to: end).contains { $0.entry != nil } ? nil : (row.id, Self.holdPrefix + row.id)
-        } + additionalStreams.map { (Self.streamPrefix + $0.id, Self.streamPrefix + $0.id) }
+        }
+        let split = splitRows
+        return split.lead.compactMap(landing) + additionalStreams.map { (Self.streamPrefix + $0.id, Self.streamPrefix + $0.id) } + split.themed.compactMap(landing)
     }
     /// After a move between rows (or down from the day row), the cell that should have taken focus.
     private func expectedLanding(from old: String?, to cell: String) -> String? {
-        let order = self.rows.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
+        let order = rowOrder
         guard let new = rowID(cell), !cell.hasPrefix(Self.edgePrefix), let to = order.firstIndex(of: new) else { return nil }
         let rows = landings(now: Date())
         if old == nil {   // entering from the day row: the first row with something to land on
@@ -366,7 +375,7 @@ struct ChannelGuideView: View {
                 return
             }
             // Rows above or below the current one, nearest first.
-            let order = self.rows.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
+            let order = rowOrder
             guard let current = rowID(cell), let position = order.firstIndex(of: current) else { return }
             let targets = down ? Array(order[(position + 1)...]) : Array(order[..<position].reversed())
             if let next = targets.lazy.compactMap({ id in rows.first { $0.row == id } }).first { focusedCell = next.cell }
@@ -392,6 +401,15 @@ struct ChannelGuideView: View {
             }
         }
         return true
+    }
+    private func rowName(_ row: GuideChannel, currentRow: String?) -> some View {
+        channelName(row.channel.title).overlay {
+            Button {} label: { Color.clear }
+                .buttonStyle(GuideEdgeStyle())
+                .focused($focusedCell, equals: Self.edgePrefix + row.id)
+                .disabled(currentRow != row.id)
+                .accessibilityHidden(true)
+        }
     }
     private func channelName(_ title: String) -> some View {
         Text(title).font(.system(size: 26, weight: .bold)).lineLimit(2)
@@ -419,7 +437,7 @@ struct ChannelGuideView: View {
                         .foregroundStyle(.black)
                         .frame(width: Self.expandedWidth, height: rowHeight)
                         .background(available ? Color.white : Color(white: 0.6), in: RoundedRectangle(cornerRadius: 12))
-                        .shadow(color: TellyColour.blue.opacity(0.55), radius: 14)
+                        .shadow(color: .black.opacity(0.5), radius: 14)
                         .allowsHitTesting(false).accessibilityHidden(true)
                         .transition(.opacity)
                 }
@@ -432,7 +450,7 @@ struct ChannelGuideView: View {
     /// Away from the focused row, only the nearest rows above and below (or the first row, from the day row) take
     /// focus, each at the focus time, so Up and Down move exactly one row and the focus engine can't skip one.
     private func neighbourRows(of current: String?) -> Set<String> {
-        let order = self.rows.map(\.id) + additionalStreams.map { Self.streamPrefix + $0.id }
+        let order = rowOrder
         let landable = Set(landings(now: Date()).map(\.row))
         guard let current, let index = order.firstIndex(of: current) else { return Set(order.first { landable.contains($0) }.map { [$0] } ?? []) }
         let above = order[..<index].reversed().first { landable.contains($0) }
@@ -514,7 +532,7 @@ private struct GuideCellLabel: View {
     }
 }
 
-/// Slim day choice: the day on screen is blue and underlined; focus is a small white pill.
+/// Slim day choice: the day on screen is white, underlined in Telly blue; focus is a small white pill.
 private struct GuideDayStyle: ButtonStyle {
     let selected: Bool
     func makeBody(configuration: Configuration) -> some View { GuideDayLabel(label: configuration.label, selected: selected) }
@@ -525,7 +543,7 @@ private struct GuideDayLabel<Label: View>: View {
     @Environment(\.isFocused) private var focused
     var body: some View {
         label.font(.system(size: 22, weight: .semibold)).lineLimit(1).fixedSize()
-            .foregroundStyle(focused ? Color.black : selected ? TellyColour.blue : Color.white.opacity(0.6))
+            .foregroundStyle(focused ? Color.black : Color.white.opacity(selected ? 1 : 0.6))
             .padding(.horizontal, 14).padding(.vertical, 6)
             .background(focused ? Color.white : Color.clear, in: Capsule())
             .overlay(alignment: .bottom) {
@@ -561,13 +579,13 @@ private struct GuideCellSurface<Content: View>: View {
     @Environment(\.isFocused) private var focused
     private var fill: Color {
         if unavailable { return focused ? Color(white: 0.6) : Color.white.opacity(0.03) }
-        return focused ? Color.white : onAir ? TellyColour.blue.opacity(0.3) : onDemand ? TellyColour.green.opacity(0.28) : Color.white.opacity(0.08)
+        return focused ? Color.white : onAir ? TellyColour.blue.opacity(0.38) : onDemand ? TellyColour.green.opacity(0.28) : Color.white.opacity(0.08)
     }
     var body: some View {
         content.foregroundStyle(focused ? Color.black : unavailable ? Color.white.opacity(0.35) : Color.white)
             .background(fill, in: RoundedRectangle(cornerRadius: 12))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: TellyColour.blue.opacity(focused && !unavailable ? 0.55 : 0), radius: 14)
+            .shadow(color: .black.opacity(focused && !unavailable ? 0.5 : 0), radius: 14)
             .opacity(pressed ? 0.7 : 1)
             .animation(.easeOut(duration: 0.12), value: focused)
             .focusEffectDisabled()

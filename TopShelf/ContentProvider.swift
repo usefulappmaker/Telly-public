@@ -68,7 +68,9 @@ final class ContentProvider: TVTopShelfContentProvider {
             completionHandler(content(channels))
         }
     }
-    @MainActor private func content(_ channels: [LiveShelfChannel]) -> TVTopShelfSectionedContent {
+    @MainActor private func content(_ all: [LiveShelfChannel]) -> TVTopShelfSectionedContent {
+        let hidden = Set(TellyShared.hiddenNetworks)
+        let channels = all.filter { !hidden.contains(LiveChannelOrder.network($0.id)) }
         let ordered = LiveChannelOrder.sorted(channels,id:{ $0.id },title:{ $0.title })
         let sections = LiveChannelSection.allCases.compactMap { kind -> TVTopShelfItemCollection<TVTopShelfSectionedItem>? in
             let items = ordered.filter { LiveChannelOrder.section($0.id) == kind }.compactMap { channel -> TVTopShelfSectionedItem? in

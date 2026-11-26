@@ -16,10 +16,7 @@ struct UHDCategoryView: View {
                     Text("\(shows.count) programmes").font(.callout)
                     Spacer()
                     Button { index.requestRefresh() } label: {
-                        HStack {
-                            if index.loading { ProgressView() }
-                            Text("Check for updates")
-                        }
+                        Text("Check for updates")
                     }.disabled(index.loading)
                 }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 330), spacing: 28)], spacing: 30) {
@@ -56,7 +53,8 @@ struct CatalogueSearchView: View {
         self.index=index;self.catalogue=catalogue;self.library=library
         itv=catalogue.itv;channel4=catalogue.channel4;channel5=catalogue.channel5;u=catalogue.u
     }
-    private var results: [CatalogueShow] { search.state.results }
+    @ObservedObject private var networks = NetworkSettings.shared
+    private var results: [CatalogueShow] { search.state.results.filter { networks.isOn($0.provider) } }
     private var pages: Int { max(1,(results.count+29)/30) }
     private var request: SearchRequestKey {
         SearchRequestKey(query:query,revisions:[index.searchRevision,itv.searchRevision,channel4.searchRevision,channel5.searchRevision,u.searchRevision],active:phase == .active)
@@ -69,7 +67,6 @@ struct CatalogueSearchView: View {
                     HStack(spacing: 24) {
                         Text("\(results.count) \(results.count == 1 ? "result" : "results")").font(.title3)
                         Spacer()
-                        if search.state.searching { ProgressView().accessibilityLabel("Searching programmes") }
                         if pages > 1 {
                             Button("Previous") { page -= 1 }.disabled(page <= 1)
                             Text("\(min(page, pages)) / \(pages)")
