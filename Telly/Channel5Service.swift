@@ -113,8 +113,8 @@ enum Channel5Wire {
     }
 }
 
-// Public web-client service metadata constants (verified against the official web player on 2026-10-30); not DRM content keys.
+// Public web-client service metadata constants (verified against the official web player on 2026-11-15); not DRM content keys.
 private enum Channel5PublicMetadata {
-    static let hmac = Data(base64Encoded: "rmNFBH+LvPAj/WObtcG7ng==")!
-    static let aes = Data(base64Encoded: "AO5lXuH+GxGkC1M+QtB5hQ==")!
+    static let hmac = Data(base64Encoded: "3/bKXoo/rggxUl0El54Phw==")!
+    static let aes = Data(base64Encoded: "wDcn+If9VpIFqU+1p4Edvw==")!
 }
