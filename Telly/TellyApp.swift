@@ -40,7 +40,7 @@ struct ProgrammeCard: View {
                     if progress?.completed == true {
                         Label("WATCHED", systemImage: "checkmark").font(.system(size: 17, weight: .bold)).labelStyle(.titleAndIcon)
                             .padding(.horizontal, 10).padding(.vertical, 5).foregroundStyle(.white)
-                            .background(Color(red: 0.12, green: 0.55, blue: 0.27), in: Capsule()).padding(10)
+                            .background(TellyColour.watched, in: Capsule()).padding(10)
                     }
                 }
                 .overlay(alignment: .bottom) {
@@ -48,7 +48,7 @@ struct ProgrammeCard: View {
                         GeometryReader { geometry in
                             ZStack(alignment: .leading) {
                                 Rectangle().fill(.white.opacity(0.3))
-                                Rectangle().fill(Color.pink).frame(width: geometry.size.width * progress.fraction)
+                                Rectangle().fill(TellyColour.blue).frame(width: geometry.size.width * progress.fraction)
                             }
                         }.frame(height: 6).clipShape(Capsule()).padding(.horizontal, 10).padding(.bottom, 10)
                     }
@@ -203,7 +203,7 @@ struct ProgrammeBookmarkButton: View {
     var body: some View {
         Button { library.toggle(show) } label: {
             Label(saved ? "Saved" : "Save", systemImage: saved ? "bookmark.fill" : "bookmark")
-        }.tint(saved ? Color(red: 29/255, green: 148/255, blue: 250/255) : .gray)   // the Telly wordmark blue
+        }.tint(saved ? TellyColour.blue : .gray)
             .accessibilityLabel(saved ? "Remove saved programme" : "Save programme")
             .accessibilityIdentifier("save-programme")
     }
