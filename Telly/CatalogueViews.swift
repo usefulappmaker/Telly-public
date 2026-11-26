@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import SwiftUI
+import AVKit
 import CryptoKit
 
-private enum TellyTab: String, CaseIterable { case home = "Home", browse = "Browse", search = "Search", live = "Live", saved = "Saved", settings = "Settings" }
+private enum TellyTab: String, CaseIterable { case live = "Live", home = "Discover", browse = "Browse", search = "Search", saved = "Saved", settings = "Settings" }
 struct HomeView: View {
     @StateObject private var catalogue = CatalogueStore()
     @StateObject private var index = CatalogueIndexStore()
     @StateObject private var library = Library()
     @StateObject private var history = WatchHistory()
     @State private var liveLaunch: LiveLaunch?
-    @State private var tab = TellyTab.home
+    @State private var tab = TellyTab.live
     @State private var navigationRevision = 0
     @FocusState private var focusedTab: TellyTab?
     @Environment(\.scenePhase) private var phase
@@ -53,7 +54,7 @@ struct HomeView: View {
                 case .settings: SettingsView(catalogue: catalogue)
                 }
             }.id("\(tab.rawValue)-\(navigationRevision)")
-        }.environmentObject(history).tint(Color(white: 0.75)).progressViewStyle(FTVProgressViewStyle()).defaultFocus($focusedTab, .home)
+        }.environmentObject(history).tint(Color(white: 0.75)).progressViewStyle(FTVProgressViewStyle()).defaultFocus($focusedTab, .live)
         .onChange(of: profiles.current) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .onChange(of: profiles.kidsMode) { _, _ in if !visibleTabs.contains(tab) { tab = .home } }
         .fullScreenCover(isPresented: $showProfilePicker) {
@@ -747,15 +748,20 @@ struct LiveView: View {
         }.sheet(isPresented: $state.channel5Pairing, onDismiss: {
             if channel5Account.signedIn, let channel = state.selected, channel.provider == .channel5 { playback.startLive(channel) { state.playing = true } }
         }) { Channel5AccountView() }
-        .fullScreenCover(isPresented: $state.playing, onDismiss: { playback.stop() }) { PlaybackScreen(model: playback) }
+        .fullScreenCover(isPresented: $state.playing, onDismiss: { if !playback.pictureInPictureActive { playback.stop() } }) {
+            PlaybackScreen(model: playback, liveChannels: favourites.ids.isEmpty ? guideChannels : favourites.ordered(guideChannels.filter { favourites.contains($0.id) }) { $0.id }, switchChannel: { play($0, fromStart: false) }, restoreFromPictureInPicture: { completion in
+                state.playing = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { completion(state.playing) }
+            })
+        }
         .modifier(LoadingBackAction(active: playback.loading) { playback.stop() })
-        .onDisappear { if !state.playing { playback.stop() } }
+        .onDisappear { if !state.playing && !playback.pictureInPictureActive { playback.stop() } }
     }
     /// A live channel; long-press to add it to or remove it from Favourites.
     private func channelCard(_ channel: LiveChannel) -> some View {
         Button { play(channel) } label: {
             VStack(alignment: .leading, spacing: 12) {
-                LiveChannelArtwork(channel: channel)
+                LiveChannelPreview(channel: channel, active: phase == .active && !state.playing && !playback.loading && !playback.pictureInPictureActive, audioOnFocus: true)
                     .overlay(alignment: .topTrailing) {
                         if favourites.contains(channel.id) {
                             Image(systemName: "star.fill").font(.system(size: 22)).foregroundStyle(.yellow).padding(10)
@@ -788,7 +794,7 @@ struct LiveView: View {
                 let favouriteRow = favourites.ordered(LiveChannelSection.allCases.flatMap { channels(in: $0) }.filter { favourites.contains($0.id) }) { $0.id }
                 if !favouriteRow.isEmpty {
                     Text("Favourites").font(.title2).bold()
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 370))], spacing: 30) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 30), count: 3), spacing: 30) {
                         ForEach(favouriteRow) { channel in channelCard(channel) }
                     }
                 }
@@ -801,13 +807,122 @@ struct LiveView: View {
                         } else if section == .additional {
                             Text(section.title).font(.title2).bold().padding(.top,20)
                         }
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 370))], spacing: 30) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 30), count: 3), spacing: 30) {
                     ForEach(channels) { channel in channelCard(channel) }
                 }
                     }
                 }
             }.padding(60)
         }
+    }
+}
+/// Muted, independently owned previews leave full-screen playback and its DRM session untouched.
+@MainActor private final class LivePreviewPlayer: ObservableObject {
+    let player = AVPlayer()
+    private var task: Task<Void, Never>?
+    private var channel4: Channel4FairPlaySession?
+    private var channel5: Channel5FairPlaySession?
+    private var itv: ITVFairPlaySession?
+    private var itvHTTP: ITVProbeHTTP?
+    private var generation = UUID()
+
+    func start(_ selected: LiveChannel) {
+        stop()
+        let token = generation
+        player.isMuted = true
+        task = Task { [weak self] in
+            let channel = selected.provider == .bbc ? RegionalChannels.resolve(selected) : selected
+            do {
+                let source: PlaybackSource
+                switch channel.provider {
+                case .channel5: source = try await Channel5PlaybackAPI.shared.source(id: String(channel.id.dropFirst(3)), live: true)
+                case .channel4: source = try await Channel4PlaybackAPI.shared.source(id: String(channel.id.dropFirst(3)), live: true)
+                case .itv: source = try await ITVLiveAPI().playbackSource(for: channel)
+                default: source = try await DiscoveryAPI().liveSource(channel)
+                }
+                try Task.checkCancellation()
+                guard let self, self.generation == token else { return }
+                #if targetEnvironment(simulator)
+                if source.fairPlayCertificate != nil { return }
+                #endif
+                let asset = AVURLAsset(url: source.url)
+                let report: @Sendable (String, Bool) -> Void = { [weak self] _, failed in
+                    if failed { Task { @MainActor [weak self] in if self?.generation == token { self?.stop() } } }
+                }
+                if let config = source.channel4FairPlay, let certificate = source.fairPlayCertificate {
+                    let session = Channel4FairPlaySession(config: config, certificate: certificate, report: report)
+                    self.channel4 = session; session.attach(to: asset)
+                } else if let config = source.channel5FairPlay, let certificate = source.fairPlayCertificate {
+                    let session = Channel5FairPlaySession(config: config, certificate: certificate, report: report)
+                    self.channel5 = session; session.attach(to: asset)
+                } else if let certificate = source.fairPlayCertificate {
+                    let http = ITVProbeHTTP()
+                    let session = ITVFairPlaySession(certificate: certificate, http: http, report: report)
+                    self.itvHTTP = http; self.itv = session; session.attach(to: asset)
+                }
+                let item = AVPlayerItem(asset: asset)
+                item.preferredPeakBitRate = 1_000_000
+                item.preferredMaximumResolution = CGSize(width: 640, height: 360)
+                self.player.replaceCurrentItem(with: item)
+                self.player.play()
+            } catch { /* Keep the programme artwork when a preview is unavailable. */ }
+        }
+    }
+    func stop() {
+        generation = UUID(); task?.cancel(); task = nil
+        player.pause(); player.replaceCurrentItem(with: nil)
+        channel4?.stop(); channel4 = nil; channel5?.stop(); channel5 = nil
+        itv?.stop(); itv = nil; itvHTTP?.cancel(); itvHTTP = nil
+    }
+}
+private struct LivePreviewVideo: UIViewRepresentable {
+    let player: AVPlayer
+    func makeUIView(context: Context) -> LivePreviewVideoView { let view = LivePreviewVideoView(); view.layerPlayer.player = player; return view }
+    func updateUIView(_ view: LivePreviewVideoView, context: Context) { view.layerPlayer.player = player }
+    static func dismantleUIView(_ view: LivePreviewVideoView, coordinator: ()) { view.layerPlayer.player = nil }
+}
+private final class LivePreviewVideoView: UIView {
+    override class var layerClass: AnyClass { AVPlayerLayer.self }
+    var layerPlayer: AVPlayerLayer { layer as! AVPlayerLayer }
+    private var readiness: NSKeyValueObservation?
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear; layerPlayer.videoGravity = .resizeAspectFill
+        alpha = 0
+        readiness = layerPlayer.observe(\.isReadyForDisplay, options: [.initial, .new]) { [weak self] layer, _ in
+            DispatchQueue.main.async { self?.alpha = layer.isReadyForDisplay ? 1 : 0 }
+        }
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+struct LiveChannelPreview: View {
+    let channel: LiveChannel
+    let active: Bool
+    var audioOnFocus = false
+    @Environment(\.scenePhase) private var phase
+    @Environment(\.isFocused) private var isFocused
+    @StateObject private var preview = LivePreviewPlayer()
+    private var shouldPlay: Bool { active && phase == .active }
+    private var shouldPlayAudio: Bool { shouldPlay && audioOnFocus && isFocused }
+    private func startPreview() {
+        preview.start(channel)
+        updateAudio()
+    }
+    private func updateAudio() {
+        if shouldPlayAudio {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+            try? AVAudioSession.sharedInstance().setActive(true)
+        }
+        preview.player.isMuted = !shouldPlayAudio
+    }
+    var body: some View {
+        LiveChannelArtwork(channel: channel)
+            .overlay { LivePreviewVideo(player: preview.player).allowsHitTesting(false).clipShape(RoundedRectangle(cornerRadius: 10)) }
+            .onAppear { if shouldPlay { startPreview() } }
+            .onChange(of: shouldPlay) { _, value in if value { startPreview() } else { preview.stop() } }
+            .onChange(of: shouldPlayAudio) { _, _ in updateAudio() }
+            .onChange(of: channel.id) { _, _ in if shouldPlay { startPreview() } }
+            .onDisappear { preview.stop() }
     }
 }
 struct SettingsView: View {
