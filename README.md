@@ -4,11 +4,11 @@
 
 **BBC, ITV, Channel 4, Channel 5 and U all in one app for Apple TV.**
 
-Telly is an independent, open-source **tvOS 17+** app for discovering and watching UK television. Similar to Freeview, you can browse shared categories, search across five catalogues, watch live channels and continue a series without switching apps.
+Telly is an independent, open-source **tvOS 17+** app for discovering and watching UK television. Similar to Freeview, you can browse shared categories, search across five catalogues, watch live channels and continue a series without switching apps. The interface is built for Apple TV: a frosted-glass top bar with icon tabs, a full-screen featured programme on Home, and cards that lift on focus.
 
 ![Telly feature banner](docs/assets/telly-feature-banner.png)
 
-**Public preview: 0.8.1, build 40.** Download the [source ZIP](https://github.com/usefulappmaker/Telly-public/releases/download/v0.8.1/Telly-0.8.1-public-source.zip) or [prebuilt unsigned IPA](https://github.com/usefulappmaker/Telly-public/releases/download/v0.8.1/Telly-0.8.1-public-unsigned.ipa) from [GitHub Releases](https://github.com/usefulappmaker/Telly-public/releases/tag/v0.8.1). Both require your own Apple signing and provisioning. There is no App Store or TestFlight release.
+**Public preview: 0.9.0, build 41.** Download the [source ZIP](https://github.com/usefulappmaker/Telly-public/releases/download/v0.9.0/Telly-0.9.0-public-source.zip) or [prebuilt unsigned IPA](https://github.com/usefulappmaker/Telly-public/releases/download/v0.9.0/Telly-0.9.0-public-unsigned.ipa) from [GitHub Releases](https://github.com/usefulappmaker/Telly-public/releases/tag/v0.9.0). Both require your own Apple signing and provisioning. There is no App Store or TestFlight release.
 
 [Install with Xcode](INSTALL.md) · [Sign the unsigned IPA](INSTALL-IPA.md) · [Feature and quality notes](docs/FEATURES.md) · [Release notes](CHANGELOG.md)
 
@@ -21,6 +21,8 @@ Telly is an independent, open-source **tvOS 17+** app for discovering and watchi
 - **Continue Watching:** locally saved progress, resume/start-over actions, and the next available episode after completion.
 - **Episode navigation:** programme pages open on the latest available numbered season/year. Soaps use newest-first browsing. Other series retain forward episode order.
 - **Automatic next episode:** at the actual end of an episode, a 15-second countdown offers **Cancel** and **Play now**. Autoplay uses the next known available episode in chronological order and stops when no successor is known.
+- **Profiles and kids mode:** a separate Continue Watching and Saved list per person, an optional kids profile limited to CBBC and CBeebies with a PIN, and optional household sync across your Apple TVs.
+- **Choose your networks:** Settings → Networks turns any broadcaster on or off, hiding it from Home, Browse, Search, Channels, the guide and the Top Shelf (kids profiles excepted; the last network stays on).
 
 BBC and ITV standard network category/View all pages offer **Date | A-Z**, with a remembered shared choice. Mixed-network category pages have no sort control. Channel 4, Channel 5, U and the 4K UHD category use alphabetical ordering without a toggle. Date uses genuine known broadcast/release metadata, with undated titles alphabetically last; BBC also requests recent-first listing pages. Metadata dates are cached when opening programmes. Availability-window, artwork-update and cache-refresh timestamps are not used as broadcast dates.
 
@@ -40,7 +42,7 @@ BBC and ITV standard network category/View all pages offer **Date | A-Z**, with 
 - Native subtitles on compatible feeds, including BBC live subtitles. Availability differs by provider, programme and stream.
 - BBC intro/recap skipping when timings match the playing version.
 - Received-picture quality badges: **4K, FHD, HD or SD** (where available).
-- Iconic vintage BBC blue/red/green colour scheme. Programme-page and Continue Watching preparation pulse the header logo; playback loading uses matching bars. Reduce Motion is respected.
+- Telly's blue/red/green wordmark colours carry meaning — blue for what's selected or on now, green for watched and on-demand, red for the logo and live badges. Programme-page and Continue Watching preparation pulse the header logo; playback loading uses matching bars. Reduce Motion is respected.
 
 ## Networks and quality
 
@@ -54,11 +56,13 @@ BBC and ITV standard network category/View all pages offer **Date | A-Z**, with 
 
 These are observed capabilities, not a guarantee for every programme. Regional restrictions, provider accounts, rights windows, subscription restrictions and service availability still apply.
 
+**Current status:** Channel 5 live and catch-up playback is failing after a provider request-signing change (HTTP 403); the other networks are unaffected. See the [changelog](CHANGELOG.md).
+
 ## Accounts and data
 
 ITV live playback, Channel 5 and U can request account linking through an on-screen QR/code flow; you may wish to use a dummy account for registration. Complete sign-in on the provider's website with your own account.
 
-Account sessions and optional UHD identity are kept in device Keychain storage. Bookmarks, watch progress and catalogue caches stay locally. There is no cross-device history sync (yet). Telly contacts broadcaster services and artwork hosts; this is not an offline catalogue.
+Account sessions and optional UHD identity are kept in device Keychain storage. Bookmarks, watch progress and catalogue caches stay locally. Optional household sync (Apple TVs on the same iCloud account) can share saved programmes and watched marks across devices; without it, everything stays on the device. Telly contacts broadcaster services and artwork hosts; this is not an offline catalogue.
 
 Ordinary supported playback runs on Apple TV without a separate computer/server after installation. Optional **Settings → Enable BBC UHD** runs its TwinVine configuration setup on Apple TV; it is not needed for ordinary HD playback. A Mac/Xcode or compatible signing setup is still needed to install the app.
 
@@ -66,7 +70,7 @@ Ordinary supported playback runs on Apple TV without a separate computer/server 
 
 Open **Telly.xcodeproj**, choose your own signing team for **Telly** and **TellyTopShelf**, and set **TELLY_APP_BUNDLE_IDENTIFIER** to a unique identifier. The public default is `com.example.Telly`; no developer team is selected. Pair your Apple TV with Xcode, select the Telly scheme and run. See [INSTALL.md](INSTALL.md) for details.
 
-For the prebuilt **Telly-0.8.1-public-unsigned.ipa**, sign both the app and embedded Top Shelf extension using your own tvOS provisioning before installation. See [INSTALL-IPA.md](INSTALL-IPA.md). Do not try to install an unsigned IPA directly.
+For the prebuilt **Telly-0.9.0-public-unsigned.ipa**, sign both the app and embedded Top Shelf extension using your own tvOS provisioning before installation. See [INSTALL-IPA.md](INSTALL-IPA.md). Do not try to install an unsigned IPA directly.
 
 ## Development and attribution
 
