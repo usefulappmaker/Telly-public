@@ -17,7 +17,7 @@ Telly is an independent, open-source **tvOS 17+** app for discovering and watchi
 - **Featured:** highlights from the BBC, ITV, Channel 4, Channel 5 and U.
 - **Browse together:** shared categories across providers. Films, Comedy, Drama, Entertainment and more live in one place.
 - **Search:** programme title and synopsis search across the catalogues, using the Apple TV keyboard and supported iPhone keyboard/dictation.
-- **Saved programmes:** bookmark a show across any supported network and open its available episodes later.
+- **Saved programmes:** save a whole show, or just one episode, across any supported network and open it later.
 - **Continue Watching:** locally saved progress, resume/start-over actions, and the next available episode after completion.
 - **Episode navigation:** programme pages open on the latest available numbered season/year. Soaps use newest-first browsing. Other series retain forward episode order.
 - **Automatic next episode:** at the actual end of an episode, a 15-second countdown offers **Cancel** and **Play now**. Autoplay uses the next known available episode in chronological order and stops when no successor is known.

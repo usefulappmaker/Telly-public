@@ -23,10 +23,8 @@ import AVKit
     @Published var itvSignInRequired = false
     @Published var channel5SignInRequired = false
     @Published var uSignInRequired = false
-    @Published private(set) var buffering = false
     @Published private(set) var provider: ContentProvider = .bbc
     private var protectionFailure: String?
-    private var bufferObservation: NSKeyValueObservation?
     @Published var qualityBadge: String?
     @Published var displayTitle = ""
     @Published var displaySubtitle = ""
@@ -238,7 +236,7 @@ import AVKit
     private func begin(programme: Programme? = nil, tracking context: PlaybackTracking? = nil, title: String, subtitle: String, minimumHeight: Int, isLive: Bool = false, provider: ContentProvider = .bbc, ready: @escaping () -> Void, resolve: @escaping () async throws -> PlaybackSource) {
         stop(); PlaybackActivity.active = true
         self.isLive = isLive
-        self.provider = provider; buffering = true; protectionFailure = nil
+        self.provider = provider; protectionFailure = nil
         displayTitle = title; displaySubtitle = subtitle
         infoProgramme = programme; infoArtwork = nil
         error = nil; itvSignInRequired = false; channel5SignInRequired = false; uSignInRequired = false; loading = true; status = "Finding the best available stream…"
@@ -262,7 +260,7 @@ import AVKit
                     let fps = UFairPlaySession(config:config,certificate:certificate) { [weak self] message,failed in
                         Task { @MainActor [weak self] in
                             guard let self, self.generation == id else { return }
-                            if failed { self.protectionFailure = message; self.error = message; self.buffering = false; self.player.pause() }
+                            if failed { self.protectionFailure = message; self.error = message; self.player.pause() }
                             self.status = message
                         }
                     }
@@ -273,7 +271,7 @@ import AVKit
                     let fps = Channel5FairPlaySession(config: config, certificate: certificate) { [weak self] message, failed in
                         Task { @MainActor [weak self] in
                             guard let self, self.generation == id else { return }
-                            if failed { self.protectionFailure = message; self.error = message; self.buffering = false; self.player.pause() }
+                            if failed { self.protectionFailure = message; self.error = message; self.player.pause() }
                             self.status = message
                         }
                     }
@@ -283,7 +281,7 @@ import AVKit
                     let fps = Channel4FairPlaySession(config: config, certificate: certificate) { [weak self] message, failed in
                         Task { @MainActor [weak self] in
                             guard let self, self.generation == id else { return }
-                            if failed { self.protectionFailure = message; self.error = message; self.buffering = false; self.player.pause() }
+                            if failed { self.protectionFailure = message; self.error = message; self.player.pause() }
                             self.status = message
                         }
                     }
@@ -296,7 +294,7 @@ import AVKit
                     let fps = ITVFairPlaySession(certificate: certificate, http: client) { [weak self] message, failed in
                         Task { @MainActor [weak self] in
                             guard let self, self.generation == id else { return }
-                            if failed { self.protectionFailure = message; self.error = message; self.buffering = false; self.player.pause() }
+                            if failed { self.protectionFailure = message; self.error = message; self.player.pause() }
                             self.status = message
                         }
                     }
@@ -310,17 +308,10 @@ import AVKit
                     let message = failure?.localizedDescription ?? "The stream could not continue. Close and retry."
                     Task { @MainActor [weak self] in
                         guard let self, self.generation == id else { return }
-                        self.checkpoint(); self.error = self.protectionFailure ?? message; self.buffering = false; self.status = "Playback stopped."; self.player.pause()
+                        self.checkpoint(); self.error = self.protectionFailure ?? message; self.status = "Playback stopped."; self.player.pause()
                     }
                 }
                 player.replaceCurrentItem(with: item)
-                bufferObservation = player.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
-                    let status = player.timeControlStatus
-                    Task { @MainActor [weak self] in
-                        guard let self, self.generation == id else { return }
-                        self.buffering = status == .waitingToPlayAtSpecifiedRate && self.error == nil
-                    }
-                }
                 if let programme { prepareInfo(programme: programme, versionID: source.versionID, item: item, generation: id) }
                 clockObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.2, preferredTimescale: 600), queue: .main) { [weak self] time in
                     Task { @MainActor [weak self] in
@@ -362,7 +353,7 @@ import AVKit
                         do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
                         seconds += 1
                         if seconds % 5 == 0 { checkpoint() }
-                        if item.status == .failed { error = protectionFailure ?? item.error?.localizedDescription ?? "Playback failed. Close and retry."; buffering = false; player.pause(); return }
+                        if item.status == .failed { error = protectionFailure ?? item.error?.localizedDescription ?? "Playback failed. Close and retry."; player.pause(); return }
                         let size = item.presentationSize
                         if size.height > 0 {
                             let h = Int(size.height.rounded()), w = Int(size.width.rounded())
@@ -374,7 +365,6 @@ import AVKit
                 }
             } catch {
                 if !Task.isCancelled, generation == id {
-                    buffering = false
                     self.error = error.localizedDescription; status = "Unable to start playback."
                     if case ITVAccountError.signInRequired = error { itvSignInRequired = true }
                     if case Channel5Error.signInRequired = error { channel5SignInRequired = true }
@@ -496,7 +486,7 @@ import AVKit
         switchingAdditionalStream = false; additionalStreamError = nil
         liveUHD?.stop(); liveUHD = nil
         liveSubtitles?.stop(); liveSubtitles = nil
-        bufferObservation = nil; buffering = false; protectionFailure = nil
+        protectionFailure = nil
         checkpoint(); tracking = nil
         extrasTasks.forEach { $0.cancel() }; extrasTasks = []
         if let clockObserver { player.removeTimeObserver(clockObserver) }; clockObserver = nil
@@ -1161,7 +1151,6 @@ struct PlaybackScreen: View {
     @Environment(\.scenePhase) private var phase
     @Environment(\.dismiss) private var dismiss
     @FocusState private var cancelNextFocused: Bool
-    private var waiting: Bool { (model.loading || model.buffering) && model.error == nil }
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -1169,15 +1158,9 @@ struct PlaybackScreen: View {
                 if model.upNext != nil { model.cancelAutoplay() }
                 else { model.stop(); dismiss() }
             }, leaveForPictureInPicture: { dismiss() }, restoreFromPictureInPicture: restoreFromPictureInPicture, liveChannels: liveChannels, switchChannel: switchChannel).ignoresSafeArea()
-                // AVKit draws its own activity wheel. Conceal that surface
-                // during catch-up as well as live buffering, keeping the player
-                // attached so playback, FairPlay and subtitles can progress.
-                .opacity(waiting || model.error != nil ? 0 : 1)
-                .allowsHitTesting(!waiting && model.upNext == nil)
-                .accessibilityHidden(waiting)
-            if waiting {
-                FTVLoadingBars(width:220)
-            }
+                // Keep the picture, seek bar and controls on screen while seeking or buffering.
+                .opacity(model.error != nil ? 0 : 1)
+                .allowsHitTesting(model.upNext == nil)
             if let next = model.upNext {
                 VStack {
                     Spacer()
@@ -1210,7 +1193,7 @@ struct PlaybackScreen: View {
             if value != .active { model.checkpoint() }
         }
         .onDisappear { model.setAutoplayActive(false) }
-        .onExitCommand(perform:waiting || model.upNext != nil ? {
+        .onExitCommand(perform:(model.loading && model.error == nil) || model.upNext != nil ? {
             if model.upNext != nil { model.cancelAutoplay() }
             else { model.stop(); dismiss() }
         } : nil)

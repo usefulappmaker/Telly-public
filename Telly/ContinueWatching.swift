@@ -39,9 +39,7 @@ struct ContinueWatchingRow: View {
             .sheet(isPresented:$uPairing,onDismiss:{
                 if UAccountModel.shared.signedIn, let record = pendingURecord { open(record) }
             }) { UAccountView() }
-            .onChange(of:state.preparing || playback.loading) { _,busy in catalogue.resumingEpisode = busy }
             .onDisappear {
-                catalogue.resumingEpisode = false
                 if !state.playing { state.operation?.cancel(); playback.stop() }
             }
         }

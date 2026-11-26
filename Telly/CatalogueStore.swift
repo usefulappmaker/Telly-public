@@ -13,10 +13,6 @@ import SwiftUI
     private static var categoryDateFile: URL { FileManager.default.urls(for:.cachesDirectory,in:.userDomainMask)[0].appendingPathComponent("category-dates-v1.json") }
     @Published var home: HomeFeed?
     @Published var genres: [Genre] = Genre.seed()
-    @Published private(set) var programmeLoadingIDs = Set<UUID>()
-    func beginProgrammeLoading(_ id: UUID) { programmeLoadingIDs.insert(id) }
-    func endProgrammeLoading(_ id: UUID) { programmeLoadingIDs.remove(id) }
-    @Published var resumingEpisode = false
     @Published var loading = false
     @Published var error: String?
     @Published var storageWarning: String?

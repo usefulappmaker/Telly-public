@@ -6,7 +6,6 @@ import SwiftUI
         WindowGroup {
             #if DEBUG
             if ProcessInfo.processInfo.environment["TELLY_U_ACCOUNT_PREVIEW"] == "1" { UAccountView().preferredColorScheme(.dark) }
-            else if ProcessInfo.processInfo.environment["TELLY_FTV_BRAND_PREVIEW"] == "1" { FTVBrandValidationView().preferredColorScheme(.dark) }
             else if ProcessInfo.processInfo.environment["TELLY_U_CATALOGUE_PREVIEW"] == "1" { UCatalogueValidationView().preferredColorScheme(.dark) }
             else if ProcessInfo.processInfo.environment["TELLY_C4_PREVIEW"] != nil { Channel4Preview().preferredColorScheme(.dark) }
             else if ProcessInfo.processInfo.environment["TELLY_UI_PREVIEW"] == "card-review" { ProgrammeCardReview().preferredColorScheme(.dark) }
@@ -29,6 +28,8 @@ struct ProgrammeCard: View {
     let programme: Programme
     /// Watched episodes get a WATCHED mark and dimmed artwork; part-watched ones a progress line.
     var progress: EpisodeProgress? = nil
+    /// Shown above the episode where the card stands apart from its programme's page (Saved).
+    var showTitle: String? = nil
     @Environment(\.isFocused) private var focused
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -38,7 +39,7 @@ struct ProgrammeCard: View {
                     if progress?.completed == true {
                         Label("WATCHED", systemImage: "checkmark").font(.system(size: 17, weight: .bold)).labelStyle(.titleAndIcon)
                             .padding(.horizontal, 10).padding(.vertical, 5).foregroundStyle(.white)
-                            .background(Color(red: 0.12, green: 0.55, blue: 0.27), in: Capsule()).padding(10)
+                            .background(TellyColour.watched, in: Capsule()).padding(10)
                     }
                 }
                 .overlay(alignment: .bottom) {
@@ -46,14 +47,21 @@ struct ProgrammeCard: View {
                         GeometryReader { geometry in
                             ZStack(alignment: .leading) {
                                 Rectangle().fill(.white.opacity(0.3))
-                                Rectangle().fill(Color.pink).frame(width: geometry.size.width * progress.fraction)
+                                Rectangle().fill(TellyColour.blue).frame(width: geometry.size.width * progress.fraction)
                             }
                         }.frame(height: 6).clipShape(Capsule()).padding(.horizontal, 10).padding(.bottom, 10)
                     }
                 }
                 .accessibilityValue(progress?.completed == true ? "Watched" : progress.map { $0.fraction > 0.02 ? "\(Int($0.fraction * 100))% watched" : "" } ?? "")
-            Text(programme.episodeSubtitle ?? programme.title).font(.headline).lineLimit(2)
-                .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
+            if let showTitle {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(showTitle).font(.headline).lineLimit(1)
+                    Text(programme.episodeSubtitle ?? programme.title).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                }.frame(maxWidth: .infinity, minHeight: 76, maxHeight: 76, alignment: .topLeading)
+            } else {
+                Text(programme.episodeSubtitle ?? programme.title).font(.headline).lineLimit(2)
+                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .topLeading)
+            }
             HStack { Spacer(); ProviderBadge(provider: programme.provider, subdued: true) }.frame(minHeight: 40)
         }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -94,8 +102,7 @@ struct DetailView: View {
                 Button {
                     playback.start(programme, history: history, show: show) { state.playing = true }
                 } label: {
-                    if playback.loading { FTVLoadingBars(width:36).frame(width: 40, height: 46) }
-                    else { Image(systemName: "play.fill").font(.system(size: 34)).frame(width: 40, height: 46) }
+                    Image(systemName: "play.fill").font(.system(size: 34)).frame(width: 40, height: 46)
                 }.accessibilityLabel(playback.loading ? "Finding the best stream" : "Play at the best available quality")
                     .disabled(playback.loading || programme.premium == true).buttonStyle(OutlinedActionButtonStyle(square: true))
                 if !playback.loading, history.resumePosition(for: programme.id) > 0 {
@@ -106,9 +113,7 @@ struct DetailView: View {
                     Button(watched ? "Mark unwatched" : "Mark watched") { history.setWatched(programme.id, !watched) }
                 }
                 if playback.loading { Button("Cancel") { playback.stop() } }
-                if let show {
-                    ProgrammeBookmarkButton(show: show, library: library)
-                }
+                EpisodeBookmarkButton(programme: programme, show: show, library: library)
                 Button("Close") { dismiss() }
             }.buttonStyle(OutlinedActionButtonStyle())
         }.padding(70)
@@ -170,14 +175,34 @@ private struct OutlinedActionSurface<Content: View>: View {
     }
 }
 
+/// Saves just this episode. A one-off (a film, say) is its own programme, so it is saved as that.
+struct EpisodeBookmarkButton: View {
+    let programme: Programme
+    let show: CatalogueShow?
+    @ObservedObject var library: Library
+    private var oneOff: CatalogueShow? { show?.singleEpisode == true ? show : nil }
+    private var saved: Bool { oneOff.map { library.contains($0) } ?? library.contains(programme) }
+    private var title: String { oneOff != nil ? (saved ? "Saved" : "Save") : saved ? "Episode saved" : "Save episode" }
+    var body: some View {
+        Button {
+            if let oneOff { library.toggle(oneOff) } else { library.toggle(programme, in: show) }
+        } label: {
+            Label(title, systemImage: saved ? "bookmark.fill" : "bookmark")
+        }.accessibilityLabel(oneOff != nil ? (saved ? "Remove from Saved" : "Save") : saved ? "Remove saved episode" : "Save episode")
+            .accessibilityIdentifier("save-episode")
+    }
+}
+
+/// Saves the whole programme; sits at the start of the series row on its page.
 struct ProgrammeBookmarkButton: View {
     let show: CatalogueShow
     @ObservedObject var library: Library
+    private var saved: Bool { library.contains(show) }
     var body: some View {
         Button { library.toggle(show) } label: {
-            Image(systemName: library.contains(show) ? "bookmark.fill" : "bookmark")
-                .font(.system(size: 32, weight: .medium))
-        }.buttonStyle(OutlinedActionButtonStyle(square: true))
-            .accessibilityLabel(library.contains(show) ? "Remove saved programme" : "Save programme")
+            Label(saved ? "Saved" : "Save", systemImage: saved ? "bookmark.fill" : "bookmark")
+        }.tint(saved ? TellyColour.blue : .gray)
+            .accessibilityLabel(saved ? "Remove saved programme" : "Save programme")
+            .accessibilityIdentifier("save-programme")
     }
 }

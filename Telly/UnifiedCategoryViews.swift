@@ -6,12 +6,20 @@ struct UnifiedCategoriesGrid: View {
     @ObservedObject var itv: ITVCatalogueStore
     @ObservedObject var library: Library
     @ObservedObject var index: CatalogueIndexStore
-    private var categories: [UnifiedCategory] { UnifiedCategory.make(bbc: catalogue.genres, itv: itv.categories, channel4: Channel4CatalogueAPI.categories, channel5: Channel5CatalogueAPI.categories, u: UCatalogueAPI.genres) }
+    @ObservedObject private var networks = NetworkSettings.shared
+    private var categories: [UnifiedCategory] {
+        UnifiedCategory.make(bbc: networks.isOn(.bbc) ? catalogue.genres : [], itv: networks.isOn(.itv) ? itv.categories : [],
+                             channel4: networks.isOn(.channel4) ? Channel4CatalogueAPI.categories : [],
+                             channel5: networks.isOn(.channel5) ? Channel5CatalogueAPI.categories : [],
+                             u: networks.isOn(.u) ? UCatalogueAPI.genres : [])
+    }
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 24), count: 3), spacing: 24) {
-            NavigationLink { UHDCategoryView(index: index, catalogue: catalogue, library: library) } label: {
-                CategoryTile(title: "4K UHD", icon: "4k.tv")
-            }.buttonStyle(ProgrammeCardStyle()).accessibilityLabel("4K UHD").accessibilityIdentifier("browse-category-uhd")
+            if networks.isOn(.bbc) {   // every UHD listing is a BBC programme
+                NavigationLink { UHDCategoryView(index: index, catalogue: catalogue, library: library) } label: {
+                    CategoryTile(title: "4K UHD", icon: "4k.tv")
+                }.buttonStyle(ProgrammeCardStyle()).accessibilityLabel("4K UHD").accessibilityIdentifier("browse-category-uhd")
+            }
             ForEach(categories) { category in
                 NavigationLink {
                     UnifiedCategoryView(category: category, catalogue: catalogue, library: library)
@@ -71,7 +79,6 @@ private struct BBCNetworkCategoryPreview: View {
                     .accessibilityLabel("View all BBC " + title)
             }
             CategoryProgrammeRow(shows: page.shows, catalogue: catalogue, library: library)
-            if page.loading { ProgressView() }
             if let error = page.error {
                 Text(error).font(.callout).foregroundStyle(.orange)
                 Button("Retry BBC") { Task { await page.next(genres:genres,sort:sortOrder) } }
@@ -100,7 +107,6 @@ private struct BBCNetworkCategoryPage: View {
                             .task { if position >= page.shows.count - 6 { await page.next(genres:genres,sort:sortOrder) } }
                     }
                 }
-                if page.loading { ProgressView() }
                 if let error = page.error {
                     Text(error).foregroundStyle(.orange)
                     Button("Retry BBC") { Task { await page.next(genres:genres,sort:sortOrder) } }
@@ -130,7 +136,6 @@ private struct ITVCategoryPreview: View {
                     .accessibilityLabel("View all ITV " + genre.title)
             }
             CategoryProgrammeRow(shows: Array(CategorySorting.sorted(shows,by:sortOrder,cached:catalogue.categoryDates).prefix(30)), catalogue: catalogue, library: library)
-            if loading { ProgressView() }
             if let error {
                 Text(error).font(.callout).foregroundStyle(.orange)
                 Button("Retry ITV " + genre.title) { retry += 1 }

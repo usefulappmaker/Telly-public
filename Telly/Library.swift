@@ -2,8 +2,17 @@
 import Foundation
 import Combine
 
+/// One episode kept on its own, with enough of its programme to open the rest of the series from it.
+struct SavedEpisode: Codable, Identifiable, Hashable {
+    let programme: Programme
+    let show: CatalogueShow?
+    var id: String { programme.id }
+}
+
 @MainActor final class Library: ObservableObject {
     @Published var saved: [CatalogueShow] = []
+    /// Saved single episodes, newest first. Kept per profile on this Apple TV (household sync carries programmes only).
+    @Published private(set) var savedEpisodes: [SavedEpisode] = []
     @Published var migrationWarning: String?
     private let defaults: UserDefaults
     init(defaults: UserDefaults = .standard) {
@@ -19,13 +28,15 @@ import Combine
     }
     private static var savedKey: String { "savedShows-v3-" + ProfileStore.currentID }
     private static var metaKey: String { "savedShows-meta-v1-" + ProfileStore.currentID }
+    private static var episodesKey: String { "savedEpisodes-v1-" + ProfileStore.currentID }
     private var savedAt: [String: Date] = [:]
     private var removedAt: [String: Date] = [:]
     private var syncTask: Task<Void, Never>?
     private var lastSync = Date.distantPast
     private var observers: [NSObjectProtocol] = []
     private func loadLocal() {
-        saved = []; savedAt = [:]; removedAt = [:]
+        saved = []; savedEpisodes = []; savedAt = [:]; removedAt = [:]
+        if let data = defaults.data(forKey: Self.episodesKey), let episodes = try? JSONDecoder().decode([SavedEpisode].self, from: data) { savedEpisodes = episodes }
         if let data = defaults.data(forKey: Self.savedKey), let shows = try? JSONDecoder().decode([CatalogueShow].self, from: data) { saved = shows }
         if let data = defaults.data(forKey: Self.metaKey),
            let meta = try? JSONDecoder().decode([String: [String: Date]].self, from: data) {
@@ -115,6 +126,15 @@ import Combine
         persist()
     }
     func toggle(_ show: CatalogueShow) { if contains(show) { remove(show) } else { save(show) } }
+    func contains(_ episode: Programme) -> Bool { savedEpisodes.contains { $0.id == episode.id } }
+    func toggle(_ episode: Programme, in show: CatalogueShow?) {
+        if contains(episode) { savedEpisodes.removeAll { $0.id == episode.id } }
+        else {
+            var compact = show; compact?.episodes = []; compact?.indexedAt = nil
+            savedEpisodes.insert(SavedEpisode(programme: episode, show: compact), at: 0)
+        }
+        defaults.set(try? JSONEncoder().encode(savedEpisodes), forKey: Self.episodesKey)
+    }
     func refreshArtwork() async {
         // Refresh only saved programmes when Saved is opened; no episode/catalogue crawl.
         for id in saved.filter({ $0.provider == .bbc }).map(\.id) {

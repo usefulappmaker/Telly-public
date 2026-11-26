@@ -126,7 +126,6 @@ struct ITVCatalogueView: View {
                         ForEach(store.categories) { category in Button(category.title) { path = category.path } }
                     }.padding(.vertical, 20).padding(.horizontal, 12)
                 }.scrollClipDisabled()
-                if loading { ProgressView("Updating ITV programmes…") }
                 if let error { Text(error).font(.callout).foregroundStyle(.orange) }
                 ITVProgrammeRails(rails: rails, catalogue: catalogue, library: library)
                 if rails.isEmpty && !loading { Text("No ITV programmes are currently available.") }
@@ -208,8 +207,7 @@ struct ITVCollectionView: View {
                     Text("No programmes are currently available in this collection.").foregroundStyle(.secondary)
                 }
             }.padding(60)
-        }.modifier(ProgrammeLoadingFeedback(active:loading,catalogue:catalogue))
-        .onExitCommand { dismiss() }.task(id: retry) {
+        }.onExitCommand { dismiss() }.task(id: retry) {
             loading = true; error = nil
             if shows.isEmpty, let cached = catalogue.itv.cached(path) { shows = ITVCatalogueAPI.rails(cached).flatMap(\.shows) }
             do {

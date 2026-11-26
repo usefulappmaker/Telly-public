@@ -1,14 +1,33 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import SwiftUI
 
+/// The blue, red and green of the Telly wordmark. Surfaces and focus stay neutral; colour carries meaning:
+/// blue for what is selected, saved or on now, green for what is watched or ready on demand.
+/// Red stays in the wordmark (and live badges), never as a general accent.
+enum TellyColour {
+    static let blue = Color(red: 29/255, green: 148/255, blue: 250/255)
+    static let red = Color(red: 248/255, green: 55/255, blue: 44/255)
+    static let green = Color(red: 23/255, green: 185/255, blue: 90/255)
+    /// The same green, darker so white text on it stays readable.
+    static let watched = Color(red: 14/255, green: 122/255, blue: 58/255)
+}
+
+/// The deep blue-black behind every screen, with a faint glow at the top.
+struct TellyBackdrop: View {
+    static let base = Color(red: 7/255, green: 9/255, blue: 14/255)
+    var body: some View {
+        Self.base.overlay {
+            RadialGradient(colors: [Color(red: 19/255, green: 34/255, blue: 56/255), .clear], center: .init(x: 0.6, y: -0.1), startRadius: 0, endRadius: 1300)
+        }.ignoresSafeArea()
+    }
+}
+
 /// Straight colour bars, drawn as vectors so each glow keeps its own colour.
 struct FTVLoadingBars: View {
     var width: CGFloat = 76
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
-    private let colours = [Color(red:29/255,green:148/255,blue:250/255),
-                           Color(red:248/255,green:55/255,blue:44/255),
-                           Color(red:23/255,green:185/255,blue:90/255)]
+    private let colours = [TellyColour.blue, TellyColour.red, TellyColour.green]
     var body: some View {
         TimelineView(.animation(minimumInterval:1/30,paused:reduceMotion || scenePhase != .active)) { context in
             let phase = context.date.timeIntervalSinceReferenceDate * 2 * .pi / 1.8
@@ -28,54 +47,16 @@ struct FTVLoadingBars: View {
             .allowsHitTesting(false)
     }
 }
-/// The loading glow sits directly over the three colour segments in the wordmark.
+
 struct TellyHeaderLogo: View {
-    let loading: Bool
     var body: some View {
         Image("TellyBoxLogo").renderingMode(.original).resizable().scaledToFit()
-            .frame(width:144,height:68)
-            .overlay {
-                if loading {
-                    Rectangle().fill(Color(red:16/255,green:22/255,blue:30/255))
-                        .frame(width:79.5,height:4.2).position(x:72,y:64.5)
-                    FTVLoadingBars(width:79.3)
-                        .position(x:72,y:64.5)
-                        .accessibilityHidden(true)
-                }
-            }
+            .frame(width:150,height:62)
             .accessibilityElement(children:.ignore)
-            .accessibilityLabel(loading ? "Telly, loading" : "Telly")
+            .accessibilityLabel("Telly")
             .accessibilityIdentifier("header-telly-logo")
     }
 }
-
-struct FTVProgressViewStyle: ProgressViewStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        if let value = configuration.fractionCompleted {
-            ProgressView(value:value) { configuration.label }.progressViewStyle(.linear)
-        } else {
-            HStack(spacing:16) {
-                FTVLoadingBars()
-                configuration.label
-            }
-        }
-    }
-}
-
-#if DEBUG
-/// Isolated native preview for checking transparency and the loading animation.
-struct FTVBrandValidationView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            FTVLoadingBars(width:220)
-        }.overlay(alignment:.topTrailing) {
-            Image("TellyBoxLogo").resizable().scaledToFit().frame(width:128,height:46)
-                .padding(.trailing,64).padding(.top,18)
-        }
-    }
-}
-#endif
 
 /// Home sections share the same network mark sizing as Browse category pages.
 struct HomepageNetworkHeading: View {
@@ -91,11 +72,12 @@ struct HomepageNetworkHeading: View {
 
 struct NetworkFilter: View {
     @Binding var selection: ContentProvider?
+    @ObservedObject private var networks = NetworkSettings.shared
     var body: some View {
         HStack(spacing: 22) {
             Button { selection = nil } label: { Text("All").frame(width: 60, height: 30) }
                 .buttonStyle(NeutralPillStyle(selected: selection == nil)).accessibilityIdentifier("live-filter-all")
-            ForEach([ContentProvider.bbc, .itv, .channel4, .channel5], id: \.self) { provider in
+            ForEach([ContentProvider.bbc, .itv, .channel4, .channel5].filter { networks.isOn($0) || ProfileStore.shared.kidsMode }, id: \.self) { provider in
                 Button { selection = provider } label: {
                     Image(provider.logo).renderingMode(.template).resizable().scaledToFit().frame(width: 60, height: 30)
                 }.buttonStyle(NeutralPillStyle(selected: selection == provider))
@@ -179,34 +161,12 @@ struct ProgrammeCardReview: View {
 }
 #endif
 
-/// Keep Back cancellation during live-source discovery without intercepting
-/// normal navigation once the request has finished.
+/// Back cancels live-source discovery without intercepting normal navigation
+/// once the request has finished.
 struct LoadingBackAction: ViewModifier {
     let active: Bool
     let cancel: () -> Void
-    func body(content: Content) -> some View {
-        content.overlay {
-            if active {
-                ZStack {
-                    Color.black.opacity(0.45).ignoresSafeArea()
-                    FTVLoadingBars(width:220)
-                }.allowsHitTesting(false)
-            }
-        }.onExitCommand(perform: active ? cancel : nil)
-    }
-}
-
-/// Multiple programme loads can overlap without one clearing another's feedback.
-struct ProgrammeLoadingFeedback: ViewModifier {
-    let active: Bool
-    @ObservedObject var catalogue: CatalogueStore
-    @State private var token = UUID()
-    func body(content: Content) -> some View {
-        content.onChange(of:active,initial:true) { _,value in
-            if value { catalogue.beginProgrammeLoading(token) } else { catalogue.endProgrammeLoading(token) }
-        }.onAppear { if active { catalogue.beginProgrammeLoading(token) } }
-         .onDisappear { catalogue.endProgrammeLoading(token) }
-    }
+    func body(content: Content) -> some View { content.onExitCommand(perform: active ? cancel : nil) }
 }
 
 struct CategorySortToggle: View {
