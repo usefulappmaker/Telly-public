@@ -5,180 +5,193 @@
 	};
 	objectVersion = 56;
 	objects = {
-F00000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedCatalogue.swift; sourceTree = "<group>"; };
-F00000000000000000000002 = {isa = PBXBuildFile; fileRef = F00000000000000000000001; };
-C50000000000000000000020 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueSearchModel.swift; sourceTree = "<group>"; };
-C50000000000000000000021 = {isa = PBXBuildFile; fileRef = C50000000000000000000020; };
-C50000000000000000000022 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammeArtworkLoader.swift; sourceTree = "<group>"; };
-C50000000000000000000023 = {isa = PBXBuildFile; fileRef = C50000000000000000000022; };
-C50000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Service.swift; sourceTree = "<group>"; };
-C50000000000000000000001 = {isa = PBXBuildFile; fileRef = C50000000000000000000000; };
-C50000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Account.swift; sourceTree = "<group>"; };
-C50000000000000000000003 = {isa = PBXBuildFile; fileRef = C50000000000000000000002; };
-C50000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Catalogue.swift; sourceTree = "<group>"; };
-C50000000000000000000005 = {isa = PBXBuildFile; fileRef = C50000000000000000000004; };
-C50000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Playback.swift; sourceTree = "<group>"; };
-C50000000000000000000007 = {isa = PBXBuildFile; fileRef = C50000000000000000000006; };
-C50000000000000000000008 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Views.swift; sourceTree = "<group>"; };
-C50000000000000000000009 = {isa = PBXBuildFile; fileRef = C50000000000000000000008; };
-C5000000000000000000000A = {isa = PBXFileReference; lastKnownFileType = text.json; path = Channel5Seed.json; sourceTree = "<group>"; };
-C5000000000000000000000B = {isa = PBXBuildFile; fileRef = C5000000000000000000000A; };
-C40000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Playback.swift; sourceTree = "<group>"; };
-C40000000000000000000001 = {isa = PBXBuildFile; fileRef = C40000000000000000000000; };
-C40000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Catalogue.swift; sourceTree = "<group>"; };
-C40000000000000000000003 = {isa = PBXBuildFile; fileRef = C40000000000000000000002; };
-C40000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Views.swift; sourceTree = "<group>"; };
-C40000000000000000000005 = {isa = PBXBuildFile; fileRef = C40000000000000000000004; };
-C40000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = text.json; path = Channel4Seed.json; sourceTree = "<group>"; };
-C40000000000000000000007 = {isa = PBXBuildFile; fileRef = C40000000000000000000006; };
 
-0000000000000000000001A1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackExtras.swift; sourceTree = "<group>"; };
-000000000000000000000205 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A1; };
-00000000000000000000019F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHistory.swift; sourceTree = "<group>"; };
-0000000000000000000F0001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profiles.swift; sourceTree = "<group>"; };
-0000000000000000000F0003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesUI.swift; sourceTree = "<group>"; };
-0000000000000000000F0009 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteChannels.swift; sourceTree = "<group>"; };
-0000000000000000000F0005 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuide.swift; sourceTree = "<group>"; };
-0000000000000000000F0007 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuideView.swift; sourceTree = "<group>"; };
-000000000000000000000203 = {isa = PBXBuildFile; fileRef = 00000000000000000000019F; };
-0000000000000000000F0002 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0001; };
-0000000000000000000F0004 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0003; };
-0000000000000000000F0010 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0009; };
-0000000000000000000F0006 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0005; };
-0000000000000000000F0008 = {isa = PBXBuildFile; fileRef = 0000000000000000000F0007; };
-0000000000000000000001A0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinueWatching.swift; sourceTree = "<group>"; };
-000000000000000000000204 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A0; };
-00000000000000000000019E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPolicy.swift; sourceTree = "<group>"; };
-000000000000000000000202 = {isa = PBXBuildFile; fileRef = 00000000000000000000019E; };
-00000000000000000000019D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMP4Normalizer.swift; sourceTree = "<group>"; };
-000000000000000000000201 = {isa = PBXBuildFile; fileRef = 00000000000000000000019D; };
-00000000000000000000019C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDValidationView.swift; sourceTree = "<group>"; };
-000000000000000000000200 = {isa = PBXBuildFile; fileRef = 00000000000000000000019C; };
-00000000000000000000019B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDSetupView.swift; sourceTree = "<group>"; };
-0000000000000000000001FF = {isa = PBXBuildFile; fileRef = 00000000000000000000019B; };
-00000000000000000000019A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDPlaybackAccess.swift; sourceTree = "<group>"; };
-0000000000000000000001FE = {isa = PBXBuildFile; fileRef = 00000000000000000000019A; };
-000000000000000000000199 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDIdentity.swift; sourceTree = "<group>"; };
-0000000000000000000001FD = {isa = PBXBuildFile; fileRef = 000000000000000000000199; };
-000000000000000000000198 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalHLSServer.swift; sourceTree = "<group>"; };
-0000000000000000000001FC = {isa = PBXBuildFile; fileRef = 000000000000000000000198; };
-000000000000000000000197 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DASHManifest.swift; sourceTree = "<group>"; };
-0000000000000000000001FB = {isa = PBXBuildFile; fileRef = 000000000000000000000197; };
-000000000000000000000196 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDService.swift; sourceTree = "<group>"; };
-0000000000000000000001FA = {isa = PBXBuildFile; fileRef = 000000000000000000000196; };
-000000000000000000000195 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
-0000000000000000000001F9 = {isa = PBXBuildFile; fileRef = 000000000000000000000195; };
-000000000000000000000194 = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-0000000000000000000001F8 = {isa = PBXBuildFile; fileRef = 000000000000000000000194; };
-000000000000000000000193 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Discovery.swift; sourceTree = "<group>"; };
-0000000000000000000001F7 = {isa = PBXBuildFile; fileRef = 000000000000000000000193; };
-000000000000000000000192 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueViews.swift; sourceTree = "<group>"; };
-0000000000000000000001F6 = { isa = PBXBuildFile; fileRef = 000000000000000000000192; };
-000000000000000000000191 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueStore.swift; sourceTree = "<group>"; };
-0000000000000000000001F5 = { isa = PBXBuildFile; fileRef = 000000000000000000000191; };
-000000000000000000000190 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Catalogue.swift; sourceTree = "<group>"; };
-0000000000000000000001F4 = { isa = PBXBuildFile; fileRef = 000000000000000000000190; };
-
-0000000000000000000001A2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueIndex.swift; sourceTree = "<group>"; };
-000000000000000000000206 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A2; };
-0000000000000000000001A3 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueIndexStore.swift; sourceTree = "<group>"; };
-000000000000000000000207 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A3; };
-0000000000000000000001A4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueSearchViews.swift; sourceTree = "<group>"; };
-000000000000000000000208 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A4; };
-0000000000000000000001A5 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CatalogueSeed.plist; sourceTree = "<group>"; };
-000000000000000000000209 = {isa = PBXBuildFile; fileRef = 0000000000000000000001A5; };
-0000000000000000000002F0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVPlaybackTest.swift; sourceTree = "<group>"; };
-0000000000000000000002F1 = {isa = PBXBuildFile; fileRef = 0000000000000000000002F0; };
-000000000000000000000300 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVCatalogue.swift; sourceTree = "<group>"; };
-000000000000000000000301 = {isa = PBXBuildFile; fileRef = 000000000000000000000300; };
-000000000000000000000302 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVCatalogueViews.swift; sourceTree = "<group>"; };
-000000000000000000000303 = {isa = PBXBuildFile; fileRef = 000000000000000000000302; };
-000000000000000000000304 = {isa = PBXFileReference; lastKnownFileType = text.json; path = ITVCatalogueSeed.json; sourceTree = "<group>"; };
-000000000000000000000305 = {isa = PBXBuildFile; fileRef = 000000000000000000000304; };
-000000000000000000000310 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVLive.swift; sourceTree = "<group>"; };
-000000000000000000000311 = {isa = PBXBuildFile; fileRef = 000000000000000000000310; };
-000000000000000000000312 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVAccount.swift; sourceTree = "<group>"; };
-000000000000000000000313 = {isa = PBXBuildFile; fileRef = 000000000000000000000312; };
-000000000000000000000314 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVAccountViews.swift; sourceTree = "<group>"; };
-000000000000000000000315 = {isa = PBXBuildFile; fileRef = 000000000000000000000314; };
-000000000000000000000316 = {isa = PBXFileReference; lastKnownFileType = text.json; path = ITVLiveSeed.json; sourceTree = "<group>"; };
-000000000000000000000317 = {isa = PBXBuildFile; fileRef = 000000000000000000000316; };
-000000000000000000000320 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TellyStyle.swift; sourceTree = "<group>"; };
-000000000000000000000321 = {isa = PBXBuildFile; fileRef = 000000000000000000000320; };
-000000000000000000000340 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSubtitles.swift; sourceTree = "<group>"; };
-000000000000000000000341 = {isa = PBXBuildFile; fileRef = 000000000000000000000340; };
-000000000000000000000342 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDASH.swift; sourceTree = "<group>"; };
-000000000000000000000343 = {isa = PBXBuildFile; fileRef = 000000000000000000000342; };
-000000000000000000000344 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinVineDirectSetup.swift; sourceTree = "<group>"; };
-000000000000000000000345 = {isa = PBXBuildFile; fileRef = 000000000000000000000344; };
-000000000000000000000346 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinVineUHDProbe.swift; sourceTree = "<group>"; };
-000000000000000000000347 = {isa = PBXBuildFile; fileRef = 000000000000000000000346; };
-000000000000000000000348 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeIdentityPackage.swift; sourceTree = "<group>"; };
-000000000000000000000349 = {isa = PBXBuildFile; fileRef = 000000000000000000000348; };
-00000000000000000000034A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCatalogueStore.swift; sourceTree = "<group>"; };
-00000000000000000000034B = {isa = PBXBuildFile; fileRef = 00000000000000000000034A; };
-000000000000000000000350 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedCategories.swift; sourceTree = "<group>"; };
-000000000000000000000351 = {isa = PBXBuildFile; fileRef = 000000000000000000000350; };
-000000000000000000000352 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedCategoryViews.swift; sourceTree = "<group>"; };
-000000000000000000000353 = {isa = PBXBuildFile; fileRef = 000000000000000000000352; };
-000000000000000000000354 = {isa = PBXFileReference; lastKnownFileType = text.json; path = BBCGenreSeed.json; sourceTree = "<group>"; };
-000000000000000000000355 = {isa = PBXBuildFile; fileRef = 000000000000000000000354; };
 /* Begin PBXBuildFile section */
 		0000000000000000000000C8 /* TellyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000003E8 /* TellyApp.swift */; };
 		0000000000000000000000C9 /* BBCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000003E9 /* BBCService.swift */; };
 		0000000000000000000000CA /* Playback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000003EA /* Playback.swift */; };
+		0000000000000000000001F4 /* Catalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000190 /* Catalogue.swift */; };
+		0000000000000000000001F5 /* CatalogueStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000191 /* CatalogueStore.swift */; };
+		0000000000000000000001F6 /* CatalogueViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000192 /* CatalogueViews.swift */; };
+		0000000000000000000001F7 /* Discovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000193 /* Discovery.swift */; };
+		0000000000000000000001F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000194 /* Assets.xcassets */; };
+		0000000000000000000001F9 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000195 /* Library.swift */; };
+		0000000000000000000001FA /* UHDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000196 /* UHDService.swift */; };
+		0000000000000000000001FB /* DASHManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000197 /* DASHManifest.swift */; };
+		0000000000000000000001FC /* LocalHLSServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000198 /* LocalHLSServer.swift */; };
+		0000000000000000000001FD /* UHDIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000199 /* UHDIdentity.swift */; };
+		0000000000000000000001FE /* UHDPlaybackAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000019A /* UHDPlaybackAccess.swift */; };
+		0000000000000000000001FF /* UHDSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000019B /* UHDSetupView.swift */; };
+		000000000000000000000200 /* UHDValidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000019C /* UHDValidationView.swift */; };
+		000000000000000000000201 /* FMP4Normalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000019D /* FMP4Normalizer.swift */; };
+		000000000000000000000202 /* PlaybackPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000019E /* PlaybackPolicy.swift */; };
+		000000000000000000000203 /* WatchHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000019F /* WatchHistory.swift */; };
+		000000000000000000000204 /* ContinueWatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000001A0 /* ContinueWatching.swift */; };
+		000000000000000000000205 /* PlaybackExtras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000001A1 /* PlaybackExtras.swift */; };
+		000000000000000000000206 /* CatalogueIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000001A2 /* CatalogueIndex.swift */; };
+		000000000000000000000207 /* CatalogueIndexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000001A3 /* CatalogueIndexStore.swift */; };
+		000000000000000000000208 /* CatalogueSearchViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000001A4 /* CatalogueSearchViews.swift */; };
+		000000000000000000000209 /* CatalogueSeed.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000001A5 /* CatalogueSeed.plist */; };
+		0000000000000000000002F1 /* ITVPlaybackTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000002F0 /* ITVPlaybackTest.swift */; };
+		000000000000000000000301 /* ITVCatalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000300 /* ITVCatalogue.swift */; };
+		000000000000000000000303 /* ITVCatalogueViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000302 /* ITVCatalogueViews.swift */; };
+		000000000000000000000305 /* ITVCatalogueSeed.json in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000304 /* ITVCatalogueSeed.json */; };
+		000000000000000000000311 /* ITVLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000310 /* ITVLive.swift */; };
+		000000000000000000000313 /* ITVAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000312 /* ITVAccount.swift */; };
+		000000000000000000000315 /* ITVAccountViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000314 /* ITVAccountViews.swift */; };
+		000000000000000000000317 /* ITVLiveSeed.json in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000316 /* ITVLiveSeed.json */; };
+		000000000000000000000321 /* TellyStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000320 /* TellyStyle.swift */; };
+		000000000000000000000341 /* LiveSubtitles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000340 /* LiveSubtitles.swift */; };
+		000000000000000000000343 /* LiveDASH.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000342 /* LiveDASH.swift */; };
+		000000000000000000000345 /* TwinVineDirectSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000344 /* TwinVineDirectSetup.swift */; };
+		000000000000000000000347 /* TwinVineUHDProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000346 /* TwinVineUHDProbe.swift */; };
+		000000000000000000000349 /* NativeIdentityPackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000348 /* NativeIdentityPackage.swift */; };
+		00000000000000000000034B /* ContinuousCatalogueStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000034A /* ContinuousCatalogueStore.swift */; };
+		000000000000000000000351 /* UnifiedCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000350 /* UnifiedCategories.swift */; };
+		000000000000000000000353 /* UnifiedCategoryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000352 /* UnifiedCategoryViews.swift */; };
+		000000000000000000000355 /* BBCGenreSeed.json in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000354 /* BBCGenreSeed.json */; };
+		0000000000000000000F0002 /* Profiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0001 /* Profiles.swift */; };
+		0000000000000000000F0004 /* ProfilesUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0003 /* ProfilesUI.swift */; };
+		0000000000000000000F0006 /* ChannelGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0005 /* ChannelGuide.swift */; };
+		0000000000000000000F0008 /* ChannelGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0007 /* ChannelGuideView.swift */; };
+		0000000000000000000F0010 /* FavouriteChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000000000000000000F0009 /* FavouriteChannels.swift */; };
+		A60000000000000000000001 /* UCatalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000000 /* UCatalogue.swift */; };
+		A60000000000000000000003 /* UViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000002 /* UViews.swift */; };
+		A60000000000000000000005 /* USeed.json in Resources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000004 /* USeed.json */; };
+		A60000000000000000000007 /* UCategorySeed.json in Resources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000006 /* UCategorySeed.json */; };
+		A70000000000000000000001 /* UService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000000 /* UService.swift */; };
+		A70000000000000000000003 /* UAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000002 /* UAccount.swift */; };
+		A70000000000000000000005 /* UPlayback.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000004 /* UPlayback.swift */; };
+		A70000000000000000000007 /* UAccountViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000006 /* UAccountViews.swift */; };
+		C40000000000000000000001 /* Channel4Playback.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000000000000000000000 /* Channel4Playback.swift */; };
+		C40000000000000000000003 /* Channel4Catalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000000000000000000002 /* Channel4Catalogue.swift */; };
+		C40000000000000000000005 /* Channel4Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000000000000000000004 /* Channel4Views.swift */; };
+		C40000000000000000000007 /* Channel4Seed.json in Resources */ = {isa = PBXBuildFile; fileRef = C40000000000000000000006 /* Channel4Seed.json */; };
+		C50000000000000000000001 /* Channel5Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50000000000000000000000 /* Channel5Service.swift */; };
+		C50000000000000000000003 /* Channel5Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50000000000000000000002 /* Channel5Account.swift */; };
+		C50000000000000000000005 /* Channel5Catalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50000000000000000000004 /* Channel5Catalogue.swift */; };
+		C50000000000000000000007 /* Channel5Playback.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50000000000000000000006 /* Channel5Playback.swift */; };
+		C50000000000000000000009 /* Channel5Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50000000000000000000008 /* Channel5Views.swift */; };
+		C5000000000000000000000B /* Channel5Seed.json in Resources */ = {isa = PBXBuildFile; fileRef = C5000000000000000000000A /* Channel5Seed.json */; };
+		C50000000000000000000021 /* CatalogueSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50000000000000000000020 /* CatalogueSearchModel.swift */; };
+		C50000000000000000000023 /* ProgrammeArtworkLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50000000000000000000022 /* ProgrammeArtworkLoader.swift */; };
+		F00000000000000000000002 /* FeaturedCatalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000001 /* FeaturedCatalogue.swift */; };
+		F10000000000000000000006 /* Shared/LiveChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* Shared/LiveChannels.swift */; };
+		F10000000000000000000007 /* Shared/LiveChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* Shared/LiveChannels.swift */; };
+		F10000000000000000000008 /* ContentProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000002 /* ContentProvider.swift */; };
+		F10000000000000000000009 /* TellyTopShelf.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F10000000000000000000004 /* TellyTopShelf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
-		F10000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/LiveChannels.swift; sourceTree = "<group>";};
-		F10000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentProvider.swift; sourceTree = "<group>";};
-		F10000000000000000000003 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>";};
-		F10000000000000000000004 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = TellyTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR;};
-		F10000000000000000000005 = {isa = PBXGroup; children = (F10000000000000000000002, F10000000000000000000003); path = TopShelf; sourceTree = "<group>";};
-		F10000000000000000000006 = {isa = PBXBuildFile; fileRef = F10000000000000000000001;};
-		F10000000000000000000007 = {isa = PBXBuildFile; fileRef = F10000000000000000000001;};
-		F10000000000000000000008 = {isa = PBXBuildFile; fileRef = F10000000000000000000002;};
-		F10000000000000000000009 = {isa = PBXBuildFile; fileRef = F10000000000000000000004; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, );};};
-		F1000000000000000000000A = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (F10000000000000000000007, F10000000000000000000008); runOnlyForDeploymentPostprocessing = 0;};
-		F1000000000000000000000B = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;};
-		F1000000000000000000000C = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;};
-		F1000000000000000000000D = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (F10000000000000000000009); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0;};
-		F1000000000000000000000E = {isa = PBXContainerItemProxy; containerPortal = 000000000000000000000001; proxyType = 1; remoteGlobalIDString = F10000000000000000000010; remoteInfo = TellyTopShelf;};
-		F1000000000000000000000F = {isa = PBXTargetDependency; target = F10000000000000000000010; targetProxy = F1000000000000000000000E;};
-		F10000000000000000000010 = {isa = PBXNativeTarget; name = TellyTopShelf; productName = TellyTopShelf; productReference = F10000000000000000000004; productType = "com.apple.product-type.app-extension"; buildConfigurationList = F10000000000000000000011; buildPhases = (F1000000000000000000000A, F1000000000000000000000B, F1000000000000000000000C); dependencies = (); buildRules = ();};
-		F10000000000000000000011 = {isa = XCConfigurationList; buildConfigurations = (F10000000000000000000012, F10000000000000000000013); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
-		F10000000000000000000012 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {
-                APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.1; CURRENT_PROJECT_VERSION = 40; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone";};};
-		F10000000000000000000013 = {isa = XCBuildConfiguration; name = Release; buildSettings = {
-                APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = TopShelf/Info.plist; CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements; PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = appletvos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "appletvos appletvsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 3; TVOS_DEPLOYMENT_TARGET = 17.0; MARKETING_VERSION = 0.8.1; CURRENT_PROJECT_VERSION = 40; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";};};
+/* Begin PBXContainerItemProxy section */
+		F1000000000000000000000E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F10000000000000000000010;
+			remoteInfo = TellyTopShelf;
+		};
+/* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F1000000000000000000000D /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F10000000000000000000009 /* TellyTopShelf.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-A70000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UService.swift; sourceTree = "<group>"; };
-A70000000000000000000001 = {isa = PBXBuildFile; fileRef = A70000000000000000000000; };
-A70000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAccount.swift; sourceTree = "<group>"; };
-A70000000000000000000003 = {isa = PBXBuildFile; fileRef = A70000000000000000000002; };
-A70000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UPlayback.swift; sourceTree = "<group>"; };
-A70000000000000000000005 = {isa = PBXBuildFile; fileRef = A70000000000000000000004; };
-A70000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAccountViews.swift; sourceTree = "<group>"; };
-A70000000000000000000007 = {isa = PBXBuildFile; fileRef = A70000000000000000000006; };
-
-A60000000000000000000000 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCatalogue.swift; sourceTree = "<group>"; };
-A60000000000000000000001 = {isa = PBXBuildFile; fileRef = A60000000000000000000000; };
-A60000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UViews.swift; sourceTree = "<group>"; };
-A60000000000000000000003 = {isa = PBXBuildFile; fileRef = A60000000000000000000002; };
-A60000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = text.json; path = USeed.json; sourceTree = "<group>"; };
-A60000000000000000000005 = {isa = PBXBuildFile; fileRef = A60000000000000000000004; };
-A60000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = text.json; path = UCategorySeed.json; sourceTree = "<group>"; };
-A60000000000000000000007 = {isa = PBXBuildFile; fileRef = A60000000000000000000006; };
-
 		000000000000000000000006 /* Telly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Telly.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000190 /* Catalogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Catalogue.swift; sourceTree = "<group>"; };
+		000000000000000000000191 /* CatalogueStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueStore.swift; sourceTree = "<group>"; };
+		000000000000000000000192 /* CatalogueViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueViews.swift; sourceTree = "<group>"; };
+		000000000000000000000193 /* Discovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Discovery.swift; sourceTree = "<group>"; };
+		000000000000000000000194 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		000000000000000000000195 /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
+		000000000000000000000196 /* UHDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDService.swift; sourceTree = "<group>"; };
+		000000000000000000000197 /* DASHManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DASHManifest.swift; sourceTree = "<group>"; };
+		000000000000000000000198 /* LocalHLSServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalHLSServer.swift; sourceTree = "<group>"; };
+		000000000000000000000199 /* UHDIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDIdentity.swift; sourceTree = "<group>"; };
+		00000000000000000000019A /* UHDPlaybackAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDPlaybackAccess.swift; sourceTree = "<group>"; };
+		00000000000000000000019B /* UHDSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDSetupView.swift; sourceTree = "<group>"; };
+		00000000000000000000019C /* UHDValidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UHDValidationView.swift; sourceTree = "<group>"; };
+		00000000000000000000019D /* FMP4Normalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMP4Normalizer.swift; sourceTree = "<group>"; };
+		00000000000000000000019E /* PlaybackPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPolicy.swift; sourceTree = "<group>"; };
+		00000000000000000000019F /* WatchHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHistory.swift; sourceTree = "<group>"; };
+		0000000000000000000001A0 /* ContinueWatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinueWatching.swift; sourceTree = "<group>"; };
+		0000000000000000000001A1 /* PlaybackExtras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackExtras.swift; sourceTree = "<group>"; };
+		0000000000000000000001A2 /* CatalogueIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueIndex.swift; sourceTree = "<group>"; };
+		0000000000000000000001A3 /* CatalogueIndexStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueIndexStore.swift; sourceTree = "<group>"; };
+		0000000000000000000001A4 /* CatalogueSearchViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueSearchViews.swift; sourceTree = "<group>"; };
+		0000000000000000000001A5 /* CatalogueSeed.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CatalogueSeed.plist; sourceTree = "<group>"; };
+		0000000000000000000002F0 /* ITVPlaybackTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVPlaybackTest.swift; sourceTree = "<group>"; };
+		000000000000000000000300 /* ITVCatalogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVCatalogue.swift; sourceTree = "<group>"; };
+		000000000000000000000302 /* ITVCatalogueViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVCatalogueViews.swift; sourceTree = "<group>"; };
+		000000000000000000000304 /* ITVCatalogueSeed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ITVCatalogueSeed.json; sourceTree = "<group>"; };
+		000000000000000000000310 /* ITVLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVLive.swift; sourceTree = "<group>"; };
+		000000000000000000000312 /* ITVAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVAccount.swift; sourceTree = "<group>"; };
+		000000000000000000000314 /* ITVAccountViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITVAccountViews.swift; sourceTree = "<group>"; };
+		000000000000000000000316 /* ITVLiveSeed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ITVLiveSeed.json; sourceTree = "<group>"; };
+		000000000000000000000320 /* TellyStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TellyStyle.swift; sourceTree = "<group>"; };
+		000000000000000000000340 /* LiveSubtitles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSubtitles.swift; sourceTree = "<group>"; };
+		000000000000000000000342 /* LiveDASH.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDASH.swift; sourceTree = "<group>"; };
+		000000000000000000000344 /* TwinVineDirectSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinVineDirectSetup.swift; sourceTree = "<group>"; };
+		000000000000000000000346 /* TwinVineUHDProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinVineUHDProbe.swift; sourceTree = "<group>"; };
+		000000000000000000000348 /* NativeIdentityPackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeIdentityPackage.swift; sourceTree = "<group>"; };
+		00000000000000000000034A /* ContinuousCatalogueStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCatalogueStore.swift; sourceTree = "<group>"; };
+		000000000000000000000350 /* UnifiedCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedCategories.swift; sourceTree = "<group>"; };
+		000000000000000000000352 /* UnifiedCategoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedCategoryViews.swift; sourceTree = "<group>"; };
+		000000000000000000000354 /* BBCGenreSeed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = BBCGenreSeed.json; sourceTree = "<group>"; };
 		0000000000000000000003E8 /* TellyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TellyApp.swift; sourceTree = "<group>"; };
 		0000000000000000000003E9 /* BBCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBCService.swift; sourceTree = "<group>"; };
 		0000000000000000000003EA /* Playback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playback.swift; sourceTree = "<group>"; };
+		0000000000000000000F0001 /* Profiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profiles.swift; sourceTree = "<group>"; };
+		0000000000000000000F0003 /* ProfilesUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesUI.swift; sourceTree = "<group>"; };
+		0000000000000000000F0005 /* ChannelGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuide.swift; sourceTree = "<group>"; };
+		0000000000000000000F0007 /* ChannelGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGuideView.swift; sourceTree = "<group>"; };
+		0000000000000000000F0009 /* FavouriteChannels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteChannels.swift; sourceTree = "<group>"; };
+		A60000000000000000000000 /* UCatalogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCatalogue.swift; sourceTree = "<group>"; };
+		A60000000000000000000002 /* UViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UViews.swift; sourceTree = "<group>"; };
+		A60000000000000000000004 /* USeed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = USeed.json; sourceTree = "<group>"; };
+		A60000000000000000000006 /* UCategorySeed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UCategorySeed.json; sourceTree = "<group>"; };
+		A70000000000000000000000 /* UService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UService.swift; sourceTree = "<group>"; };
+		A70000000000000000000002 /* UAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAccount.swift; sourceTree = "<group>"; };
+		A70000000000000000000004 /* UPlayback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UPlayback.swift; sourceTree = "<group>"; };
+		A70000000000000000000006 /* UAccountViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAccountViews.swift; sourceTree = "<group>"; };
+		C40000000000000000000000 /* Channel4Playback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Playback.swift; sourceTree = "<group>"; };
+		C40000000000000000000002 /* Channel4Catalogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Catalogue.swift; sourceTree = "<group>"; };
+		C40000000000000000000004 /* Channel4Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel4Views.swift; sourceTree = "<group>"; };
+		C40000000000000000000006 /* Channel4Seed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Channel4Seed.json; sourceTree = "<group>"; };
+		C50000000000000000000000 /* Channel5Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Service.swift; sourceTree = "<group>"; };
+		C50000000000000000000002 /* Channel5Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Account.swift; sourceTree = "<group>"; };
+		C50000000000000000000004 /* Channel5Catalogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Catalogue.swift; sourceTree = "<group>"; };
+		C50000000000000000000006 /* Channel5Playback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Playback.swift; sourceTree = "<group>"; };
+		C50000000000000000000008 /* Channel5Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel5Views.swift; sourceTree = "<group>"; };
+		C5000000000000000000000A /* Channel5Seed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Channel5Seed.json; sourceTree = "<group>"; };
+		C50000000000000000000020 /* CatalogueSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueSearchModel.swift; sourceTree = "<group>"; };
+		C50000000000000000000022 /* ProgrammeArtworkLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammeArtworkLoader.swift; sourceTree = "<group>"; };
+		F00000000000000000000001 /* FeaturedCatalogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedCatalogue.swift; sourceTree = "<group>"; };
+		F10000000000000000000001 /* Shared/LiveChannels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/LiveChannels.swift; sourceTree = "<group>"; };
+		F10000000000000000000002 /* ContentProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentProvider.swift; sourceTree = "<group>"; };
+		F10000000000000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F10000000000000000000004 /* TellyTopShelf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = TellyTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		000000000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F1000000000000000000000B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -192,7 +205,8 @@ A60000000000000000000007 = {isa = PBXBuildFile; fileRef = A600000000000000000000
 			isa = PBXGroup;
 			children = (
 				000000000000000000000003 /* Telly */,
-F10000000000000000000001, F10000000000000000000005,
+				F10000000000000000000001 /* Shared/LiveChannels.swift */,
+				F10000000000000000000005 /* TopShelf */,
 				000000000000000000000004 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -200,52 +214,73 @@ F10000000000000000000001, F10000000000000000000005,
 		000000000000000000000003 /* Telly */ = {
 			isa = PBXGroup;
 			children = (
-000000000000000000000320,
-000000000000000000000310,
-000000000000000000000312,
-000000000000000000000314,
-000000000000000000000316,
-000000000000000000000304,
-000000000000000000000302,
-000000000000000000000300,
-0000000000000000000002F0,
-                0000000000000000000001A2,
-                0000000000000000000001A3,
-                0000000000000000000001A4,
-                0000000000000000000001A5,
-                000000000000000000000190,
-                000000000000000000000193,
-                000000000000000000000195,
-                000000000000000000000196,
-                00000000000000000000019F,
-                0000000000000000000F0001,
-                0000000000000000000F0003,
-                0000000000000000000F0009,
-                0000000000000000000F0005,
-                0000000000000000000F0007,
-                0000000000000000000001A1,
-0000000000000000000001A0,
-                00000000000000000000019E,
-                00000000000000000000019D,
-                00000000000000000000019C,
-                00000000000000000000019B,
-                00000000000000000000019A,
-                000000000000000000000199,
-                000000000000000000000198,
-                000000000000000000000197,
-                000000000000000000000194,
-                000000000000000000000191,
-                000000000000000000000192,
+				000000000000000000000320 /* TellyStyle.swift */,
+				000000000000000000000310 /* ITVLive.swift */,
+				000000000000000000000312 /* ITVAccount.swift */,
+				000000000000000000000314 /* ITVAccountViews.swift */,
+				000000000000000000000316 /* ITVLiveSeed.json */,
+				000000000000000000000304 /* ITVCatalogueSeed.json */,
+				000000000000000000000302 /* ITVCatalogueViews.swift */,
+				000000000000000000000300 /* ITVCatalogue.swift */,
+				0000000000000000000002F0 /* ITVPlaybackTest.swift */,
+				0000000000000000000001A2 /* CatalogueIndex.swift */,
+				0000000000000000000001A3 /* CatalogueIndexStore.swift */,
+				0000000000000000000001A4 /* CatalogueSearchViews.swift */,
+				0000000000000000000001A5 /* CatalogueSeed.plist */,
+				000000000000000000000190 /* Catalogue.swift */,
+				000000000000000000000193 /* Discovery.swift */,
+				000000000000000000000195 /* Library.swift */,
+				000000000000000000000196 /* UHDService.swift */,
+				00000000000000000000019F /* WatchHistory.swift */,
+				0000000000000000000F0007 /* ChannelGuideView.swift */,
+				0000000000000000000F0005 /* ChannelGuide.swift */,
+				0000000000000000000F0009 /* FavouriteChannels.swift */,
+				0000000000000000000F0003 /* ProfilesUI.swift */,
+				0000000000000000000F0001 /* Profiles.swift */,
+				0000000000000000000001A1 /* PlaybackExtras.swift */,
+				0000000000000000000001A0 /* ContinueWatching.swift */,
+				00000000000000000000019E /* PlaybackPolicy.swift */,
+				00000000000000000000019D /* FMP4Normalizer.swift */,
+				00000000000000000000019C /* UHDValidationView.swift */,
+				00000000000000000000019B /* UHDSetupView.swift */,
+				00000000000000000000019A /* UHDPlaybackAccess.swift */,
+				000000000000000000000199 /* UHDIdentity.swift */,
+				000000000000000000000198 /* LocalHLSServer.swift */,
+				000000000000000000000197 /* DASHManifest.swift */,
+				000000000000000000000194 /* Assets.xcassets */,
+				000000000000000000000191 /* CatalogueStore.swift */,
+				000000000000000000000192 /* CatalogueViews.swift */,
 				0000000000000000000003E8 /* TellyApp.swift */,
-000000000000000000000354,
-000000000000000000000350,
-A60000000000000000000000,A60000000000000000000002,A60000000000000000000004,A60000000000000000000006,A70000000000000000000000,A70000000000000000000002,A70000000000000000000004,A70000000000000000000006,C40000000000000000000000,C50000000000000000000020, F00000000000000000000001,C50000000000000000000022,C50000000000000000000000,C50000000000000000000002,C50000000000000000000004,C50000000000000000000006,C50000000000000000000008,C5000000000000000000000A,C40000000000000000000002,C40000000000000000000004,C40000000000000000000006,000000000000000000000352,
-00000000000000000000034A,
-000000000000000000000340,
-000000000000000000000342,
-000000000000000000000344,
-000000000000000000000346,
-000000000000000000000348,
+				000000000000000000000354 /* BBCGenreSeed.json */,
+				000000000000000000000350 /* UnifiedCategories.swift */,
+				A60000000000000000000000 /* UCatalogue.swift */,
+				A60000000000000000000002 /* UViews.swift */,
+				A60000000000000000000004 /* USeed.json */,
+				A60000000000000000000006 /* UCategorySeed.json */,
+				A70000000000000000000000 /* UService.swift */,
+				A70000000000000000000002 /* UAccount.swift */,
+				A70000000000000000000004 /* UPlayback.swift */,
+				A70000000000000000000006 /* UAccountViews.swift */,
+				C40000000000000000000000 /* Channel4Playback.swift */,
+				C50000000000000000000020 /* CatalogueSearchModel.swift */,
+				F00000000000000000000001 /* FeaturedCatalogue.swift */,
+				C50000000000000000000022 /* ProgrammeArtworkLoader.swift */,
+				C50000000000000000000000 /* Channel5Service.swift */,
+				C50000000000000000000002 /* Channel5Account.swift */,
+				C50000000000000000000004 /* Channel5Catalogue.swift */,
+				C50000000000000000000006 /* Channel5Playback.swift */,
+				C50000000000000000000008 /* Channel5Views.swift */,
+				C5000000000000000000000A /* Channel5Seed.json */,
+				C40000000000000000000002 /* Channel4Catalogue.swift */,
+				C40000000000000000000004 /* Channel4Views.swift */,
+				C40000000000000000000006 /* Channel4Seed.json */,
+				000000000000000000000352 /* UnifiedCategoryViews.swift */,
+				00000000000000000000034A /* ContinuousCatalogueStore.swift */,
+				000000000000000000000340 /* LiveSubtitles.swift */,
+				000000000000000000000342 /* LiveDASH.swift */,
+				000000000000000000000344 /* TwinVineDirectSetup.swift */,
+				000000000000000000000346 /* TwinVineUHDProbe.swift */,
+				000000000000000000000348 /* NativeIdentityPackage.swift */,
 				0000000000000000000003E9 /* BBCService.swift */,
 				0000000000000000000003EA /* Playback.swift */,
 			);
@@ -256,9 +291,18 @@ A60000000000000000000000,A60000000000000000000002,A60000000000000000000004,A6000
 			isa = PBXGroup;
 			children = (
 				000000000000000000000006 /* Telly.app */,
-F10000000000000000000004,
+				F10000000000000000000004 /* TellyTopShelf.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F10000000000000000000005 /* TopShelf */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000002 /* ContentProvider.swift */,
+				F10000000000000000000003 /* Info.plist */,
+			);
+			path = TopShelf;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -271,17 +315,34 @@ F10000000000000000000004,
 				000000000000000000000007 /* Sources */,
 				000000000000000000000008 /* Frameworks */,
 				000000000000000000000009 /* Resources */,
-F1000000000000000000000D,
+				F1000000000000000000000D /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-F1000000000000000000000F,
+				F1000000000000000000000F /* PBXTargetDependency */,
 			);
 			name = Telly;
 			productName = Telly;
 			productReference = 000000000000000000000006 /* Telly.app */;
 			productType = "com.apple.product-type.application";
+		};
+		F10000000000000000000010 /* TellyTopShelf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000011 /* Build configuration list for PBXNativeTarget "TellyTopShelf" */;
+			buildPhases = (
+				F1000000000000000000000A /* Sources */,
+				F1000000000000000000000B /* Frameworks */,
+				F1000000000000000000000C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TellyTopShelf;
+			productName = TellyTopShelf;
+			productReference = F10000000000000000000004 /* TellyTopShelf.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -305,7 +366,7 @@ F1000000000000000000000F,
 			projectRoot = "";
 			targets = (
 				000000000000000000000005 /* Telly */,
-F10000000000000000000010,
+				F10000000000000000000010 /* TellyTopShelf */,
 			);
 		};
 /* End PBXProject section */
@@ -315,11 +376,22 @@ F10000000000000000000010,
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-000000000000000000000317,
-A60000000000000000000005,A60000000000000000000007,C40000000000000000000007,C5000000000000000000000B,000000000000000000000355,
-000000000000000000000305,
-                000000000000000000000209,
-                0000000000000000000001F8,
+				000000000000000000000317 /* ITVLiveSeed.json in Resources */,
+				A60000000000000000000005 /* USeed.json in Resources */,
+				A60000000000000000000007 /* UCategorySeed.json in Resources */,
+				C40000000000000000000007 /* Channel4Seed.json in Resources */,
+				C5000000000000000000000B /* Channel5Seed.json in Resources */,
+				000000000000000000000355 /* BBCGenreSeed.json in Resources */,
+				000000000000000000000305 /* ITVCatalogueSeed.json in Resources */,
+				000000000000000000000209 /* CatalogueSeed.plist in Resources */,
+				0000000000000000000001F8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F1000000000000000000000C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,65 +402,98 @@ A60000000000000000000005,A60000000000000000000007,C40000000000000000000007,C5000
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-000000000000000000000321,
-000000000000000000000311,
-000000000000000000000313,
-000000000000000000000315,
-000000000000000000000303,
-000000000000000000000301,
-0000000000000000000002F1,
-                0000000000000000000001F4,
-                0000000000000000000001F7,
-                0000000000000000000001F9,
-                0000000000000000000001FA,
-                000000000000000000000203,
-                0000000000000000000F0002,
-                0000000000000000000F0004,
-                0000000000000000000F0010,
-                0000000000000000000F0006,
-                0000000000000000000F0008,
-                000000000000000000000206,
-                000000000000000000000207,
-                000000000000000000000208,
-                000000000000000000000205,
-000000000000000000000204,
-                000000000000000000000202,
-                000000000000000000000201,
-                000000000000000000000200,
-                0000000000000000000001FF,
-                0000000000000000000001FE,
-                0000000000000000000001FD,
-                0000000000000000000001FC,
-                0000000000000000000001FB,
-                0000000000000000000001F5,
-                0000000000000000000001F6,
+				000000000000000000000321 /* TellyStyle.swift in Sources */,
+				000000000000000000000311 /* ITVLive.swift in Sources */,
+				000000000000000000000313 /* ITVAccount.swift in Sources */,
+				000000000000000000000315 /* ITVAccountViews.swift in Sources */,
+				000000000000000000000303 /* ITVCatalogueViews.swift in Sources */,
+				000000000000000000000301 /* ITVCatalogue.swift in Sources */,
+				0000000000000000000002F1 /* ITVPlaybackTest.swift in Sources */,
+				0000000000000000000001F4 /* Catalogue.swift in Sources */,
+				0000000000000000000001F7 /* Discovery.swift in Sources */,
+				0000000000000000000001F9 /* Library.swift in Sources */,
+				0000000000000000000001FA /* UHDService.swift in Sources */,
+				000000000000000000000203 /* WatchHistory.swift in Sources */,
+				0000000000000000000F0008 /* ChannelGuideView.swift in Sources */,
+				0000000000000000000F0006 /* ChannelGuide.swift in Sources */,
+				0000000000000000000F0010 /* FavouriteChannels.swift in Sources */,
+				0000000000000000000F0004 /* ProfilesUI.swift in Sources */,
+				0000000000000000000F0002 /* Profiles.swift in Sources */,
+				000000000000000000000206 /* CatalogueIndex.swift in Sources */,
+				000000000000000000000207 /* CatalogueIndexStore.swift in Sources */,
+				000000000000000000000208 /* CatalogueSearchViews.swift in Sources */,
+				000000000000000000000205 /* PlaybackExtras.swift in Sources */,
+				000000000000000000000204 /* ContinueWatching.swift in Sources */,
+				000000000000000000000202 /* PlaybackPolicy.swift in Sources */,
+				000000000000000000000201 /* FMP4Normalizer.swift in Sources */,
+				000000000000000000000200 /* UHDValidationView.swift in Sources */,
+				0000000000000000000001FF /* UHDSetupView.swift in Sources */,
+				0000000000000000000001FE /* UHDPlaybackAccess.swift in Sources */,
+				0000000000000000000001FD /* UHDIdentity.swift in Sources */,
+				0000000000000000000001FC /* LocalHLSServer.swift in Sources */,
+				0000000000000000000001FB /* DASHManifest.swift in Sources */,
+				0000000000000000000001F5 /* CatalogueStore.swift in Sources */,
+				0000000000000000000001F6 /* CatalogueViews.swift in Sources */,
 				0000000000000000000000C8 /* TellyApp.swift in Sources */,
-000000000000000000000351,
-A60000000000000000000001,A60000000000000000000003,A70000000000000000000001,A70000000000000000000003,A70000000000000000000005,A70000000000000000000007,C40000000000000000000001,C50000000000000000000021, F00000000000000000000002,C50000000000000000000023,C50000000000000000000001,C50000000000000000000003,C50000000000000000000005,C50000000000000000000007,C50000000000000000000009,C40000000000000000000003,C40000000000000000000005,000000000000000000000353,
-F10000000000000000000006,
-00000000000000000000034B,
-000000000000000000000341,
-000000000000000000000343,
-000000000000000000000345,
-000000000000000000000347,
-000000000000000000000349,
+				000000000000000000000351 /* UnifiedCategories.swift in Sources */,
+				A60000000000000000000001 /* UCatalogue.swift in Sources */,
+				A60000000000000000000003 /* UViews.swift in Sources */,
+				A70000000000000000000001 /* UService.swift in Sources */,
+				A70000000000000000000003 /* UAccount.swift in Sources */,
+				A70000000000000000000005 /* UPlayback.swift in Sources */,
+				A70000000000000000000007 /* UAccountViews.swift in Sources */,
+				C40000000000000000000001 /* Channel4Playback.swift in Sources */,
+				C50000000000000000000021 /* CatalogueSearchModel.swift in Sources */,
+				F00000000000000000000002 /* FeaturedCatalogue.swift in Sources */,
+				C50000000000000000000023 /* ProgrammeArtworkLoader.swift in Sources */,
+				C50000000000000000000001 /* Channel5Service.swift in Sources */,
+				C50000000000000000000003 /* Channel5Account.swift in Sources */,
+				C50000000000000000000005 /* Channel5Catalogue.swift in Sources */,
+				C50000000000000000000007 /* Channel5Playback.swift in Sources */,
+				C50000000000000000000009 /* Channel5Views.swift in Sources */,
+				C40000000000000000000003 /* Channel4Catalogue.swift in Sources */,
+				C40000000000000000000005 /* Channel4Views.swift in Sources */,
+				000000000000000000000353 /* UnifiedCategoryViews.swift in Sources */,
+				F10000000000000000000006 /* Shared/LiveChannels.swift in Sources */,
+				00000000000000000000034B /* ContinuousCatalogueStore.swift in Sources */,
+				000000000000000000000341 /* LiveSubtitles.swift in Sources */,
+				000000000000000000000343 /* LiveDASH.swift in Sources */,
+				000000000000000000000345 /* TwinVineDirectSetup.swift in Sources */,
+				000000000000000000000347 /* TwinVineUHDProbe.swift in Sources */,
+				000000000000000000000349 /* NativeIdentityPackage.swift in Sources */,
 				0000000000000000000000C9 /* BBCService.swift in Sources */,
 				0000000000000000000000CA /* Playback.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F1000000000000000000000A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F10000000000000000000007 /* Shared/LiveChannels.swift in Sources */,
+				F10000000000000000000008 /* ContentProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F1000000000000000000000F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F10000000000000000000010 /* TellyTopShelf */;
+			targetProxy = F1000000000000000000000E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		000000000000000000000065 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;
 				CLANG_ENABLE_MODULES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				SDKROOT = appletvos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-                SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 17.0;
 			};
@@ -397,7 +502,6 @@ F10000000000000000000006,
 		000000000000000000000066 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;
 				CLANG_ENABLE_MODULES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				SDKROOT = appletvos;
@@ -411,29 +515,29 @@ F10000000000000000000006,
 		00000000000000000000006F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Telly/Telly.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-                CODE_SIGN_ENTITLEMENTS = Telly/Telly.entitlements;
 				CURRENT_PROJECT_VERSION = 40;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ZYF5KSBWFG;
 				GENERATE_INFOPLIST_FILE = YES;
-                INFOPLIST_FILE = Telly/Info.plist;
-                ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_KEY_CFBundleDisplayName = "Telly";
+				INFOPLIST_FILE = Telly/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Telly;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.8.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.Telly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-                SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 17.0;
@@ -443,23 +547,23 @@ F10000000000000000000006,
 		000000000000000000000070 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Telly/Telly.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-                CODE_SIGN_ENTITLEMENTS = Telly/Telly.entitlements;
 				CURRENT_PROJECT_VERSION = 40;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ZYF5KSBWFG;
 				GENERATE_INFOPLIST_FILE = YES;
-                INFOPLIST_FILE = Telly/Info.plist;
-                ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_KEY_CFBundleDisplayName = "Telly";
+				INFOPLIST_FILE = Telly/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Telly;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.8.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.Telly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -468,6 +572,64 @@ F10000000000000000000006,
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+		F10000000000000000000012 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 40;
+				DEVELOPMENT_TEAM = ZYF5KSBWFG;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TopShelf/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.8.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		F10000000000000000000013 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 40;
+				DEVELOPMENT_TEAM = ZYF5KSBWFG;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TopShelf/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.8.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TELLY_APP_BUNDLE_IDENTIFIER).TopShelf";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TELLY_APP_BUNDLE_IDENTIFIER = com.example.Telly;
 				TVOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Release;
@@ -489,6 +651,15 @@ F10000000000000000000006,
 			buildConfigurations = (
 				00000000000000000000006F /* Debug */,
 				000000000000000000000070 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F10000000000000000000011 /* Build configuration list for PBXNativeTarget "TellyTopShelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000012 /* Debug */,
+				F10000000000000000000013 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
